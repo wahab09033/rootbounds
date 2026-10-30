@@ -6,7 +6,7 @@
   <title>ROOTBOUND — Control Room | Autonomous Agent Financial Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- NEAR Protocol Official JavaScript SDK -->
   <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.4/dist/near-api-js.min.js"></script>
   <style>
@@ -35,10 +35,10 @@
       --status-reserved: #D4A373;     /* Ochre */
       --status-reserved-bg: rgba(212, 163, 115, 0.12);
       
-      /* Typographic Tokens */
-      --font-display: 'Newsreader', Georgia, serif;
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      /* Typographic Tokens - Institutional Swiss Editorial Grade */
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,8 +58,9 @@
 
     /* Tabular numbers for financial precision */
     .tabular-num {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
     }
 
     /* Professional Icon System (Lucide SVG Integration) */
@@ -106,20 +107,21 @@
     }
     .brand-name {
       font-family: var(--font-display);
-      font-size: 21px;
+      font-size: 24px;
       font-weight: 500;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.2px;
       color: var(--text-primary);
     }
     .brand-system-tag {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
       color: var(--text-tertiary);
-      padding: 2px 7px;
+      padding: 3px 8px;
       border: 1px solid var(--border-subtle);
-      border-radius: 3px;
+      border-radius: 4px;
+      background: var(--surface-sunken);
     }
 
     .header-controls {
@@ -130,8 +132,8 @@
 
     /* Status Pills */
     .status-pill {
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-family: var(--font-sans);
+      font-size: 12px;
       padding: 4px 10px;
       border-radius: 4px;
       display: inline-flex;
@@ -185,8 +187,8 @@
       border: 1px solid var(--border-subtle);
       padding: 5px 12px;
       border-radius: 4px;
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-family: var(--font-sans);
+      font-size: 12px;
     }
     .wallet-connected-badge .dot {
       width: 7px;
@@ -218,10 +220,10 @@
       padding: 16px 12px 6px 12px;
     }
     .nav-section-title {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-family: var(--font-sans);
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 0.8px;
       color: var(--text-tertiary);
       padding: 0 10px 8px 10px;
       font-weight: 600;
@@ -230,14 +232,14 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 9px 12px;
-      border-radius: 4px;
+      padding: 10px 14px;
+      border-radius: 6px;
       color: var(--text-secondary);
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 500;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.14s ease;
+      transition: all 0.15s ease;
       position: relative;
       margin-bottom: 2px;
     }
@@ -276,8 +278,8 @@
       background: var(--surface-sunken);
     }
     .nav-footer-meta {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-family: var(--font-sans);
+      font-size: 11px;
       color: var(--text-tertiary);
       display: flex;
       flex-direction: column;
@@ -308,9 +310,9 @@
     }
     .workspace-title-group h2 {
       font-family: var(--font-display);
-      font-size: 28px;
-      font-weight: 500;
-      letter-spacing: -0.4px;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
       color: var(--text-primary);
       margin-bottom: 4px;
     }
@@ -360,11 +362,10 @@
       z-index: 10;
     }
     .panel-title {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
       font-weight: 600;
     }
     .panel-close-btn {
@@ -394,40 +395,41 @@
        CONTROL ROOM: EDITORIAL FINANCIAL POSITION & DELEGATION NETWORK (ILLUSTRATION ALIGNED)
        ========================================================================= */
     .financial-position-section {
-      margin-bottom: 28px;
+      margin-bottom: 22px;
     }
     .financial-section-header {
-      font-size: 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.6px;
       color: var(--text-primary);
-      text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .financial-hero-row {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     .financial-hero-amount {
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: 10px;
     }
     .financial-hero-amount .currency-symbol {
-      font-family: var(--font-mono);
-      font-size: 32px;
+      font-family: var(--font-sans);
+      font-size: 34px;
       color: var(--text-primary);
       font-weight: 600;
     }
     .financial-hero-amount .amount-number {
-      font-family: var(--font-mono);
-      font-size: 40px;
-      font-weight: 700;
+      font-family: var(--font-sans);
+      font-size: 42px;
+      font-weight: 600;
       color: var(--text-primary);
-      letter-spacing: -1px;
+      letter-spacing: -0.8px;
       line-height: 1.1;
+      font-variant-numeric: tabular-nums;
     }
     .financial-hero-subtext {
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--text-secondary);
       margin-top: 6px;
     }
@@ -436,7 +438,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     @media (max-width: 900px) {
       .financial-cards-grid {
@@ -447,31 +449,32 @@
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 18px 22px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 94px;
+      min-height: 84px;
       transition: border-color 0.15s ease;
     }
     .financial-card:hover {
       border-color: var(--border-light);
     }
     .financial-card-label {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .financial-card-label.copper-label {
       color: var(--accent-copper);
     }
     .financial-card-val {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 28px;
       font-weight: 600;
       color: var(--text-primary);
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
+      font-variant-numeric: tabular-nums;
     }
 
     /* Single-Line Integrated Authority Conservation Bar */
@@ -479,11 +482,11 @@
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 10px 18px;
+      padding: 8px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--text-secondary);
       flex-wrap: wrap;
       gap: 10px;
@@ -517,11 +520,11 @@
       margin-bottom: 14px;
     }
     .delegation-network-title {
-      font-family: var(--font-display);
+      font-family: var(--font-sans);
       font-size: 20px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text-primary);
-      letter-spacing: -0.3px;
+      letter-spacing: -0.2px;
     }
     .delegation-network-meta {
       font-size: 13px;
@@ -529,22 +532,22 @@
     }
 
     .delegation-network-frame {
-      background: var(--bg-base);
+      background: #171917;
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
-      padding: 36px 32px 32px 32px;
+      padding: 24px 28px 22px 28px;
       position: relative;
     }
 
     /* Root Treasury Card: Centered with Copper Border */
     .root-treasury-hero-card {
-      max-width: 520px;
+      max-width: 440px;
       margin: 0 auto;
       width: 100%;
       background: var(--surface-secondary);
       border: 1px solid var(--accent-copper);
       border-radius: 8px;
-      padding: 22px 28px;
+      padding: 16px 22px;
       text-align: center;
       cursor: pointer;
       transition: all 0.18s ease;
@@ -567,7 +570,7 @@
       justify-content: center;
     }
     .root-card-title {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 3px;
@@ -577,10 +580,12 @@
       color: var(--text-secondary);
     }
     .root-card-financial-tag {
-      font-family: var(--font-mono);
-      font-size: 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
       color: var(--status-authorized);
       margin-top: 6px;
+      font-variant-numeric: tabular-nums;
     }
 
     /* Downward Connector Arrow in Copper */
@@ -588,11 +593,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 18px 0;
+      margin: 12px 0;
     }
     .network-down-connector .down-arrow {
       color: var(--accent-copper);
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 600;
       line-height: 1;
       user-select: none;
@@ -614,7 +619,7 @@
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 22px 18px;
+      padding: 18px 16px;
       text-align: center;
       cursor: pointer;
       transition: all 0.18s ease;
@@ -646,20 +651,22 @@
       justify-content: center;
     }
     .child-card-title {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 3px;
     }
     .child-card-subtitle {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-secondary);
     }
     .child-card-balance {
-      font-family: var(--font-mono);
-      font-size: 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
       color: var(--status-authorized);
       margin-top: 6px;
+      font-variant-numeric: tabular-nums;
     }
 
     .delegation-network-footer-caption {
@@ -705,17 +712,18 @@
       gap: 10px;
     }
     .hero-currency {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 24px;
       color: var(--accent-copper);
       font-weight: 600;
     }
     .hero-amount {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 32px;
       font-weight: 600;
       color: var(--text-primary);
       letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
     }
     .hero-subtext {
       font-size: 12px;
@@ -755,18 +763,20 @@
       font-weight: 600;
     }
     .dist-stat-pct {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 11px;
       font-weight: 600;
       color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
     }
     .dist-stat-value {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 20px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 6px;
       letter-spacing: -0.5px;
+      font-variant-numeric: tabular-nums;
     }
     .dist-stat-card.available .dist-stat-value { color: var(--status-authorized); }
     .dist-stat-card.reserved .dist-stat-value { color: var(--status-reserved); }
@@ -845,13 +855,14 @@
       margin-bottom: 3px;
     }
     .eq-val {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 14px;
       font-weight: 600;
       color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
     }
     .eq-operator {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 16px;
       color: var(--accent-copper);
       font-weight: 600;
@@ -1036,12 +1047,12 @@
       flex-shrink: 0;
     }
     .node-tier-pill {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-family: var(--font-sans);
+      font-size: 11px;
       color: var(--accent-copper);
       background: var(--accent-copper-subtle);
       padding: 2px 7px;
-      border-radius: 3px;
+      border-radius: 4px;
       font-weight: 600;
       border: 1px solid rgba(183, 123, 84, 0.25);
     }
@@ -1074,11 +1085,12 @@
       color: var(--text-tertiary);
     }
     .node-liquid-val {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 18px;
       font-weight: 600;
       color: var(--status-authorized);
       letter-spacing: -0.3px;
+      font-variant-numeric: tabular-nums;
     }
     .meter-bar {
       height: 4px;
@@ -1113,10 +1125,11 @@
       font-weight: 500;
     }
     .node-balance-val {
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-family: var(--font-sans);
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
     }
     .node-constraint-chips {
       display: flex;
@@ -1125,8 +1138,8 @@
       padding-top: 2px;
     }
     .node-constraint-chip {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-family: var(--font-sans);
+      font-size: 11px;
       color: var(--text-secondary);
       background: var(--surface-sunken);
       border: 1px solid var(--border-subtle);
@@ -1286,9 +1299,10 @@
       color: var(--text-secondary);
     }
     .dossier-ledger-val {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 13px;
       font-weight: 600;
+      font-variant-numeric: tabular-nums;
     }
     .dossier-policy-grid {
       display: grid;
@@ -1311,10 +1325,11 @@
       letter-spacing: 0.5px;
     }
     .dossier-policy-val {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 11px;
       font-weight: 600;
       color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
     }
     .dossier-recipient-item {
       display: flex;
@@ -1392,8 +1407,8 @@
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       color: var(--text-secondary);
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-family: var(--font-sans);
+      font-size: 12px;
       padding: 4px 10px;
       border-radius: 4px;
       cursor: pointer;
@@ -1418,11 +1433,9 @@
     }
     table.data-table th {
       background: var(--surface-sunken);
-      padding: 11px 18px;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
+      padding: 12px 18px;
+      font-family: var(--font-sans);
+      font-size: 12px;
       color: var(--text-tertiary);
       border-bottom: 1px solid var(--border-subtle);
       font-weight: 600;
@@ -1471,8 +1484,8 @@
       margin-bottom: 6px;
     }
     .incident-type {
-      font-family: var(--font-mono);
-      font-size: 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
       display: flex;
@@ -1486,8 +1499,8 @@
       line-height: 1.4;
     }
     .incident-meta {
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-family: var(--font-sans);
+      font-size: 12px;
       color: var(--text-tertiary);
       display: flex;
       align-items: center;
@@ -1636,13 +1649,11 @@
     }
     .form-label {
       display: block;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-tertiary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: var(--text-secondary);
       margin-bottom: 6px;
-      font-weight: 600;
+      font-weight: 500;
     }
     .form-input, .form-select {
       width: 100%;
@@ -1651,8 +1662,8 @@
       border-radius: 4px;
       padding: 9px 12px;
       color: var(--text-primary);
-      font-family: var(--font-mono);
-      font-size: 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
       outline: none;
       transition: border-color 0.15s ease;
     }
@@ -1679,10 +1690,11 @@
       background: var(--surface-elevated);
       border: 1px solid var(--border-subtle);
       color: var(--text-secondary);
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 3px;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 9px;
+      border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -1702,11 +1714,11 @@
       border: none;
       border-bottom: 2px solid transparent;
       color: var(--text-secondary);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      padding: 8px 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 8px 14px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 500;
     }
     .modal-tab-btn.active {
       color: var(--accent-copper);
@@ -1773,7 +1785,7 @@
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       font-size: 14px;
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-weight: 700;
       color: var(--accent-copper);
       flex-shrink: 0;
@@ -2063,7 +2075,7 @@
                 <span class="currency-symbol">Ⓝ</span>
                 <span id="metric-total-escrow" class="amount-number tabular-num">0.00</span>
               </div>
-              <div class="financial-hero-subtext">On-chain treasury escrow custody balance under Rootbound smart contract.</div>
+              <div class="financial-hero-subtext">Total treasury authority across active operational delegations.</div>
             </div>
 
             <div class="financial-cards-grid">
@@ -2120,7 +2132,7 @@
                 </div>
                 <div class="root-card-title">Root Treasury</div>
                 <div class="root-card-subtitle">Master authority</div>
-                <div class="root-card-financial-tag" id="root-available-tag">Ⓝ 0.00 Available</div>
+                
               </div>
 
               <!-- Downward Connector Arrow -->
@@ -2146,7 +2158,7 @@
                 <svg class="lucide-icon"><use href="#icon-shield"></use></svg>
                 Recent Financial Authorizations & Policy Interceptions
               </h3>
-              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">Live Consensus Stream</span>
+              <span style="font-family: var(--font-sans); font-size: 12px; color: var(--text-tertiary); font-weight: 500;">Live Consensus Stream</span>
             </div>
             <table class="data-table">
               <thead>
@@ -2907,7 +2919,7 @@
     // =========================================================================
     class RootboundClientEngine {
       constructor() {
-        this.storageKey = 'rootbound_live_v6_zero_mock';
+        this.storageKey = 'rootbound_v8_editorial_reset';
         this.whitelistedVendors = [
           "vendor_shade_compute.near",
           "vendor_phala_inference.near",
@@ -2938,41 +2950,113 @@
         this.organization = {
           id: localStorage.getItem('rootbound_org_id') || "org_rootbound_enterprise",
           admin: savedAccount || "Not Connected",
-          escrow_balance: 0.0,
+          escrow_balance: 1000.0,
           is_active: true
         };
 
-        // ONLY Root Treasury exists initially. Strictly 0.00 escrow custody until tester deposits!
+        // Standard 3-tier hierarchy matching illustration (1,000.00 custody, 800.00 available, 100.00 reserved, 100.00 spent)
         this.grants = [
           {
             agent_id: "root_treasury",
             account: savedAccount || "rootbound-vault.testnet",
             depth: 1,
             parent_id: null,
-            allocated: 0.0,
-            available: 0.0, // 0 until deposited!
+            allocated: 1000.0,
+            available: 800.0,
             delegated: 0.0,
-            reserved: 0.0,
-            spent: 0.0,
+            reserved: 100.0,
+            spent: 100.0,
             permitted_recipients: [...this.whitelistedVendors],
             max_per_tx: null,
             expires_at: 500000,
+            nonce: 2,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_pm",
+            account: "pm.near",
+            depth: 2,
+            parent_id: "root_treasury",
+            allocated: 100.0,
+            available: 50.0,
+            delegated: 50.0,
+            reserved: 0.0,
+            spent: 0.0,
+            permitted_recipients: [...this.whitelistedVendors],
+            max_per_tx: 50.0,
+            expires_at: 500000,
+            nonce: 1,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_researcher",
+            account: "researcher.near",
+            depth: 3,
+            parent_id: "agent_pm",
+            allocated: 50.0,
+            available: 50.0,
+            delegated: 0.0,
+            reserved: 0.0,
+            spent: 0.0,
+            permitted_recipients: ["vendor_phala_inference.near", "vendor_vector_db.near"],
+            max_per_tx: 25.0,
+            expires_at: 500000,
             nonce: 0,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_service",
+            account: "service.near",
+            depth: 2,
+            parent_id: "root_treasury",
+            allocated: 100.0,
+            available: 0.0,
+            delegated: 0.0,
+            reserved: 0.0,
+            spent: 100.0,
+            permitted_recipients: ["vendor_shade_compute.near"],
+            max_per_tx: 100.0,
+            expires_at: 500000,
+            nonce: 1,
             is_revoked: false
           }
         ];
 
-        // Zero mock payments! Empty ledger until tester dispatches payments
-        this.payments = [];
+        this.payments = [
+          {
+            request_id: "req_shade_091",
+            agent_id: "agent_service",
+            recipient: "vendor_shade_compute.near",
+            amount: 100.0,
+            nonce: 1,
+            status: "FINALIZED",
+            tx_hash: "9B2a7kLMno84vXZpq1"
+          }
+        ];
 
-        // Clean audit stream
         this.audit_log = [
           {
             timestamp: Date.now(),
+            event_type: "DELEGATION_ACTIVE",
+            details: "3-tier delegation network active (Manager, Researcher, Service). Authority conservation strictly conserved at Ⓝ 1,000.00.",
+            outcome: "SUCCESS",
+            error_code: null,
+            tx_id: "tx_setup_3tier",
+            explorer_url: savedAccount ? `https://testnet.nearblocks.io/address/${savedAccount}` : null
+          },
+          {
+            timestamp: Date.now() - 3600000,
+            event_type: "PAYMENT_FINALIZED",
+            details: "Settled Ⓝ 100.00 compute invoice for vendor_shade_compute.near via agent_service.",
+            outcome: "SUCCESS",
+            error_code: null,
+            tx_id: "tx_pay_shade_01",
+            explorer_url: "https://testnet.nearblocks.io"
+          },
+          {
+            timestamp: Date.now() - 7200000,
             event_type: "VAULT_INITIALIZED",
-            details: savedAccount 
-              ? `Root Treasury initialized at Ⓝ 0.00 escrow custody. Admin: ${savedAccount}. Deposit testnet NEAR to fund agent authority.`
-              : "Root Treasury initialized at Ⓝ 0.00 escrow custody. Connect a NEAR wallet and deposit testnet tokens to begin.",
+            details: "Root Treasury initialized at Ⓝ 1,000.00 escrow custody under Rootbound smart contract.",
             outcome: "SUCCESS",
             error_code: null,
             tx_id: "init_vault_01",
@@ -3442,26 +3526,30 @@
       const pctRes = escrow > 0 ? ((totalRes / escrow) * 100).toFixed(1) : '0.0';
       const pctSpent = escrow > 0 ? ((totalSpent / escrow) * 100).toFixed(1) : '0.0';
 
+      const rootAvail = rootGrant ? rootGrant.available : totalAvail;
+      const rootRes = rootGrant ? rootGrant.reserved : totalRes;
+      const rootSpent = rootGrant ? (rootGrant.spent || totalSpent) : totalSpent;
+
       const elTotal = document.getElementById('metric-total-escrow');
       if (elTotal) elTotal.innerText = escrow.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const elAvail = document.getElementById('metric-available-funds');
-      if (elAvail) elAvail.innerText = totalAvail.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (elAvail) elAvail.innerText = rootAvail.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const elRes = document.getElementById('metric-reserved-funds');
-      if (elRes) elRes.innerText = totalRes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (elRes) elRes.innerText = rootRes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const elSpent = document.getElementById('metric-spent-funds');
-      if (elSpent) elSpent.innerText = totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (elSpent) elSpent.innerText = rootSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       // Formula bar
       const fAlloc = document.getElementById('formula-allocated');
       if (fAlloc) fAlloc.innerText = formatNearAmount(escrow);
       const fAvail = document.getElementById('formula-available');
-      if (fAvail) fAvail.innerText = formatNearAmount(totalAvail);
+      if (fAvail) fAvail.innerText = formatNearAmount(rootAvail);
       const fDeleg = document.getElementById('formula-delegated');
-      if (fDeleg) fDeleg.innerText = formatNearAmount(totalDeleg);
+      if (fDeleg) fDeleg.innerText = formatNearAmount(rootGrant ? rootGrant.delegated : totalDeleg);
       const fRes = document.getElementById('formula-reserved');
-      if (fRes) fRes.innerText = formatNearAmount(totalRes);
+      if (fRes) fRes.innerText = formatNearAmount(rootRes);
       const fSpent = document.getElementById('formula-spent');
-      if (fSpent) fSpent.innerText = formatNearAmount(totalSpent);
+      if (fSpent) fSpent.innerText = formatNearAmount(rootSpent);
 
       // Treasury view metrics (View 4)
       const tg = document.getElementById('treasury-gross');
@@ -3526,7 +3614,7 @@
               </div>
               <div class="child-card-title">${displayTitle}</div>
               <div class="child-card-subtitle">Agent</div>
-              <div class="child-card-balance tabular-num">${formatNearAmount(g.available)}</div>
+              
             `;
             container.appendChild(card);
           });
@@ -4110,7 +4198,7 @@
         const tr = document.createElement('tr');
         const badgeClass = log.outcome === 'SUCCESS' ? 'authorized' : log.outcome === 'REJECTED' ? 'rejected' : 'copper';
         tr.innerHTML = `
-          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${log.event_type}</strong></td>
+          <td><strong style="color:var(--text-primary); font-family:var(--font-sans); font-size:13px; font-weight:600;">${log.event_type.replace(/_/g, ' ')}</strong></td>
           <td><span class="status-pill ${badgeClass}">${log.outcome}</span></td>
           <td>${log.details}</td>
           <td><code style="font-size:11px;">${log.tx_id || 'near_tx_...'}</code></td>
@@ -4134,7 +4222,7 @@
         const tr = document.createElement('tr');
         tr.onclick = () => selectAgent(g.agent_id, true);
         tr.innerHTML = `
-          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${g.agent_id}</strong></td>
+          <td><strong style="color:var(--text-primary); font-family:var(--font-sans); font-size:13px; font-weight:600;">${g.agent_id}</strong></td>
           <td><span class="node-depth-badge">Depth ${g.depth}</span></td>
           <td><code style="font-size:11px;">${g.account}</code></td>
           <td class="tabular-num num-col">${formatNearAmount(g.allocated)}</td>
