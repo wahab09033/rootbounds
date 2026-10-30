@@ -2919,7 +2919,7 @@
     // =========================================================================
     class RootboundClientEngine {
       constructor() {
-        this.storageKey = 'rootbound_v8_editorial_reset';
+        this.storageKey = 'rootbound_v9_pure_realtime';
         this.whitelistedVendors = [
           "vendor_shade_compute.near",
           "vendor_phala_inference.near",
@@ -2950,113 +2950,41 @@
         this.organization = {
           id: localStorage.getItem('rootbound_org_id') || "org_rootbound_enterprise",
           admin: savedAccount || "Not Connected",
-          escrow_balance: 1000.0,
+          escrow_balance: 0.0,
           is_active: true
         };
 
-        // Standard 3-tier hierarchy matching illustration (1,000.00 custody, 800.00 available, 100.00 reserved, 100.00 spent)
+        // ZERO MOCK DATA: Pure Real-Time State Machine (0.00 escrow custody until tester deposits)
         this.grants = [
           {
             agent_id: "root_treasury",
             account: savedAccount || "rootbound-vault.testnet",
             depth: 1,
             parent_id: null,
-            allocated: 1000.0,
-            available: 800.0,
-            delegated: 0.0,
-            reserved: 100.0,
-            spent: 100.0,
-            permitted_recipients: [...this.whitelistedVendors],
-            max_per_tx: null,
-            expires_at: 500000,
-            nonce: 2,
-            is_revoked: false
-          },
-          {
-            agent_id: "agent_pm",
-            account: "pm.near",
-            depth: 2,
-            parent_id: "root_treasury",
-            allocated: 100.0,
-            available: 50.0,
-            delegated: 50.0,
-            reserved: 0.0,
-            spent: 0.0,
-            permitted_recipients: [...this.whitelistedVendors],
-            max_per_tx: 50.0,
-            expires_at: 500000,
-            nonce: 1,
-            is_revoked: false
-          },
-          {
-            agent_id: "agent_researcher",
-            account: "researcher.near",
-            depth: 3,
-            parent_id: "agent_pm",
-            allocated: 50.0,
-            available: 50.0,
-            delegated: 0.0,
-            reserved: 0.0,
-            spent: 0.0,
-            permitted_recipients: ["vendor_phala_inference.near", "vendor_vector_db.near"],
-            max_per_tx: 25.0,
-            expires_at: 500000,
-            nonce: 0,
-            is_revoked: false
-          },
-          {
-            agent_id: "agent_service",
-            account: "service.near",
-            depth: 2,
-            parent_id: "root_treasury",
-            allocated: 100.0,
+            allocated: 0.0,
             available: 0.0,
             delegated: 0.0,
             reserved: 0.0,
-            spent: 100.0,
-            permitted_recipients: ["vendor_shade_compute.near"],
-            max_per_tx: 100.0,
+            spent: 0.0,
+            permitted_recipients: [...this.whitelistedVendors],
+            max_per_tx: null,
             expires_at: 500000,
-            nonce: 1,
+            nonce: 0,
             is_revoked: false
           }
         ];
 
-        this.payments = [
-          {
-            request_id: "req_shade_091",
-            agent_id: "agent_service",
-            recipient: "vendor_shade_compute.near",
-            amount: 100.0,
-            nonce: 1,
-            status: "FINALIZED",
-            tx_hash: "9B2a7kLMno84vXZpq1"
-          }
-        ];
+        // Pure empty ledger - zero mock payments
+        this.payments = [];
 
+        // Real-time audit log: initialized cleanly
         this.audit_log = [
           {
             timestamp: Date.now(),
-            event_type: "DELEGATION_ACTIVE",
-            details: "3-tier delegation network active (Manager, Researcher, Service). Authority conservation strictly conserved at Ⓝ 1,000.00.",
-            outcome: "SUCCESS",
-            error_code: null,
-            tx_id: "tx_setup_3tier",
-            explorer_url: savedAccount ? `https://testnet.nearblocks.io/address/${savedAccount}` : null
-          },
-          {
-            timestamp: Date.now() - 3600000,
-            event_type: "PAYMENT_FINALIZED",
-            details: "Settled Ⓝ 100.00 compute invoice for vendor_shade_compute.near via agent_service.",
-            outcome: "SUCCESS",
-            error_code: null,
-            tx_id: "tx_pay_shade_01",
-            explorer_url: "https://testnet.nearblocks.io"
-          },
-          {
-            timestamp: Date.now() - 7200000,
             event_type: "VAULT_INITIALIZED",
-            details: "Root Treasury initialized at Ⓝ 1,000.00 escrow custody under Rootbound smart contract.",
+            details: savedAccount 
+              ? `Root Treasury initialized at Ⓝ 0.00 escrow custody. Admin: ${savedAccount}. Deposit testnet NEAR to fund agent authority.`
+              : "Root Treasury initialized at Ⓝ 0.00 escrow custody. Connect a NEAR wallet and deposit testnet tokens to begin real-time operations.",
             outcome: "SUCCESS",
             error_code: null,
             tx_id: "init_vault_01",
@@ -3589,7 +3517,7 @@
         const childGrants = grants.filter(g => g.depth > 1);
         const metaEl = document.getElementById('network-agent-count');
         if (metaEl) {
-          metaEl.innerText = `${childGrants.length} agents · ${childGrants.length > 0 ? 'live' : 'illustrative'}`;
+          metaEl.innerText = `${childGrants.length} ${childGrants.length === 1 ? 'agent' : 'agents'} · live`;
         }
 
         container.innerHTML = '';
@@ -3619,29 +3547,28 @@
             container.appendChild(card);
           });
         } else {
-          // Render the 3 illustrated slots matching the reference (Manager, Researcher, Service)
-          const slots = [
-            { id: 'agent_pm', title: 'Manager', sub: 'Agent' },
-            { id: 'agent_researcher', title: 'Researcher', sub: 'Agent' },
-            { id: 'agent_service', title: 'Service', sub: 'Agent' }
-          ];
-          slots.forEach(s => {
-            const card = document.createElement('div');
-            card.className = 'child-agent-card';
-            card.style.opacity = '0.7';
-            card.onclick = () => openDeployAgentModal('root_treasury');
-            card.innerHTML = `
-              <div class="child-card-icon">
-                <svg class="lucide-icon md" style="color: var(--accent-copper); width: 22px; height: 22px;">
-                  <use href="#icon-bot"></use>
-                </svg>
+          // ZERO MOCK DATA: Clean real-time empty state with immediate interactive creation
+          container.innerHTML = `
+            <div style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; text-align:center; padding: 26px 20px; background:var(--surface-secondary); border:1px dashed var(--border-subtle); border-radius:8px; gap:8px;">
+              <div style="color:var(--accent-copper); background:var(--accent-copper-subtle); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:2px;">
+                <svg class="lucide-icon md" style="width:20px; height:20px;"><use href="#icon-bot"></use></svg>
               </div>
-              <div class="child-card-title">${s.title}</div>
-              <div class="child-card-subtitle">${s.sub}</div>
-              <div class="child-card-balance" style="color: var(--accent-copper); font-size: 11px;">+ Deploy Agent</div>
-            `;
-            container.appendChild(card);
-          });
+              <div style="font-size:15px; font-weight:600; color:var(--text-primary);">No Child Agents Delegated</div>
+              <div style="font-size:12.5px; color:var(--text-secondary); max-width:480px; line-height:1.45;">
+                Root Treasury currently holds 100% of unallocated treasury custody. Connect your wallet, deposit testnet NEAR, and deploy real autonomous agents to carve out bounded sub-budgets.
+              </div>
+              <div style="display:flex; gap:10px; margin-top:6px; flex-wrap:wrap; justify-content:center;">
+                <button class="btn-action copper" onclick="openDeployAgentModal('root_treasury')">
+                  <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+                  <span>+ Deploy First Child Agent</span>
+                </button>
+                <button class="btn-action" onclick="openVaultModal()">
+                  <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+                  <span>Deposit Escrow</span>
+                </button>
+              </div>
+            </div>
+          `;
         }
         return;
       }
