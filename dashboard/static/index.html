@@ -391,22 +391,215 @@
     }
 
     /* =========================================================================
-       INSTITUTIONAL FINANCIAL POSITION STATEMENT
+       REFINED FINANCIAL TELEMETRY STRIP (COMPACT INSTITUTIONAL SUMMARY)
+       ========================================================================= */
+    .financial-summary-strip {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .strip-main-grid {
+      display: grid;
+      grid-template-columns: 280px 1px 1fr;
+      align-items: stretch;
+      padding: 16px 22px;
+      gap: 20px;
+    }
+    @media (max-width: 1200px) {
+      .strip-main-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .strip-v-divider { display: none; }
+    }
+    .strip-primary-cell {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+    }
+    .strip-cell-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .strip-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+    }
+    .strip-hero-value {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .strip-currency {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: var(--accent-copper);
+      font-weight: 600;
+    }
+    .strip-amount {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+    .strip-sub-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .strip-v-divider {
+      width: 1px;
+      background: var(--border-subtle);
+      align-self: stretch;
+    }
+    .strip-distribution-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .strip-distribution-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .strip-stat-item {
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color 0.15s ease;
+    }
+    .strip-stat-item:hover {
+      border-color: var(--border-light);
+    }
+    .strip-stat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .strip-stat-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .strip-stat-pct {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+    }
+    .strip-stat-num {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .strip-stat-item.available .strip-stat-num { color: var(--status-authorized); }
+    .strip-stat-item.delegated .strip-stat-num { color: var(--accent-copper); }
+    .strip-stat-item.reserved .strip-stat-num { color: var(--status-reserved); }
+    .strip-stat-item.settled .strip-stat-num { color: var(--text-secondary); }
+    .strip-micro-bar {
+      height: 3px;
+      background: var(--surface-secondary);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+    .strip-micro-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .strip-micro-fill.avail { background: var(--status-authorized); }
+    .strip-micro-fill.deleg { background: var(--accent-copper); }
+    .strip-micro-fill.res { background: var(--status-reserved); }
+    .strip-micro-fill.spent { background: var(--text-secondary); }
+
+    /* Compact Integrated Reconciliation Footer */
+    .strip-recon-footer {
+      background: #1c201b;
+      border-top: 1px solid var(--border-subtle);
+      padding: 8px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .recon-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .recon-footer-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-copper);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .recon-inline-equation {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+    .recon-op {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent-copper);
+      user-select: none;
+      padding: 0 2px;
+    }
+    .recon-footer-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sm-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+    }
+
+    /* =========================================================================
+       INSTITUTIONAL FINANCIAL POSITION STATEMENT (VIEW 4 / STANDALONE)
        ========================================================================= */
     .financial-position-hero {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 24px 26px;
+      padding: 20px 24px;
       margin-bottom: 24px;
     }
     .hero-top-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 18px;
+      padding-bottom: 16px;
     }
     .hero-title-area {
       display: flex;
@@ -414,10 +607,9 @@
       gap: 4px;
     }
     .hero-caption {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 1px;
       color: var(--text-tertiary);
       font-weight: 600;
     }
@@ -434,7 +626,7 @@
     }
     .hero-amount {
       font-family: var(--font-mono);
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 600;
       color: var(--text-primary);
       letter-spacing: -1px;
@@ -448,13 +640,13 @@
     .hero-distribution-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 14px;
     }
     .dist-stat-card {
       background: var(--surface-sunken);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 16px 18px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -470,10 +662,9 @@
       margin-bottom: 8px;
     }
     .dist-stat-title {
-      font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       color: var(--text-tertiary);
       font-weight: 600;
     }
@@ -485,7 +676,7 @@
     }
     .dist-stat-value {
       font-family: var(--font-mono);
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 6px;
@@ -497,7 +688,7 @@
       font-size: 11px;
       color: var(--text-tertiary);
       line-height: 1.4;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .dist-progress-track {
       height: 4px;
@@ -514,7 +705,7 @@
     .dist-progress-fill.res { background: var(--status-reserved); }
     .dist-progress-fill.spent { background: var(--text-secondary); }
 
-    /* Authority Conservation & Reconciliation Statement */
+    /* Standalone Authority Conservation Statement */
     .reconciliation-statement {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
@@ -526,7 +717,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .recon-title-group {
       display: flex;
@@ -534,10 +725,9 @@
       gap: 10px;
     }
     .recon-heading {
-      font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       color: var(--text-primary);
       font-weight: 600;
     }
@@ -562,10 +752,9 @@
       min-width: 110px;
     }
     .eq-label {
-      font-family: var(--font-mono);
-      font-size: 9px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.6px;
       color: var(--text-tertiary);
       margin-bottom: 3px;
     }
@@ -587,29 +776,61 @@
        SIGNATURE FEATURE: INTERACTIVE HIERARCHY NETWORK WITH SVG RAILS
        ========================================================================= */
     .network-container {
-      background: var(--surface-sunken);
+      background: var(--bg-base);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
-      padding: 24px;
+      padding: 24px 28px;
       position: relative;
       margin-bottom: 24px;
       overflow: hidden;
+      background-image: radial-gradient(circle at 50% 12%, rgba(183, 123, 84, 0.04) 0%, transparent 65%);
     }
     .network-toolbar {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 28px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .network-heading {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .network-subheading {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .network-toolbar-actions {
+      display: flex;
       align-items: center;
-      margin-bottom: 24px;
+      gap: 10px;
+    }
+    .network-search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .network-search-box .search-icon {
+      position: absolute;
+      left: 10px;
+      color: var(--text-tertiary);
+      pointer-events: none;
     }
     .network-search-input {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       color: var(--text-primary);
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: 12px;
-      padding: 7px 12px;
+      padding: 7px 12px 7px 32px;
       border-radius: 4px;
-      width: 240px;
+      width: 230px;
       outline: none;
       transition: border-color 0.15s ease;
     }
@@ -619,7 +840,7 @@
 
     .hierarchy-canvas-wrapper {
       position: relative;
-      min-height: 380px;
+      min-height: 420px;
       width: 100%;
     }
     .hierarchy-svg-canvas {
@@ -634,34 +855,42 @@
     .hierarchy-canvas {
       display: flex;
       flex-direction: column;
-      gap: 40px;
+      gap: 48px;
       position: relative;
       z-index: 2;
+      align-items: center;
     }
     .hierarchy-level-row {
       display: flex;
       justify-content: center;
-      gap: 28px;
+      gap: 32px;
       position: relative;
       flex-wrap: wrap;
+      width: 100%;
     }
 
-    /* Operational Agent Node Card */
+    /* Architectural Agent Node Card */
     .network-node-card {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       padding: 16px 18px;
-      width: 310px;
+      width: 330px;
       cursor: pointer;
-      transition: all 0.16s ease;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     .network-node-card:hover {
       border-color: var(--accent-copper);
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .network-node-card.root-node {
+      border-top: 2px solid var(--accent-copper);
     }
     .network-node-card.selected {
       border-color: var(--accent-copper);
@@ -672,24 +901,55 @@
       border-color: var(--status-rejected);
       background: rgba(199, 124, 112, 0.06);
     }
-    .node-card-top {
+    
+    .node-card-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    .node-title-group {
-      display: flex;
-      align-items: center;
       gap: 8px;
     }
-    .node-title {
-      font-family: var(--font-mono);
+    .node-identity-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .node-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-copper);
+      flex-shrink: 0;
+    }
+    .network-node-card.root-node .node-icon-box {
+      background: var(--accent-copper-subtle);
+      border-color: rgba(183, 123, 84, 0.35);
+    }
+    .node-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .node-title-text {
       font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
     }
-    .node-depth-badge {
+    .node-role-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .node-badges-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .node-tier-pill {
       font-family: var(--font-mono);
       font-size: 10px;
       color: var(--accent-copper);
@@ -699,30 +959,52 @@
       font-weight: 600;
       border: 1px solid rgba(183, 123, 84, 0.25);
     }
-    .node-account {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-tertiary);
-      margin-bottom: 12px;
+    .node-account-strip {
       display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: space-between;
+      padding: 5px 10px;
+      background: var(--surface-sunken);
+      border-radius: 4px;
+      border: 1px solid rgba(58, 64, 56, 0.4);
+      font-size: 11px;
     }
-    
-    /* 5-State Balance Distribution Mini-Meter */
+    .node-account-code {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 230px;
+    }
+    .node-liquid-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 2px 0;
+    }
+    .node-liquid-lbl {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+    .node-liquid-val {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--status-authorized);
+      letter-spacing: -0.3px;
+    }
     .meter-bar {
       height: 4px;
       background: var(--surface-sunken);
       border-radius: 2px;
       display: flex;
       overflow: hidden;
-      margin-bottom: 12px;
     }
     .meter-segment.avail { background: var(--status-authorized); }
     .meter-segment.deleg { background: var(--accent-copper); }
     .meter-segment.res { background: var(--status-reserved); }
     .meter-segment.spent { background: var(--text-tertiary); }
-
     .node-balance-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -730,7 +1012,7 @@
       text-align: center;
       background: var(--surface-sunken);
       border-radius: 6px;
-      padding: 8px 6px;
+      padding: 7px 4px;
       border: 1px solid var(--border-subtle);
     }
     .node-balance-item {
@@ -738,17 +1020,32 @@
       flex-direction: column;
     }
     .node-balance-key {
-      font-family: var(--font-mono);
       font-size: 9px;
       text-transform: uppercase;
       color: var(--text-tertiary);
       margin-bottom: 2px;
+      font-weight: 500;
     }
     .node-balance-val {
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 600;
       color: var(--text-primary);
+    }
+    .node-constraint-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding-top: 2px;
+    }
+    .node-constraint-chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      padding: 2px 6px;
     }
 
     /* SVG Connection Rail Styles */
@@ -769,54 +1066,201 @@
       opacity: 0.6;
     }
 
-    /* Interactive Empty State Card for Canvas Rows */
-    .empty-level-card {
+    /* Delegation Provisioning Station (Thoughtful Empty State) */
+    .delegation-provision-station {
       background: var(--surface-secondary);
-      border: 1px dashed var(--border-light);
+      border: 1px solid var(--border-subtle);
+      border-top: 2px solid var(--accent-copper);
       border-radius: 8px;
-      padding: 20px 24px;
-      width: 310px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.16s ease;
+      width: 380px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      gap: 12px;
+      text-align: left;
+      transition: all 0.16s ease;
     }
-    .empty-level-card:hover {
+    .delegation-provision-station:hover {
       border-color: var(--accent-copper);
-      background: var(--accent-copper-subtle);
-      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
     }
-    .empty-level-card .plus-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--surface-elevated);
-      border: 1px solid var(--border-subtle);
+    .station-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .station-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .station-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--accent-copper-subtle);
+      border: 1px solid rgba(183, 123, 84, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--accent-copper);
-      margin-bottom: 8px;
-      font-size: 16px;
-      font-weight: 600;
+      flex-shrink: 0;
     }
-    .empty-level-card:hover .plus-icon {
-      border-color: var(--accent-copper);
-      background: var(--accent-copper-glow);
-    }
-    .empty-level-card-title {
-      font-family: var(--font-mono);
-      font-size: 12px;
+    .station-title {
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
     }
-    .empty-level-card-desc {
+    .station-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .station-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .station-actions .btn-action {
+      flex: 1;
+      justify-content: center;
+    }
+
+    /* Agent Dossier Inspector Layout */
+    .dossier-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .dossier-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .dossier-heading {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dossier-agent-id {
+      font-family: var(--font-sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .dossier-role-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+    .dossier-lineage-path {
       font-size: 11px;
       color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .dossier-account-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+    }
+    .dossier-account-code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+    .dossier-ledger-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dossier-ledger-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding: 4px 0;
+    }
+    .dossier-ledger-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .dossier-ledger-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .dossier-policy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .dossier-policy-card {
+      padding: 8px 10px;
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .dossier-policy-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .dossier-policy-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .dossier-recipient-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+    .dossier-actions-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dossier-danger-box {
+      border: 1px solid rgba(199, 124, 112, 0.35);
+      background: rgba(199, 124, 112, 0.06);
+      border-radius: 6px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       margin-top: 4px;
+    }
+    .dossier-danger-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
       line-height: 1.4;
     }
 
@@ -1517,105 +1961,104 @@
              VIEW 1: OVERVIEW (Financial Position & Delegation Network)
              =================================================================== -->
         <section id="view-overview" class="view-panel">
-          <!-- Institutional Financial Position Statement -->
-          <div class="financial-position-hero">
-            <div class="hero-top-row">
-              <div class="hero-title-area">
-                <span class="hero-caption">Treasury Financial Position · Escrow Custody</span>
-                <div class="hero-amount-display">
-                  <span class="hero-currency">Ⓝ</span>
-                  <span id="metric-total-escrow" class="hero-amount tabular-num">0.00</span>
-                  <span class="hero-subtext">Total On-Chain Escrow Custody</span>
+          <!-- Compact Institutional Financial Telemetry Strip -->
+          <div class="financial-summary-strip">
+            <div class="strip-main-grid">
+              <!-- 1. Primary Escrow Position Cell -->
+              <div class="strip-primary-cell">
+                <div class="strip-cell-header">
+                  <span class="strip-label">Escrow Custody</span>
+                  <span class="status-pill authorized sm-pill">
+                    <svg class="lucide-icon sm"><use href="#icon-shield"></use></svg>
+                    <span>Proof-of-Reserve</span>
+                  </span>
+                </div>
+                <div class="strip-hero-value">
+                  <span class="strip-currency">Ⓝ</span>
+                  <span id="metric-total-escrow" class="strip-amount tabular-num">0.00</span>
+                </div>
+                <div class="strip-sub-text">Total on-chain vault escrow balance</div>
+              </div>
+
+              <!-- Vertical Divider -->
+              <div class="strip-v-divider"></div>
+
+              <!-- 2. Balanced 4-Metric Authority Distribution Grid -->
+              <div class="strip-distribution-grid">
+                <!-- Liquid Available -->
+                <div class="strip-stat-item available">
+                  <div class="strip-stat-head">
+                    <span class="strip-stat-title">Liquid Available</span>
+                    <span class="strip-stat-pct tabular-num" id="metric-avail-pct">0.0%</span>
+                  </div>
+                  <div class="strip-stat-num tabular-num" id="metric-available-funds">Ⓝ 0.00</div>
+                  <div class="strip-micro-bar">
+                    <div class="strip-micro-fill avail" id="bar-avail" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <!-- Delegated Downward -->
+                <div class="strip-stat-item delegated">
+                  <div class="strip-stat-head">
+                    <span class="strip-stat-title">Delegated Down</span>
+                    <span class="strip-stat-pct tabular-num" id="metric-deleg-pct">0.0%</span>
+                  </div>
+                  <div class="strip-stat-num tabular-num" id="metric-delegated-funds">Ⓝ 0.00</div>
+                  <div class="strip-micro-bar">
+                    <div class="strip-micro-fill deleg" id="bar-deleg" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <!-- In-Flight Reserved -->
+                <div class="strip-stat-item reserved">
+                  <div class="strip-stat-head">
+                    <span class="strip-stat-title">In-Flight Reserved</span>
+                    <span class="strip-stat-pct tabular-num" id="metric-res-pct">0.0%</span>
+                  </div>
+                  <div class="strip-stat-num tabular-num" id="metric-reserved-funds">Ⓝ 0.00</div>
+                  <div class="strip-micro-bar">
+                    <div class="strip-micro-fill res" id="bar-res" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <!-- Confirmed Settled -->
+                <div class="strip-stat-item settled">
+                  <div class="strip-stat-head">
+                    <span class="strip-stat-title">Confirmed Settled</span>
+                    <span class="strip-stat-pct tabular-num" id="metric-spent-pct">0.0%</span>
+                  </div>
+                  <div class="strip-stat-num tabular-num" id="metric-spent-funds">Ⓝ 0.00</div>
+                  <div class="strip-micro-bar">
+                    <div class="strip-micro-fill spent" id="bar-spent" style="width: 0%;"></div>
+                  </div>
                 </div>
               </div>
-              <span class="status-pill authorized">
-                <svg class="lucide-icon sm"><use href="#icon-shield"></use></svg>
-                <span>Proof-of-Reserve</span>
-              </span>
             </div>
 
-            <div class="hero-distribution-grid">
-              <!-- Liquid Available -->
-              <div class="dist-stat-card available">
-                <div class="dist-stat-top">
-                  <span class="dist-stat-title">Liquid Available</span>
-                  <span class="dist-stat-pct" id="metric-avail-pct">0.0%</span>
+            <!-- Integrated Reconciliation Equation Sub-Bar -->
+            <div class="strip-recon-footer">
+              <div class="recon-footer-left">
+                <div class="recon-footer-title">
+                  <svg class="lucide-icon sm"><use href="#icon-scale"></use></svg>
+                  <span>Reconciliation Statement</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="metric-available-funds">Ⓝ 0.00</div>
-                <div class="dist-stat-desc">Uncommitted authority available for downward delegation or spending</div>
-                <div class="dist-progress-track">
-                  <div class="dist-progress-fill avail" id="bar-avail" style="width: 0%;"></div>
-                </div>
-              </div>
-
-              <!-- In-Flight Reserved -->
-              <div class="dist-stat-card reserved">
-                <div class="dist-stat-top">
-                  <span class="dist-stat-title">In-Flight Reserved</span>
-                  <span class="dist-stat-pct" id="metric-res-pct">0.0%</span>
-                </div>
-                <div class="dist-stat-value tabular-num" id="metric-reserved-funds">Ⓝ 0.00</div>
-                <div class="dist-stat-desc">Committed to active cross-contract promise settlement pipeline</div>
-                <div class="dist-progress-track">
-                  <div class="dist-progress-fill res" id="bar-res" style="width: 0%;"></div>
+                <div class="recon-inline-equation">
+                  <span>Custody <strong class="tabular-num" id="formula-allocated">Ⓝ 0.00</strong></span>
+                  <span class="recon-op">≡</span>
+                  <span>Available <strong class="tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 0.00</strong></span>
+                  <span class="recon-op">+</span>
+                  <span>Delegated <strong class="tabular-num" style="color: var(--accent-copper);" id="formula-delegated">Ⓝ 0.00</strong></span>
+                  <span class="recon-op">+</span>
+                  <span>Reserved <strong class="tabular-num" style="color: var(--status-reserved);" id="formula-reserved">Ⓝ 0.00</strong></span>
+                  <span class="recon-op">+</span>
+                  <span>Settled <strong class="tabular-num" style="color: var(--text-tertiary);" id="formula-spent">Ⓝ 0.00</strong></span>
                 </div>
               </div>
-
-              <!-- Confirmed Settled -->
-              <div class="dist-stat-card settled">
-                <div class="dist-stat-top">
-                  <span class="dist-stat-title">Confirmed Settled</span>
-                  <span class="dist-stat-pct" id="metric-spent-pct">0.0%</span>
-                </div>
-                <div class="dist-stat-value tabular-num" id="metric-spent-funds">Ⓝ 0.00</div>
-                <div class="dist-stat-desc">Permanently transferred to external whitelisted vendor payees</div>
-                <div class="dist-progress-track">
-                  <div class="dist-progress-fill spent" id="bar-spent" style="width: 0%;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Authority Reconciliation Statement -->
-          <div class="reconciliation-statement">
-            <div class="recon-header">
-              <div class="recon-title-group">
-                <svg class="lucide-icon" style="color: var(--accent-copper);"><use href="#icon-scale"></use></svg>
-                <div>
-                  <h4 class="recon-heading">Authority Conservation & Reconciliation Statement</h4>
-                  <p class="recon-sub">Monotonic balance conservation: ∑ Available + ∑ Delegated + ∑ Reserved + ∑ Spent ≡ Escrow Custody</p>
-                </div>
-              </div>
-              <span class="status-pill authorized">
-                <svg class="lucide-icon sm"><use href="#icon-check"></use></svg>
-                <span>Zero Fund Leakage</span>
-              </span>
-            </div>
-
-            <div class="recon-equation-grid">
-              <div class="equation-box">
-                <span class="eq-label">Escrow Custody</span>
-                <span class="eq-val tabular-num" id="formula-allocated">Ⓝ 0.00</span>
-              </div>
-              <div class="eq-operator">≡</div>
-              <div class="equation-box">
-                <span class="eq-label">Liquid Available</span>
-                <span class="eq-val tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 0.00</span>
-              </div>
-              <div class="eq-operator">+</div>
-              <div class="equation-box">
-                <span class="eq-label">Delegated Downward</span>
-                <span class="eq-val tabular-num" style="color: var(--accent-copper);" id="formula-delegated">Ⓝ 0.00</span>
-              </div>
-              <div class="eq-operator">+</div>
-              <div class="equation-box">
-                <span class="eq-label">In-Flight Reserved</span>
-                <span class="eq-val tabular-num" style="color: var(--status-reserved);" id="formula-reserved">Ⓝ 0.00</span>
-              </div>
-              <div class="eq-operator">+</div>
-              <div class="equation-box">
-                <span class="eq-label">Confirmed Settled</span>
-                <span class="eq-val tabular-num" id="formula-spent">Ⓝ 0.00</span>
+              <div class="recon-footer-right">
+                <span class="status-pill authorized sm-pill">
+                  <svg class="lucide-icon sm"><use href="#icon-check"></use></svg>
+                  <span>Zero Fund Leakage</span>
+                </span>
               </div>
             </div>
           </div>
@@ -1624,12 +2067,23 @@
           <div class="network-container">
             <div class="network-toolbar">
               <div>
-                <span style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 600;">
-                  Delegation Authority Hierarchy (Max Depth 3)
-                </span>
-                <p style="font-size: 12px; color: var(--text-tertiary);">Select an agent node to inspect authority limits, lineage paths, and permissions in the right panel.</p>
+                <h3 class="network-heading">Delegation Authority Hierarchy</h3>
+                <p class="network-subheading">Recursive authority lattice enforcing monotonic budget conservation and downward policy attenuation (Max Depth 3).</p>
               </div>
-              <input type="text" class="network-search-input" placeholder="Search agent identifier..." oninput="filterNetworkNodes(this.value)" />
+              <div class="network-toolbar-actions">
+                <div class="network-search-box">
+                  <svg class="lucide-icon sm search-icon"><use href="#icon-search"></use></svg>
+                  <input type="text" class="network-search-input" placeholder="Filter agents by ID or account..." oninput="filterNetworkNodes(this.value)" />
+                </div>
+                <button class="btn-action copper" onclick="openDeployAgentModal()" title="Deploy a new child agent">
+                  <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+                  <span>Deploy Child</span>
+                </button>
+                <button class="btn-action" onclick="refreshHierarchyRails()" title="Re-calculate and animate SVG connector rails">
+                  <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
+                  <span>Re-align Rails</span>
+                </button>
+              </div>
             </div>
 
             <div class="hierarchy-canvas-wrapper" id="overview-canvas-wrapper">
@@ -2925,30 +3379,52 @@
       const escrow = org.escrow_balance || 0;
 
       const pctAvail = escrow > 0 ? ((totalAvail / escrow) * 100).toFixed(1) : '0.0';
+      const pctDeleg = escrow > 0 ? ((totalDeleg / escrow) * 100).toFixed(1) : '0.0';
       const pctRes = escrow > 0 ? ((totalRes / escrow) * 100).toFixed(1) : '0.0';
       const pctSpent = escrow > 0 ? ((totalSpent / escrow) * 100).toFixed(1) : '0.0';
 
-      document.getElementById('metric-total-escrow').innerText = escrow.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('metric-available-funds').innerText = formatNearAmount(totalAvail);
-      document.getElementById('metric-reserved-funds').innerText = formatNearAmount(totalRes);
-      document.getElementById('metric-spent-funds').innerText = formatNearAmount(totalSpent);
+      const elTotal = document.getElementById('metric-total-escrow');
+      if (elTotal) elTotal.innerText = escrow.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const elAvail = document.getElementById('metric-available-funds');
+      if (elAvail) elAvail.innerText = formatNearAmount(totalAvail);
+      const elDeleg = document.getElementById('metric-delegated-funds');
+      if (elDeleg) elDeleg.innerText = formatNearAmount(totalDeleg);
+      const elRes = document.getElementById('metric-reserved-funds');
+      if (elRes) elRes.innerText = formatNearAmount(totalRes);
+      const elSpent = document.getElementById('metric-spent-funds');
+      if (elSpent) elSpent.innerText = formatNearAmount(totalSpent);
 
-      document.getElementById('metric-avail-pct').innerText = `${pctAvail}%`;
-      document.getElementById('metric-res-pct').innerText = `${pctRes}%`;
-      document.getElementById('metric-spent-pct').innerText = `${pctSpent}%`;
+      const elPctAvail = document.getElementById('metric-avail-pct');
+      if (elPctAvail) elPctAvail.innerText = `${pctAvail}%`;
+      const elPctDeleg = document.getElementById('metric-deleg-pct');
+      if (elPctDeleg) elPctDeleg.innerText = `${pctDeleg}%`;
+      const elPctRes = document.getElementById('metric-res-pct');
+      if (elPctRes) elPctRes.innerText = `${pctRes}%`;
+      const elPctSpent = document.getElementById('metric-spent-pct');
+      if (elPctSpent) elPctSpent.innerText = `${pctSpent}%`;
 
-      document.getElementById('bar-avail').style.width = `${Math.min(100, Math.max(0, parseFloat(pctAvail)))}%`;
-      document.getElementById('bar-res').style.width = `${Math.min(100, Math.max(0, parseFloat(pctRes)))}%`;
-      document.getElementById('bar-spent').style.width = `${Math.min(100, Math.max(0, parseFloat(pctSpent)))}%`;
+      const barAvail = document.getElementById('bar-avail');
+      if (barAvail) barAvail.style.width = `${Math.min(100, Math.max(0, parseFloat(pctAvail)))}%`;
+      const barDeleg = document.getElementById('bar-deleg');
+      if (barDeleg) barDeleg.style.width = `${Math.min(100, Math.max(0, parseFloat(pctDeleg)))}%`;
+      const barRes = document.getElementById('bar-res');
+      if (barRes) barRes.style.width = `${Math.min(100, Math.max(0, parseFloat(pctRes)))}%`;
+      const barSpent = document.getElementById('bar-spent');
+      if (barSpent) barSpent.style.width = `${Math.min(100, Math.max(0, parseFloat(pctSpent)))}%`;
 
       // Formula bar
-      document.getElementById('formula-allocated').innerText = formatNearAmount(escrow);
-      document.getElementById('formula-available').innerText = formatNearAmount(totalAvail);
-      document.getElementById('formula-delegated').innerText = formatNearAmount(totalDeleg);
-      document.getElementById('formula-reserved').innerText = formatNearAmount(totalRes);
-      document.getElementById('formula-spent').innerText = formatNearAmount(totalSpent);
+      const fAlloc = document.getElementById('formula-allocated');
+      if (fAlloc) fAlloc.innerText = formatNearAmount(escrow);
+      const fAvail = document.getElementById('formula-available');
+      if (fAvail) fAvail.innerText = formatNearAmount(totalAvail);
+      const fDeleg = document.getElementById('formula-delegated');
+      if (fDeleg) fDeleg.innerText = formatNearAmount(totalDeleg);
+      const fRes = document.getElementById('formula-reserved');
+      if (fRes) fRes.innerText = formatNearAmount(totalRes);
+      const fSpent = document.getElementById('formula-spent');
+      if (fSpent) fSpent.innerText = formatNearAmount(totalSpent);
 
-      // Treasury view metrics
+      // Treasury view metrics (View 4)
       const tg = document.getElementById('treasury-gross');
       if (tg) tg.innerText = escrow.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const tra = document.getElementById('treasury-root-avail');
@@ -2987,14 +3463,34 @@
       if (depth2.length > 0) {
         depth2.forEach(g => row2.appendChild(createNodeCardElement(g)));
       } else {
-        // Interactive invitation card when no Depth 2 agents exist
+        // Thoughtfully designed operational provisioning station (not a disabled placeholder)
         const emptyD2 = document.createElement('div');
-        emptyD2.className = 'empty-level-card';
-        emptyD2.onclick = () => openDeployAgentModal('root_treasury');
+        emptyD2.className = 'delegation-provision-station';
+        emptyD2.id = 'empty-d2-card';
         emptyD2.innerHTML = `
-          <div class="plus-icon">+</div>
-          <div class="empty-level-card-title">Deploy Child Agent (Depth 2)</div>
-          <div class="empty-level-card-desc">Root Vault has authority available. Click here or use '+ Deploy Agent' to delegate downward.</div>
+          <div class="station-header">
+            <div class="station-title-group">
+              <div class="station-icon-box">
+                <svg class="lucide-icon"><use href="#icon-network"></use></svg>
+              </div>
+              <div>
+                <div class="station-title">Tier 2 Delegation Provisioning</div>
+                <div style="font-size:11px; color:var(--text-tertiary);">Downward Constraint Attenuation</div>
+              </div>
+            </div>
+            <span class="status-pill authorized sm-pill">Ready to Delegate</span>
+          </div>
+          <p class="station-desc">Root Treasury holds uncommitted financial authority. Establish your multi-agent hierarchy by deploying your first autonomous child agent with strictly bounded spending ceilings and whitelisted payees.</p>
+          <div class="station-actions">
+            <button class="btn-action copper" onclick="openDeployAgentModal('root_treasury')">
+              <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+              <span>Deploy Child Agent</span>
+            </button>
+            <button class="btn-action" onclick="quickDeployHierarchy()">
+              <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+              <span>Quick 3-Tier Setup</span>
+            </button>
+          </div>
         `;
         row2.appendChild(emptyD2);
       }
@@ -3008,12 +3504,28 @@
           depth3.forEach(g => row3.appendChild(createNodeCardElement(g)));
         } else {
           const emptyD3 = document.createElement('div');
-          emptyD3.className = 'empty-level-card';
-          emptyD3.onclick = () => openDeployAgentModal();
+          emptyD3.className = 'delegation-provision-station';
+          emptyD3.id = 'empty-d3-card';
           emptyD3.innerHTML = `
-            <div class="plus-icon">+</div>
-            <div class="empty-level-card-title">Deploy Sub-Agent (Depth 3)</div>
-            <div class="empty-level-card-desc">Delegate from a Depth 2 parent agent down to Depth 3 to test hierarchical attenuation.</div>
+            <div class="station-header">
+              <div class="station-title-group">
+                <div class="station-icon-box">
+                  <svg class="lucide-icon"><use href="#icon-users"></use></svg>
+                </div>
+                <div>
+                  <div class="station-title">Tier 3 Sub-Agent Provisioning</div>
+                  <div style="font-size:11px; color:var(--text-tertiary);">Leaf Execution Envelope</div>
+                </div>
+              </div>
+              <span class="status-pill authorized sm-pill">Ready for Depth 3</span>
+            </div>
+            <p class="station-desc">Delegate from an active Depth 2 parent agent down to Depth 3 to verify recursive constraint attenuation and maximum depth boundaries (Invariant 3).</p>
+            <div class="station-actions">
+              <button class="btn-action copper" onclick="openDeployAgentModal()">
+                <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+                <span>Deploy Sub-Agent (Depth 3)</span>
+              </button>
+            </div>
           `;
           row3.appendChild(emptyD3);
         }
@@ -3029,7 +3541,8 @@
     function createNodeCardElement(grant) {
       const card = document.createElement('div');
       const isSelected = grant.agent_id === selectedAgentId;
-      card.className = `network-node-card ${isSelected ? 'selected' : ''} ${grant.is_revoked ? 'revoked' : ''}`;
+      const isRoot = grant.depth === 1;
+      card.className = `network-node-card ${isSelected ? 'selected' : ''} ${grant.is_revoked ? 'revoked' : ''} ${isRoot ? 'root-node' : ''}`;
       card.id = `node-card-${grant.agent_id}`;
       card.onclick = () => selectAgent(grant.agent_id, true);
 
@@ -3039,29 +3552,70 @@
       const pctRes = alloc > 0 ? (grant.reserved / alloc) * 100 : 0;
       const pctSpent = alloc > 0 ? (grant.spent / alloc) * 100 : 0;
 
-      const unfundedPrompt = (grant.depth === 1 && alloc <= 0)
-        ? `<div style="margin-top:8px; text-align:center;">
-             <button class="btn-action copper" style="padding:4px 8px; font-size:10px; width:100%;" onclick="event.stopPropagation(); openVaultModal();">
+      // Identity & role formatting
+      let displayTitle = grant.agent_id;
+      let displayRole = 'Operational Delegate';
+      let iconName = 'network';
+      let tierLabel = `Tier ${grant.depth}`;
+
+      if (isRoot) {
+        displayTitle = 'Root Treasury Vault';
+        displayRole = 'Genesis Authority & Escrow';
+        iconName = 'landmark';
+        tierLabel = 'Tier 1: Root';
+      } else if (grant.depth === 2) {
+        displayRole = grant.agent_id === 'agent_pm' ? 'Project Manager Agent' : 'Tier 2 Operational Delegate';
+        iconName = 'network';
+        tierLabel = 'Tier 2: Delegate';
+      } else if (grant.depth === 3) {
+        displayRole = grant.agent_id === 'agent_researcher' ? 'Inference & Research Agent' : 'Tier 3 Sub-Agent';
+        iconName = 'users';
+        tierLabel = 'Tier 3: Sub-Agent';
+      }
+
+      const unfundedPrompt = (isRoot && alloc <= 0)
+        ? `<div style="margin-top:4px;">
+             <button class="btn-action copper" style="padding:5px 10px; font-size:11px; width:100%; justify-content:center;" onclick="event.stopPropagation(); openVaultModal();">
                <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
                <span>Deposit Testnet NEAR</span>
              </button>
            </div>`
         : '';
 
+      const constraintCeiling = grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited';
+      const recipientCount = grant.permitted_recipients ? `${grant.permitted_recipients.length} Payees` : 'Global';
+
       card.innerHTML = `
-        <div class="node-card-top">
-          <div class="node-title-group">
-            <svg class="lucide-icon sm" style="color: ${grant.is_revoked ? 'var(--status-rejected)' : 'var(--accent-copper)'};">
-              <use href="#icon-${grant.depth === 1 ? 'landmark' : grant.depth === 2 ? 'network' : 'users'}"></use>
-            </svg>
-            <div class="node-title">${grant.agent_id}</div>
+        <div class="node-card-head">
+          <div class="node-identity-group">
+            <div class="node-icon-box">
+              <svg class="lucide-icon sm" style="color: ${grant.is_revoked ? 'var(--status-rejected)' : 'var(--accent-copper)'};">
+                <use href="#icon-${iconName}"></use>
+              </svg>
+            </div>
+            <div class="node-title-block">
+              <span class="node-title-text">${displayTitle}</span>
+              <span class="node-role-text">${displayRole}</span>
+            </div>
           </div>
-          <span class="node-depth-badge">Depth ${grant.depth}</span>
+          <div class="node-badges-group">
+            <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'} sm-pill">
+              ${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}
+            </span>
+            <span class="node-tier-pill">${tierLabel}</span>
+          </div>
         </div>
 
-        <div class="node-account">
-          <svg class="lucide-icon sm" style="color: var(--text-tertiary);"><use href="#icon-wallet"></use></svg>
-          <span>${grant.account}</span>
+        <div class="node-account-strip">
+          <span class="node-account-code">${grant.account}</span>
+          <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" onclick="event.stopPropagation();" style="color:var(--accent-copper); display:flex; align-items:center;" title="View account on Nearblocks">
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+          </a>
+        </div>
+
+        <div class="node-liquid-row">
+          <span class="node-liquid-lbl">Liquid Available Balance</span>
+          <span class="node-liquid-val tabular-num">${formatNearAmount(grant.available)}</span>
         </div>
 
         <div class="meter-bar">
@@ -3073,22 +3627,29 @@
 
         <div class="node-balance-grid">
           <div class="node-balance-item">
-            <span class="node-balance-key">Avail</span>
-            <span class="node-balance-val tabular-num" style="color: var(--status-authorized);">${formatNearAmount(grant.available)}</span>
+            <span class="node-balance-key">Allocated</span>
+            <span class="node-balance-val tabular-num">${formatNearAmount(grant.allocated)}</span>
           </div>
           <div class="node-balance-item">
-            <span class="node-balance-key">Deleg</span>
+            <span class="node-balance-key">Delegated</span>
             <span class="node-balance-val tabular-num" style="color: var(--accent-copper);">${formatNearAmount(grant.delegated)}</span>
           </div>
           <div class="node-balance-item">
-            <span class="node-balance-key">Res</span>
+            <span class="node-balance-key">Reserved</span>
             <span class="node-balance-val tabular-num" style="color: var(--status-reserved);">${formatNearAmount(grant.reserved)}</span>
           </div>
           <div class="node-balance-item">
-            <span class="node-balance-key">Spent</span>
+            <span class="node-balance-key">Settled</span>
             <span class="node-balance-val tabular-num">${formatNearAmount(grant.spent)}</span>
           </div>
         </div>
+
+        <div class="node-constraint-chips">
+          <span class="node-constraint-chip">Ceiling: ${constraintCeiling}</span>
+          <span class="node-constraint-chip">${recipientCount}</span>
+          <span class="node-constraint-chip">Nonce #${grant.nonce}</span>
+        </div>
+
         ${unfundedPrompt}
       `;
       return card;
@@ -3110,6 +3671,7 @@
 
       const grants = appState.grants;
 
+      // Draw rails between actual parent-child grants
       grants.forEach(g => {
         if (!g.parent_id) return;
         const parentCard = document.getElementById(`node-card-${g.parent_id}`);
@@ -3145,6 +3707,66 @@
         dot.setAttribute('fill', isChildRevoked ? 'var(--status-rejected)' : isSelectedLineage ? 'var(--accent-copper)' : 'var(--border-subtle)');
         svg.appendChild(dot);
       });
+
+      // Connect Root to Empty Depth 2 Station if no Depth 2 agents exist
+      const d2Grants = grants.filter(g => g.depth === 2);
+      if (d2Grants.length === 0) {
+        const rootCard = document.getElementById('node-card-root_treasury');
+        const emptyD2Card = document.getElementById('empty-d2-card');
+        if (rootCard && emptyD2Card) {
+          const pRect = rootCard.getBoundingClientRect();
+          const cRect = emptyD2Card.getBoundingClientRect();
+          const x1 = (pRect.left + pRect.width / 2) - wrapperRect.left;
+          const y1 = pRect.bottom - wrapperRect.top;
+          const x2 = (cRect.left + cRect.width / 2) - wrapperRect.left;
+          const y2 = cRect.top - wrapperRect.top;
+          const dy = y2 - y1;
+          const c1y = y1 + dy * 0.45;
+          const c2y = y1 + dy * 0.55;
+
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${c1y}, ${x2} ${c2y}, ${x2} ${y2}`);
+          path.setAttribute('class', 'conn-rail-path active-lineage');
+          svg.appendChild(path);
+
+          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          dot.setAttribute('cx', (x1 + x2) / 2);
+          dot.setAttribute('cy', (y1 + y2) / 2);
+          dot.setAttribute('r', '3.5');
+          dot.setAttribute('fill', 'var(--accent-copper)');
+          svg.appendChild(dot);
+        }
+      } else {
+        // Connect Depth 2 to Empty Depth 3 Station if no Depth 3 agents exist
+        const d3Grants = grants.filter(g => g.depth === 3);
+        if (d3Grants.length === 0) {
+          const parentD2Card = document.getElementById(`node-card-${d2Grants[0].agent_id}`);
+          const emptyD3Card = document.getElementById('empty-d3-card');
+          if (parentD2Card && emptyD3Card) {
+            const pRect = parentD2Card.getBoundingClientRect();
+            const cRect = emptyD3Card.getBoundingClientRect();
+            const x1 = (pRect.left + pRect.width / 2) - wrapperRect.left;
+            const y1 = pRect.bottom - wrapperRect.top;
+            const x2 = (cRect.left + cRect.width / 2) - wrapperRect.left;
+            const y2 = cRect.top - wrapperRect.top;
+            const dy = y2 - y1;
+            const c1y = y1 + dy * 0.45;
+            const c2y = y1 + dy * 0.55;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${c1y}, ${x2} ${c2y}, ${x2} ${y2}`);
+            path.setAttribute('class', 'conn-rail-path');
+            svg.appendChild(path);
+
+            const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            dot.setAttribute('cx', (x1 + x2) / 2);
+            dot.setAttribute('cy', (y1 + y2) / 2);
+            dot.setAttribute('r', '2.5');
+            dot.setAttribute('fill', 'var(--border-subtle)');
+            svg.appendChild(dot);
+          }
+        }
+      }
     }
 
     function refreshHierarchyRails() {
@@ -3186,127 +3808,194 @@
       const grant = appState.grants.find(g => g.agent_id === agentId);
       if (!grant) return;
 
+      const isRoot = grant.depth === 1;
+      let displayTitle = grant.agent_id;
+      let displayRole = 'Tier 2 Operational Delegate';
+      if (isRoot) {
+        displayTitle = 'Root Treasury Vault';
+        displayRole = 'Organization Escrow Genesis (Tier 1)';
+      } else if (grant.depth === 2) {
+        displayRole = grant.agent_id === 'agent_pm' ? 'Project Manager Agent (Tier 2)' : 'Autonomous Delegate (Tier 2)';
+      } else if (grant.depth === 3) {
+        displayRole = grant.agent_id === 'agent_researcher' ? 'Inference & Research Agent (Tier 3)' : 'Execution Sub-Agent (Tier 3)';
+      }
+
+      // Ancestor Lineage Trail
+      let lineageTrail = [];
+      let cur = grant;
+      while (cur) {
+        lineageTrail.unshift(cur.agent_id === 'root_treasury' ? 'Root Vault' : cur.agent_id);
+        cur = cur.parent_id ? appState.grants.find(x => x.agent_id === cur.parent_id) : null;
+      }
+      const lineageHtml = lineageTrail.join(' → ');
+
       const panelTitle = document.getElementById('context-panel-type');
       const panelContent = document.getElementById('context-panel-content');
       panelTitle.innerText = `AGENT DOSSIER: ${grant.agent_id}`;
 
       const payees = grant.permitted_recipients && grant.permitted_recipients.length > 0
         ? grant.permitted_recipients.map(p => `
-            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:4px; margin-bottom:5px;">
-              <code style="font-size:11px; color:var(--text-primary);">${p}</code>
-              <a href="https://testnet.nearblocks.io/address/${p}" target="_blank" style="color:var(--accent-copper);" title="View recipient on explorer">
+            <div class="dossier-recipient-item">
+              <code>${p}</code>
+              <a href="https://testnet.nearblocks.io/address/${p}" target="_blank" style="color:var(--accent-copper); display:flex; align-items:center;" title="View recipient on explorer">
                 <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
               </a>
             </div>
           `).join('')
-        : '<span style="color: var(--text-tertiary); font-size:12px;">Unrestricted Recipient Set (Root Authority)</span>';
+        : '<div style="color: var(--text-tertiary); font-size:12px; padding:6px 0;">Unrestricted Recipient Set (Genesis Authority)</div>';
 
       panelContent.innerHTML = `
-        <!-- 1. Identity & Lineage -->
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <h3 style="font-family:var(--font-mono); font-size:16px; color:var(--text-primary); font-weight:700;">${grant.agent_id}</h3>
-            <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'}">
-              <svg class="lucide-icon sm"><use href="#icon-${grant.is_revoked ? 'alert-triangle' : 'check'}"></use></svg>
-              <span>${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}</span>
-            </span>
+        <!-- 1. Identity & Lineage Section -->
+        <div class="dossier-section">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+              <div>
+                <h3 class="dossier-agent-id">${displayTitle}</h3>
+                <div class="dossier-role-title">${displayRole}</div>
+              </div>
+              <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'} sm-pill">
+                <svg class="lucide-icon sm"><use href="#icon-${grant.is_revoked ? 'alert-triangle' : 'check'}"></use></svg>
+                <span>${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}</span>
+              </span>
+            </div>
+            <div class="dossier-lineage-path">
+              <svg class="lucide-icon sm" style="color:var(--accent-copper);"><use href="#icon-network"></use></svg>
+              <span>${lineageHtml}</span>
+            </div>
           </div>
-          <div style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">
-            <span>NEAR: <strong style="color:var(--text-secondary);">${grant.account}</strong></span>
-            <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" style="color:var(--accent-copper);" title="View on Nearblocks">
+
+          <div class="dossier-account-box">
+            <span class="dossier-account-code">${grant.account}</span>
+            <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" style="color:var(--accent-copper); display:flex; align-items:center;" title="View on Nearblocks">
               <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
             </a>
           </div>
         </div>
 
         <!-- 2. Financial Authority Accounting -->
-        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:16px;">
-          <span class="eq-label">5-State Balance Accounting</span>
-          <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px; font-family:var(--font-mono); font-size:12px;">
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
-              <span style="color:var(--text-secondary);">Allocated Authority:</span>
-              <strong class="tabular-num">${formatNearAmount(grant.allocated)}</strong>
+        <div class="dossier-section">
+          <div class="dossier-heading">
+            <svg class="lucide-icon sm" style="color:var(--status-authorized);"><use href="#icon-landmark"></use></svg>
+            <span>Financial Authority Ledger</span>
+          </div>
+
+          <div class="dossier-ledger-list">
+            <div class="dossier-ledger-row" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+              <span class="dossier-ledger-label">Allocated Authority</span>
+              <strong class="dossier-ledger-val tabular-num">${formatNearAmount(grant.allocated)}</strong>
             </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--status-authorized);">Liquid Available:</span>
-              <strong class="tabular-num" style="color:var(--status-authorized);">${formatNearAmount(grant.available)}</strong>
+            <div class="dossier-ledger-row">
+              <span class="dossier-ledger-label" style="color:var(--status-authorized);">Liquid Available Balance</span>
+              <strong class="dossier-ledger-val tabular-num" style="color:var(--status-authorized); font-size:15px;">${formatNearAmount(grant.available)}</strong>
             </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--accent-copper);">Delegated Downward:</span>
-              <strong class="tabular-num" style="color:var(--accent-copper);">${formatNearAmount(grant.delegated)}</strong>
+            <div class="dossier-ledger-row">
+              <span class="dossier-ledger-label" style="color:var(--accent-copper);">Delegated Downward</span>
+              <strong class="dossier-ledger-val tabular-num" style="color:var(--accent-copper);">${formatNearAmount(grant.delegated)}</strong>
             </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--status-reserved);">In-Flight Reserved:</span>
-              <strong class="tabular-num" style="color:var(--status-reserved);">${formatNearAmount(grant.reserved)}</strong>
+            <div class="dossier-ledger-row">
+              <span class="dossier-ledger-label" style="color:var(--status-reserved);">In-Flight Reserved</span>
+              <strong class="dossier-ledger-val tabular-num" style="color:var(--status-reserved);">${formatNearAmount(grant.reserved)}</strong>
             </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--text-tertiary);">Confirmed Settled:</span>
-              <strong class="tabular-num">${formatNearAmount(grant.spent)}</strong>
+            <div class="dossier-ledger-row">
+              <span class="dossier-ledger-label">Confirmed Settled</span>
+              <strong class="dossier-ledger-val tabular-num">${formatNearAmount(grant.spent)}</strong>
             </div>
           </div>
         </div>
 
-        <!-- 3. Policy Constraints -->
-        <div>
-          <span class="eq-label">Enforced Policy Attenuation</span>
-          <div style="margin-top:8px; font-family:var(--font-mono); font-size:11px; display:flex; flex-direction:column; gap:6px; color:var(--text-secondary); background:var(--surface-sunken); padding:12px; border-radius:6px; border:1px solid var(--border-subtle);">
-            <div style="display:flex; justify-content:space-between;"><span>Hierarchy Depth:</span> <strong>Level ${grant.depth} of 3</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span>Parent Delegator:</span> <strong>${grant.parent_id || 'None (Master Root)'}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span>Sequence Nonce:</span> <strong>#${grant.nonce}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span>Per-Tx Ceiling:</span> <strong>${grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited (No Limit)'}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span>Expiration Timestamp:</span> <strong>${grant.expires_at} ns</strong></div>
+        <!-- 3. Policy Constraints & Attenuation Perimeter -->
+        <div class="dossier-section">
+          <div class="dossier-heading">
+            <svg class="lucide-icon sm" style="color:var(--accent-copper);"><use href="#icon-shield"></use></svg>
+            <span>Policy & Attenuation Perimeter</span>
+          </div>
+
+          <div class="dossier-policy-grid">
+            <div class="dossier-policy-card">
+              <span class="dossier-policy-label">Hierarchy Level</span>
+              <span class="dossier-policy-val">Depth ${grant.depth} of 3</span>
+            </div>
+            <div class="dossier-policy-card">
+              <span class="dossier-policy-label">Per-Tx Ceiling</span>
+              <span class="dossier-policy-val">${grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited'}</span>
+            </div>
+            <div class="dossier-policy-card">
+              <span class="dossier-policy-label">Sequence Nonce</span>
+              <span class="dossier-policy-val">#${grant.nonce} (Anti-Replay)</span>
+            </div>
+            <div class="dossier-policy-card">
+              <span class="dossier-policy-label">Parent Delegator</span>
+              <span class="dossier-policy-val">${grant.parent_id || 'Genesis Root'}</span>
+            </div>
           </div>
         </div>
 
-        <!-- 4. Recipient Whitelist -->
-        <div>
-          <span class="eq-label">Whitelisted Recipient Boundary</span>
-          <div style="margin-top:8px;">
+        <!-- 4. Whitelisted Recipient Boundary -->
+        <div class="dossier-section">
+          <div class="dossier-heading">
+            <svg class="lucide-icon sm"><use href="#icon-users"></use></svg>
+            <span>Whitelisted Payee Boundary</span>
+          </div>
+          <div>
             ${payees}
           </div>
         </div>
 
-        <!-- 5. Operational Authority Actions -->
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px; border-top:1px solid var(--border-subtle); padding-top:14px;">
-          ${grant.depth === 1 ? `
-            <button class="btn-action copper" onclick="openVaultModal()">
-              <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
-              <span>Deposit / Manage Escrow Custody</span>
-            </button>
-          ` : ''}
+        <!-- 5. Operational Controls -->
+        <div class="dossier-section">
+          <div class="dossier-heading">
+            <svg class="lucide-icon sm"><use href="#icon-terminal"></use></svg>
+            <span>Operational Controls</span>
+          </div>
 
-          ${!grant.is_revoked && grant.available > 0 ? `
-            <button class="btn-action copper" onclick="openPaymentModal('${grant.agent_id}')">
-              <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
-              <span>Dispatch Payment</span>
-            </button>
-          ` : ''}
+          <div class="dossier-actions-group">
+            ${isRoot ? `
+              <button class="btn-action copper" onclick="openVaultModal()">
+                <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+                <span>Deposit / Manage Escrow Custody</span>
+              </button>
+            ` : ''}
 
-          ${!grant.is_revoked && grant.depth < 3 && grant.available > 0 ? `
-            <button class="btn-action" onclick="openDeployAgentModal('${grant.agent_id}')">
-              <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
-              <span>Delegate Child Sub-Agent</span>
-            </button>
-          ` : ''}
+            ${!grant.is_revoked && grant.available > 0 ? `
+              <button class="btn-action copper" onclick="openPaymentModal('${grant.agent_id}')">
+                <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
+                <span>Dispatch Payment Request</span>
+              </button>
+            ` : ''}
 
-          ${!grant.is_revoked && grant.depth > 1 ? `
-            <button class="btn-action danger" onclick="openRevokeModal('${grant.agent_id}')">
-              <svg class="lucide-icon sm"><use href="#icon-alert-triangle"></use></svg>
-              <span>Revoke Authority (Cascade Freeze)</span>
-            </button>
-          ` : ''}
+            ${!grant.is_revoked && grant.depth < 3 && grant.available > 0 ? `
+              <button class="btn-action" onclick="openDeployAgentModal('${grant.agent_id}')">
+                <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+                <span>Delegate Child Sub-Agent</span>
+              </button>
+            ` : ''}
 
-          ${grant.depth > 1 && grant.available > 0 ? `
-            <button class="btn-action" onclick="openReclaimModal('${grant.parent_id}', '${grant.agent_id}', ${grant.available})">
-              <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
-              <span>Reclaim Balance to Parent</span>
-            </button>
-          ` : ''}
+            ${!isRoot && grant.available > 0 ? `
+              <button class="btn-action" onclick="openReclaimModal('${grant.parent_id}', '${grant.agent_id}', ${grant.available})">
+                <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
+                <span>Reclaim Balance to Parent</span>
+              </button>
+            ` : ''}
 
-          <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" class="btn-action">
-            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
-            <span>Inspect on Nearblocks Testnet</span>
-          </a>
+            <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" class="btn-action">
+              <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+              <span>Inspect on Nearblocks Explorer</span>
+            </a>
+          </div>
+
+          ${!isRoot && !grant.is_revoked ? `
+            <div class="dossier-danger-box">
+              <div style="font-size:12px; font-weight:600; color:var(--status-rejected); display:flex; align-items:center; gap:6px;">
+                <svg class="lucide-icon sm"><use href="#icon-alert-triangle"></use></svg>
+                <span>Authority Revocation</span>
+              </div>
+              <p class="dossier-danger-desc">Revoking this agent immediately freezes its authority and paralyzes all descendant sub-agents on-chain (Cascade Revocation Invariant 4).</p>
+              <button class="btn-action danger" onclick="openRevokeModal('${grant.agent_id}')" style="justify-content:center;">
+                <svg class="lucide-icon sm"><use href="#icon-alert-triangle"></use></svg>
+                <span>Revoke Agent Authority</span>
+              </button>
+            </div>
+          ` : ''}
         </div>
       `;
 
