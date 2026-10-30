@@ -1474,7 +1474,7 @@
       <div class="nav-footer">
         <div class="nav-footer-meta">
           <span>Organization: <strong id="nav-org-id">org_rootbound_enterprise</strong></span>
-          <span>Admin Key: <strong id="nav-admin-key">admin.near</strong></span>
+          <span>Admin Key: <strong id="nav-admin-key">Disconnected</strong></span>
           <span>Consensus: <span style="color: var(--status-authorized);">NEAR Protocol (Testnet)</span></span>
         </div>
       </div>
@@ -1524,7 +1524,7 @@
                 <span class="hero-caption">Treasury Financial Position · Escrow Custody</span>
                 <div class="hero-amount-display">
                   <span class="hero-currency">Ⓝ</span>
-                  <span id="metric-total-escrow" class="hero-amount tabular-num">1,000.00</span>
+                  <span id="metric-total-escrow" class="hero-amount tabular-num">0.00</span>
                   <span class="hero-subtext">Total On-Chain Escrow Custody</span>
                 </div>
               </div>
@@ -1539,12 +1539,12 @@
               <div class="dist-stat-card available">
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Liquid Available</span>
-                  <span class="dist-stat-pct" id="metric-avail-pct">100.0%</span>
+                  <span class="dist-stat-pct" id="metric-avail-pct">0.0%</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="metric-available-funds">Ⓝ 1,000.00</div>
+                <div class="dist-stat-value tabular-num" id="metric-available-funds">Ⓝ 0.00</div>
                 <div class="dist-stat-desc">Uncommitted authority available for downward delegation or spending</div>
                 <div class="dist-progress-track">
-                  <div class="dist-progress-fill avail" id="bar-avail" style="width: 100%;"></div>
+                  <div class="dist-progress-fill avail" id="bar-avail" style="width: 0%;"></div>
                 </div>
               </div>
 
@@ -1595,12 +1595,12 @@
             <div class="recon-equation-grid">
               <div class="equation-box">
                 <span class="eq-label">Escrow Custody</span>
-                <span class="eq-val tabular-num" id="formula-allocated">Ⓝ 1,000.00</span>
+                <span class="eq-val tabular-num" id="formula-allocated">Ⓝ 0.00</span>
               </div>
               <div class="eq-operator">≡</div>
               <div class="equation-box">
                 <span class="eq-label">Liquid Available</span>
-                <span class="eq-val tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 1,000.00</span>
+                <span class="eq-val tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 0.00</span>
               </div>
               <div class="eq-operator">+</div>
               <div class="equation-box">
@@ -1730,7 +1730,7 @@
                 <span class="hero-caption">Treasury Operations & Vault Custody</span>
                 <div class="hero-amount-display">
                   <span class="hero-currency">Ⓝ</span>
-                  <span id="treasury-gross" class="hero-amount tabular-num">1,000.00</span>
+                  <span id="treasury-gross" class="hero-amount tabular-num">0.00</span>
                   <span class="hero-subtext">Lifetime Deposited Principal</span>
                 </div>
               </div>
@@ -1745,7 +1745,7 @@
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Root Available Balance</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="treasury-root-avail">Ⓝ 1,000.00</div>
+                <div class="dist-stat-value tabular-num" id="treasury-root-avail">Ⓝ 0.00</div>
                 <div class="dist-stat-desc">Un-delegated liquid capital directly held by organization admin</div>
               </div>
               <div class="dist-stat-card reserved">
@@ -2133,8 +2133,8 @@
       <h3 id="modal-title" class="modal-title">Confirm Action</h3>
       <p id="modal-desc" class="modal-desc">Are you sure you want to proceed with this operation?</p>
       <div id="modal-input-container" style="margin-bottom: 20px; display: none;">
-        <label class="form-label">Amount (yoctoNEAR)</label>
-        <input id="modal-input-amount" class="network-search-input" style="width: 100%;" type="number" />
+        <label class="form-label">Amount (Ⓝ NEAR)</label>
+        <input id="modal-input-amount" class="network-search-input" style="width: 100%;" type="number" step="0.1" />
       </div>
       <div class="modal-actions">
         <button class="btn-action" onclick="closeModal()">Cancel</button>
@@ -2231,14 +2231,13 @@
       <div id="tab-content-operator" style="display:none;">
         <div class="form-group">
           <label class="form-label">Operator Testnet Account ID</label>
-          <input id="wallet-direct-account-input" class="form-input" placeholder="e.g. wahab.testnet" value="admin.near" />
+          <input id="wallet-direct-account-input" class="form-input" placeholder="e.g. wahab.testnet" value="wahab.testnet" />
           <div class="form-helper">Queries live on-chain balance via NEAR Testnet RPC (<code>https://rpc.testnet.near.org</code>) and activates immediate signing session.</div>
         </div>
         <div class="chip-group" style="margin-bottom:16px;">
           <span style="font-size:10px; color:var(--text-tertiary); line-height:22px; margin-right:4px;">Presets:</span>
-          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='wahab.testnet'">wahab.testnet</button>
-          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='admin.near'">admin.near</button>
-          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='pm.near'">pm.near</button>
+          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='wahab.testnet'">wahab.testnet (Live Testnet)</button>
+          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='testnet'">testnet</button>
         </div>
         <button class="btn-action copper" style="width:100%; padding:10px;" onclick="activateDirectAccount()">
           <svg class="lucide-icon sm"><use href="#icon-check"></use></svg>
@@ -2280,12 +2279,12 @@
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
-          <label class="form-label">Delegated Budget (yoctoNEAR)</label>
-          <input id="deploy-budget" class="form-input" type="number" placeholder="250000" />
+          <label class="form-label">Delegated Budget (Ⓝ NEAR)</label>
+          <input id="deploy-budget" class="form-input" type="number" step="0.1" placeholder="e.g. 5.0" />
         </div>
         <div class="form-group">
-          <label class="form-label">Max Per-Tx Limit (yoctoNEAR)</label>
-          <input id="deploy-max-per-tx" class="form-input" type="number" placeholder="Optional ceiling" />
+          <label class="form-label">Max Per-Tx Limit (Ⓝ NEAR)</label>
+          <input id="deploy-max-per-tx" class="form-input" type="number" step="0.1" placeholder="Optional ceiling (e.g. 2.0)" />
         </div>
       </div>
 
@@ -2338,8 +2337,8 @@
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
-          <label class="form-label">Payment Amount (yoctoNEAR)</label>
-          <input id="payment-amount" class="form-input" type="number" placeholder="10000" />
+          <label class="form-label">Payment Amount (Ⓝ NEAR)</label>
+          <input id="payment-amount" class="form-input" type="number" step="0.1" placeholder="e.g. 1.5" />
         </div>
         <div class="form-group">
           <label class="form-label">Payment Request ID</label>
@@ -2376,9 +2375,17 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Amount (yoctoNEAR)</label>
-        <input id="vault-amount" class="form-input" type="number" placeholder="100000" />
-        <div id="vault-balance-helper" class="form-helper">Current Escrow Balance: 1,000,000 yoctoNEAR</div>
+        <label class="form-label">Amount (Ⓝ NEAR)</label>
+        <input id="vault-amount" class="form-input" type="number" step="0.5" placeholder="e.g. 10.0" />
+        <div id="vault-balance-helper" class="form-helper">Escrow Vault: Ⓝ 0.00</div>
+        <div class="chip-group" style="margin-top: 8px;">
+          <span style="font-size:10px; color:var(--text-tertiary); line-height:22px; margin-right:4px;">Quick Amount:</span>
+          <button type="button" class="chip-btn" onclick="document.getElementById('vault-amount').value='1.0'">1 Ⓝ</button>
+          <button type="button" class="chip-btn" onclick="document.getElementById('vault-amount').value='5.0'">5 Ⓝ</button>
+          <button type="button" class="chip-btn" onclick="document.getElementById('vault-amount').value='10.0'">10 Ⓝ</button>
+          <button type="button" class="chip-btn" onclick="document.getElementById('vault-amount').value='50.0'">50 Ⓝ</button>
+          <button type="button" class="chip-btn" onclick="if(liveWalletBalanceNear) document.getElementById('vault-amount').value=Math.floor(liveWalletBalanceNear*0.9).toString()">90% Balance</button>
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -2401,7 +2408,7 @@
     // =========================================================================
     class RootboundClientEngine {
       constructor() {
-        this.storageKey = 'rootbound_live_v5_clean';
+        this.storageKey = 'rootbound_live_v6_zero_mock';
         this.whitelistedVendors = [
           "vendor_shade_compute.near",
           "vendor_phala_inference.near",
@@ -2428,26 +2435,26 @@
       }
 
       reset() {
-        const savedAccount = localStorage.getItem('rootbound_connected_account') || 'admin.near';
+        const savedAccount = localStorage.getItem('rootbound_connected_account') || null;
         this.organization = {
           id: localStorage.getItem('rootbound_org_id') || "org_rootbound_enterprise",
-          admin: savedAccount,
-          escrow_balance: 1000000,
+          admin: savedAccount || "Not Connected",
+          escrow_balance: 0.0,
           is_active: true
         };
 
-        // ONLY Root Treasury exists initially. Zero mock child agents, zero mock spend!
+        // ONLY Root Treasury exists initially. Strictly 0.00 escrow custody until tester deposits!
         this.grants = [
           {
             agent_id: "root_treasury",
-            account: savedAccount,
+            account: savedAccount || "rootbound-vault.testnet",
             depth: 1,
             parent_id: null,
-            allocated: 1000000,
-            available: 1000000, // 100% available, zero spent, zero reserved, zero delegated!
-            delegated: 0,
-            reserved: 0,
-            spent: 0,
+            allocated: 0.0,
+            available: 0.0, // 0 until deposited!
+            delegated: 0.0,
+            reserved: 0.0,
+            spent: 0.0,
             permitted_recipients: [...this.whitelistedVendors],
             max_per_tx: null,
             expires_at: 500000,
@@ -2462,13 +2469,15 @@
         // Clean audit stream
         this.audit_log = [
           {
-            timestamp: 1,
-            event_type: "SYSTEM_INITIALIZED",
-            details: `Root Treasury initialized with Ⓝ 1,000.00 escrow custody. Admin: ${savedAccount}`,
+            timestamp: Date.now(),
+            event_type: "VAULT_INITIALIZED",
+            details: savedAccount 
+              ? `Root Treasury initialized at Ⓝ 0.00 escrow custody. Admin: ${savedAccount}. Deposit testnet NEAR to fund agent authority.`
+              : "Root Treasury initialized at Ⓝ 0.00 escrow custody. Connect a NEAR wallet and deposit testnet tokens to begin.",
             outcome: "SUCCESS",
             error_code: null,
             tx_id: "init_vault_01",
-            explorer_url: `https://testnet.nearblocks.io/address/${savedAccount}`
+            explorer_url: savedAccount ? `https://testnet.nearblocks.io/address/${savedAccount}` : null
           }
         ];
 
@@ -2477,10 +2486,23 @@
 
       quickDeployStandardHierarchy() {
         if (this.grants.some(g => g.agent_id === "agent_pm")) return;
-        const savedAccount = localStorage.getItem('rootbound_connected_account') || 'admin.near';
-        this.createAgent("root_treasury", "agent_pm", "pm.near", 500000, 50000, [...this.whitelistedVendors]);
-        this.createAgent("agent_pm", "agent_researcher", "researcher.near", 200000, 20000, ["vendor_phala_inference.near", "vendor_vector_db.near"]);
-        this.logEvent("QUICK_SETUP", "3-tier delegation hierarchy deployed (Depth 1 -> Depth 2 -> Depth 3). Zero pre-settled spend.", "SUCCESS", null, "tx_setup_3tier", savedAccount);
+        const root = this.grants.find(g => g.depth === 1);
+        if (!root || root.available <= 0) {
+          alert("Escrow Vault is unfunded (Ⓝ 0.00). Please deposit testnet NEAR into the vault first using 'Vault Escrow' or the connect wallet modal.");
+          openVaultModal();
+          return;
+        }
+        const savedAccount = localStorage.getItem('rootbound_connected_account') || (this.organization.admin !== 'Not Connected' ? this.organization.admin : 'wahab.testnet');
+        const pmBudget = parseFloat((root.available * 0.5).toFixed(2));
+        const pmMaxTx = parseFloat((pmBudget * 0.5).toFixed(2));
+        this.createAgent("root_treasury", "agent_pm", "pm.near", pmBudget, pmMaxTx, [...this.whitelistedVendors]);
+
+        const pm = this.grants.find(g => g.agent_id === "agent_pm");
+        const resBudget = parseFloat((pm.available * 0.5).toFixed(2));
+        const resMaxTx = parseFloat((resBudget * 0.5).toFixed(2));
+        this.createAgent("agent_pm", "agent_researcher", "researcher.near", resBudget, resMaxTx, ["vendor_phala_inference.near", "vendor_vector_db.near"]);
+
+        this.logEvent("QUICK_SETUP", `3-tier hierarchy deployed from available escrow (PM: Ⓝ ${pmBudget}, Researcher: Ⓝ ${resBudget}). Zero pre-settled spend.`, "SUCCESS", null, "tx_setup_3tier", savedAccount);
         this.save();
       }
 
@@ -2506,7 +2528,9 @@
       logEvent(eventType, details, outcome, errorCode = null, txId = null, accountRef = null) {
         const targetUrl = accountRef
           ? `https://testnet.nearblocks.io/address/${accountRef}`
-          : `https://testnet.nearblocks.io/address/${this.organization.admin}`;
+          : (this.organization.admin && this.organization.admin !== 'Not Connected' 
+              ? `https://testnet.nearblocks.io/address/${this.organization.admin}` 
+              : 'https://testnet.nearblocks.io');
         this.audit_log.unshift({
           timestamp: this.audit_log.length + 1,
           event_type: eventType,
@@ -2524,7 +2548,8 @@
         for (const g of this.grants) {
           if (g.depth > 3) return false;
           const sum = g.available + g.delegated + g.reserved + g.spent;
-          if (sum !== g.allocated) return false;
+          // Float comparison with epsilon
+          if (Math.abs(sum - g.allocated) > 0.001) return false;
         }
         return true;
       }
@@ -2534,7 +2559,16 @@
         if (!parent) throw { code: "ERR_PARENT_NOT_FOUND", message: `Parent agent ${parentId} not found.` };
         if (parent.is_revoked) throw { code: "ERR_ANCESTOR_REVOKED", message: `Parent agent ${parentId} has been revoked.` };
         if (parent.depth >= 3) throw { code: "ERR_EXCEEDED_MAX_DEPTH", message: `Cannot delegate beyond max depth 3 (parent is depth ${parent.depth}).` };
-        if (budget > parent.available) throw { code: "ERR_BUDGET_EXCEEDS_PARENT_AUTHORITY", message: `Requested budget (${budget.toLocaleString()} yocto) exceeds parent available (${parent.available.toLocaleString()} yocto).` };
+
+        const numBudget = parseFloat(budget);
+        if (isNaN(numBudget) || numBudget <= 0) throw { code: "ERR_INVALID_BUDGET", message: "Budget must be greater than zero." };
+
+        if (numBudget > parent.available) {
+          throw { 
+            code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", 
+            message: `Parent agent ${parentId} has only Ⓝ ${parent.available.toFixed(2)} available, requested Ⓝ ${numBudget.toFixed(2)}.` 
+          };
+        }
         if (this.grants.some(g => g.agent_id === childId)) throw { code: "ERR_DUPLICATE_REQUEST", message: `Agent with ID ${childId} already exists.` };
 
         let childRecipients = null;
@@ -2551,21 +2585,21 @@
           childRecipients = parent.permitted_recipients ? [...parent.permitted_recipients] : null;
         }
 
-        const childLimit = maxPerTx && maxPerTx > 0 ? maxPerTx : parent.max_per_tx;
+        const childLimit = maxPerTx && parseFloat(maxPerTx) > 0 ? parseFloat(maxPerTx) : parent.max_per_tx;
 
-        parent.available -= budget;
-        parent.delegated += budget;
+        parent.available -= numBudget;
+        parent.delegated += numBudget;
 
         const newGrant = {
           agent_id: childId,
           account: childAccount,
           depth: parent.depth + 1,
           parent_id: parentId,
-          allocated: budget,
-          available: budget,
-          delegated: 0,
-          reserved: 0,
-          spent: 0,
+          allocated: numBudget,
+          available: numBudget,
+          delegated: 0.0,
+          reserved: 0.0,
+          spent: 0.0,
           permitted_recipients: childRecipients,
           max_per_tx: childLimit,
           expires_at: parent.expires_at,
@@ -2574,7 +2608,7 @@
         };
 
         this.grants.push(newGrant);
-        this.logEvent("AGENT_DEPLOYED", `Created agent ${childId} (Depth ${newGrant.depth}) under ${parentId} with budget Ⓝ ${(budget/1000).toFixed(2)}`, "SUCCESS", null, `deploy_${childId}`, childAccount);
+        this.logEvent("AGENT_DEPLOYED", `Created agent ${childId} (Depth ${newGrant.depth}) under ${parentId} with budget Ⓝ ${numBudget.toFixed(2)}`, "SUCCESS", null, `deploy_${childId}`, childAccount);
         this.save();
         return newGrant;
       }
@@ -2594,11 +2628,14 @@
           curr = parent;
         }
 
-        if (amount > agent.available) {
-          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Spend amount (${amount.toLocaleString()} yocto) exceeds agent available balance (${agent.available.toLocaleString()} yocto).` };
+        const numAmount = parseFloat(amount);
+        if (isNaN(numAmount) || numAmount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+
+        if (numAmount > agent.available) {
+          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Spend amount (Ⓝ ${numAmount.toFixed(2)}) exceeds agent available balance (Ⓝ ${agent.available.toFixed(2)}).` };
         }
-        if (agent.max_per_tx && amount > agent.max_per_tx) {
-          throw { code: "ERR_EXCEEDS_MAX_PER_TX", message: `Spend amount exceeds maximum per-transaction limit (${agent.max_per_tx.toLocaleString()} yocto).` };
+        if (agent.max_per_tx && numAmount > agent.max_per_tx) {
+          throw { code: "ERR_EXCEEDS_MAX_PER_TX", message: `Spend amount (Ⓝ ${numAmount.toFixed(2)}) exceeds maximum per-transaction limit (Ⓝ ${agent.max_per_tx.toFixed(2)}).` };
         }
         if (agent.permitted_recipients && !agent.permitted_recipients.includes(recipient)) {
           throw { code: "ERR_UNAUTHORIZED_RECIPIENT", message: `Recipient ${recipient} is not in permitted whitelist.` };
@@ -2607,47 +2644,62 @@
         const reqId = requestId || `req_${agentId}_${Date.now() % 100000}`;
         agent.nonce += 1;
 
-        agent.available -= amount;
-        agent.spent += amount;
+        agent.available -= numAmount;
+        agent.spent += numAmount;
+
+        // Trace up the ancestry tree to reflect spend at Root
+        const root = this.grants.find(g => g.depth === 1);
+        if (root && root !== agent) {
+          root.spent += numAmount;
+          if (root.delegated >= numAmount) {
+            root.delegated -= numAmount;
+          }
+        }
 
         const record = {
           request_id: reqId,
           agent_id: agentId,
           recipient: recipient,
-          amount: amount,
+          amount: numAmount,
           status: "FINALIZED",
           nonce: agent.nonce,
           failure_reason: null
         };
         this.payments.unshift(record);
-        this.logEvent("PAYMENT_SETTLED", `Agent ${agentId} transferred Ⓝ ${(amount/1000).toFixed(2)} to ${recipient}`, "SUCCESS", null, reqId, recipient);
+        this.logEvent("PAYMENT_SETTLED", `Agent ${agentId} transferred Ⓝ ${numAmount.toFixed(2)} to ${recipient}`, "SUCCESS", null, reqId, recipient);
         this.save();
         return record;
       }
 
       depositEscrow(amount) {
-        if (amount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
-        this.organization.escrow_balance += amount;
+        const amt = parseFloat(amount);
+        if (isNaN(amt) || amt <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+        this.organization.escrow_balance = (this.organization.escrow_balance || 0) + amt;
         const root = this.grants.find(g => g.depth === 1);
         if (root) {
-          root.allocated += amount;
-          root.available += amount;
+          root.allocated = (root.allocated || 0) + amt;
+          root.available = (root.available || 0) + amt;
         }
-        this.logEvent("ESCROW_DEPOSIT", `Deposited Ⓝ ${(amount/1000).toFixed(2)} into organization vault`, "SUCCESS");
+        const acc = this.organization.admin && this.organization.admin !== 'Not Connected' ? this.organization.admin : "vault.testnet";
+        const txId = `tx_near_${Date.now() % 100000}`;
+        this.logEvent("ESCROW_DEPOSIT", `Deposited Ⓝ ${amt.toFixed(2)} into organization vault from ${acc}`, "SUCCESS", null, txId, acc);
         this.save();
         return this.organization.escrow_balance;
       }
 
       withdrawEscrow(amount) {
-        if (amount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+        const amt = parseFloat(amount);
+        if (isNaN(amt) || amt <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
         const root = this.grants.find(g => g.depth === 1);
-        if (!root || root.available < amount) {
-          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Root vault uncommitted available balance is less than withdrawal amount.` };
+        if (!root || root.available < amt) {
+          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Root vault uncommitted available balance (Ⓝ ${root ? root.available.toFixed(2) : '0.00'}) is less than withdrawal amount (Ⓝ ${amt.toFixed(2)}).` };
         }
-        this.organization.escrow_balance -= amount;
-        root.allocated -= amount;
-        root.available -= amount;
-        this.logEvent("ESCROW_WITHDRAWAL", `Withdrew Ⓝ ${(amount/1000).toFixed(2)} from vault`, "SUCCESS");
+        this.organization.escrow_balance = Math.max(0, (this.organization.escrow_balance || 0) - amt);
+        root.allocated = Math.max(0, (root.allocated || 0) - amt);
+        root.available = Math.max(0, (root.available || 0) - amt);
+        const acc = this.organization.admin && this.organization.admin !== 'Not Connected' ? this.organization.admin : "vault.testnet";
+        const txId = `tx_near_${Date.now() % 100000}`;
+        this.logEvent("ESCROW_WITHDRAWAL", `Withdrew Ⓝ ${amt.toFixed(2)} from vault to ${acc}`, "SUCCESS", null, txId, acc);
         this.save();
         return this.organization.escrow_balance;
       }
@@ -2665,14 +2717,15 @@
         const child = this.grants.find(g => g.agent_id === childId);
         if (!parent || !child) throw { code: "ERR_AGENT_NOT_FOUND", message: "Agent not found." };
         if (child.parent_id !== parentId) throw { code: "ERR_IMMUTABLE_PARENT", message: "Child does not belong to specified parent." };
-        if (amount > child.available) throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: "Amount exceeds child available balance." };
+        const numAmount = parseFloat(amount);
+        if (numAmount > child.available) throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Amount (Ⓝ ${numAmount.toFixed(2)}) exceeds child available balance (Ⓝ ${child.available.toFixed(2)}).` };
 
-        child.available -= amount;
-        child.allocated -= amount;
-        parent.delegated -= amount;
-        parent.available += amount;
+        child.available -= numAmount;
+        child.allocated -= numAmount;
+        parent.delegated -= numAmount;
+        parent.available += numAmount;
 
-        this.logEvent("FUND_RECLAMATION", `Reclaimed Ⓝ ${(amount/1000).toFixed(2)} from ${childId} back to ${parentId}`, "SUCCESS");
+        this.logEvent("FUND_RECLAMATION", `Reclaimed Ⓝ ${numAmount.toFixed(2)} from ${childId} back to ${parentId}`, "SUCCESS");
         this.save();
       }
 
@@ -2684,29 +2737,29 @@
         try {
           if (attackType === "overspend") {
             const target = pm || root;
-            const excess = target.available + 50000;
+            const excess = (target.available || 0) + 50.0;
             this.dispatchPayment(target.agent_id, "vendor_shade_compute.near", excess);
           } else if (attackType === "recipient_substitution") {
             const target = pm || root;
-            this.dispatchPayment(target.agent_id, "rogue_hacker_drain.near", 10000);
+            this.dispatchPayment(target.agent_id, "rogue_hacker_drain.near", 1.0);
           } else if (attackType === "depth_exhaustion") {
             let d3 = res;
             if (!d3) {
-              const d2 = pm || this.createAgent(root.agent_id, `temp_pm_${Date.now()%1000}`, "pm.near", 50000);
-              d3 = this.createAgent(d2.agent_id, `temp_res_${Date.now()%1000}`, "res.near", 20000);
+              const d2 = pm || this.createAgent(root.agent_id, `temp_pm_${Date.now()%1000}`, "pm.near", Math.max(1.0, root.available * 0.5));
+              d3 = this.createAgent(d2.agent_id, `temp_res_${Date.now()%1000}`, "res.near", Math.max(0.5, d2.available * 0.5));
             }
-            this.createAgent(d3.agent_id, `rogue_depth_4_${Date.now() % 1000}`, "rogue.near", 10000);
+            this.createAgent(d3.agent_id, `rogue_depth_4_${Date.now() % 1000}`, "rogue.near", 0.5);
           } else if (attackType === "replay_nonce") {
             throw { code: "ERR_INVALID_NONCE", message: `Monotonic sequence check failed: nonce #1 has already been processed and finalized.` };
           } else if (attackType === "cascade_revocation") {
             let targetPm = pm;
             let targetRes = res;
             if (!targetPm) {
-              targetPm = this.createAgent(root.agent_id, `temp_pm_${Date.now()%1000}`, "pm.near", 50000);
-              targetRes = this.createAgent(targetPm.agent_id, `temp_res_${Date.now()%1000}`, "res.near", 20000);
+              targetPm = this.createAgent(root.agent_id, `temp_pm_${Date.now()%1000}`, "pm.near", Math.max(1.0, root.available * 0.5));
+              targetRes = this.createAgent(targetPm.agent_id, `temp_res_${Date.now()%1000}`, "res.near", Math.max(0.5, targetPm.available * 0.5));
             }
             this.revokeAgent(targetPm.agent_id);
-            this.dispatchPayment(targetRes.agent_id, "vendor_phala_inference.near", 5000);
+            this.dispatchPayment(targetRes.agent_id, "vendor_phala_inference.near", 0.5);
           } else if (attackType === "concurrency_race") {
             throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Atomic balance reservation conflict: competing async promise exhausted uncommitted funds.` };
           } else if (attackType === "cross_org_delegation") {
@@ -2846,8 +2899,9 @@
     }
 
     function formatNearAmount(v) {
-      if (v === undefined || v === null || isNaN(v)) return '0.00';
-      return `Ⓝ ${(v / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (v === undefined || v === null || isNaN(v)) return 'Ⓝ 0.00';
+      const num = typeof v === 'number' ? v : parseFloat(v);
+      return `Ⓝ ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
     function updateFinancialMetrics() {
@@ -2861,20 +2915,20 @@
       let totalSpent = 0;
 
       grants.forEach(g => {
-        totalAvail += g.available;
-        totalDeleg += g.delegated;
-        totalRes += g.reserved;
-        totalSpent += g.spent;
+        totalAvail += (g.available || 0);
+        totalDeleg += (g.delegated || 0);
+        totalRes += (g.reserved || 0);
+        totalSpent += (g.spent || 0);
       });
 
-      const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance, available: org.escrow_balance, delegated: 0 };
-      const escrow = org.escrow_balance || 1;
+      const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance || 0, available: org.escrow_balance || 0, delegated: 0 };
+      const escrow = org.escrow_balance || 0;
 
-      const pctAvail = ((totalAvail / escrow) * 100).toFixed(1);
-      const pctRes = ((totalRes / escrow) * 100).toFixed(1);
-      const pctSpent = ((totalSpent / escrow) * 100).toFixed(1);
+      const pctAvail = escrow > 0 ? ((totalAvail / escrow) * 100).toFixed(1) : '0.0';
+      const pctRes = escrow > 0 ? ((totalRes / escrow) * 100).toFixed(1) : '0.0';
+      const pctSpent = escrow > 0 ? ((totalSpent / escrow) * 100).toFixed(1) : '0.0';
 
-      document.getElementById('metric-total-escrow').innerText = (escrow / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('metric-total-escrow').innerText = escrow.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('metric-available-funds').innerText = formatNearAmount(totalAvail);
       document.getElementById('metric-reserved-funds').innerText = formatNearAmount(totalRes);
       document.getElementById('metric-spent-funds').innerText = formatNearAmount(totalSpent);
@@ -2883,9 +2937,9 @@
       document.getElementById('metric-res-pct').innerText = `${pctRes}%`;
       document.getElementById('metric-spent-pct').innerText = `${pctSpent}%`;
 
-      document.getElementById('bar-avail').style.width = `${Math.min(100, Math.max(0, pctAvail))}%`;
-      document.getElementById('bar-res').style.width = `${Math.min(100, Math.max(0, pctRes))}%`;
-      document.getElementById('bar-spent').style.width = `${Math.min(100, Math.max(0, pctSpent))}%`;
+      document.getElementById('bar-avail').style.width = `${Math.min(100, Math.max(0, parseFloat(pctAvail)))}%`;
+      document.getElementById('bar-res').style.width = `${Math.min(100, Math.max(0, parseFloat(pctRes)))}%`;
+      document.getElementById('bar-spent').style.width = `${Math.min(100, Math.max(0, parseFloat(pctSpent)))}%`;
 
       // Formula bar
       document.getElementById('formula-allocated').innerText = formatNearAmount(escrow);
@@ -2896,7 +2950,7 @@
 
       // Treasury view metrics
       const tg = document.getElementById('treasury-gross');
-      if (tg) tg.innerText = (escrow / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (tg) tg.innerText = escrow.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const tra = document.getElementById('treasury-root-avail');
       if (tra) tra.innerText = formatNearAmount(rootGrant.available);
       const td = document.getElementById('treasury-delegated');
@@ -2979,11 +3033,20 @@
       card.id = `node-card-${grant.agent_id}`;
       card.onclick = () => selectAgent(grant.agent_id, true);
 
-      const alloc = grant.allocated || 1;
-      const pctAvail = (grant.available / alloc) * 100;
-      const pctDeleg = (grant.delegated / alloc) * 100;
-      const pctRes = (grant.reserved / alloc) * 100;
-      const pctSpent = (grant.spent / alloc) * 100;
+      const alloc = grant.allocated || 0;
+      const pctAvail = alloc > 0 ? (grant.available / alloc) * 100 : 0;
+      const pctDeleg = alloc > 0 ? (grant.delegated / alloc) * 100 : 0;
+      const pctRes = alloc > 0 ? (grant.reserved / alloc) * 100 : 0;
+      const pctSpent = alloc > 0 ? (grant.spent / alloc) * 100 : 0;
+
+      const unfundedPrompt = (grant.depth === 1 && alloc <= 0)
+        ? `<div style="margin-top:8px; text-align:center;">
+             <button class="btn-action copper" style="padding:4px 8px; font-size:10px; width:100%;" onclick="event.stopPropagation(); openVaultModal();">
+               <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+               <span>Deposit Testnet NEAR</span>
+             </button>
+           </div>`
+        : '';
 
       card.innerHTML = `
         <div class="node-card-top">
@@ -3026,6 +3089,7 @@
             <span class="node-balance-val tabular-num">${formatNearAmount(grant.spent)}</span>
           </div>
         </div>
+        ${unfundedPrompt}
       `;
       return card;
     }
@@ -3161,7 +3225,7 @@
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px; font-family:var(--font-mono); font-size:12px;">
             <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
               <span style="color:var(--text-secondary);">Allocated Authority:</span>
-              <strong class="tabular-num">${formatNearAmount(grant.allocated)} <span style="font-size:10px; color:var(--text-tertiary);">(${grant.allocated.toLocaleString()} yocto)</span></strong>
+              <strong class="tabular-num">${formatNearAmount(grant.allocated)}</strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:var(--status-authorized);">Liquid Available:</span>
@@ -3204,6 +3268,13 @@
 
         <!-- 5. Operational Authority Actions -->
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px; border-top:1px solid var(--border-subtle); padding-top:14px;">
+          ${grant.depth === 1 ? `
+            <button class="btn-action copper" onclick="openVaultModal()">
+              <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+              <span>Deposit / Manage Escrow Custody</span>
+            </button>
+          ` : ''}
+
           ${!grant.is_revoked && grant.available > 0 ? `
             <button class="btn-action copper" onclick="openPaymentModal('${grant.agent_id}')">
               <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
@@ -3541,6 +3612,7 @@
     let near = null;
     let wallet = null;
     let currentConnectedAccount = null;
+    let liveWalletBalanceNear = null;
 
     const NEAR_CONFIG = {
       networkId: 'testnet',
@@ -3551,6 +3623,45 @@
       explorerUrl: 'https://testnet.nearblocks.io'
     };
 
+    async function fetchLiveNearBalance(accountId) {
+      if (!accountId) return { success: false, error: "No account ID" };
+      try {
+        const res = await fetch("https://rpc.testnet.near.org", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "view_acc_" + Date.now(),
+            method: "query",
+            params: {
+              request_type: "view_account",
+              finality: "final",
+              account_id: accountId
+            }
+          })
+        });
+        const data = await res.json();
+        if (data.result && data.result.amount) {
+          const yoctoStr = data.result.amount;
+          const padded = yoctoStr.padStart(25, '0');
+          const whole = padded.slice(0, padded.length - 24) || '0';
+          const frac = padded.slice(padded.length - 24, padded.length - 22);
+          const nearVal = parseFloat(`${whole}.${frac}`);
+          return {
+            success: true,
+            near: nearVal,
+            formatted: `Ⓝ ${nearVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            blockHeight: data.result.block_height
+          };
+        } else if (data.error) {
+          return { success: false, error: data.error.message || "Account not registered on testnet" };
+        }
+      } catch (err) {
+        console.warn("NEAR Testnet RPC query failed:", err);
+      }
+      return { success: false, error: "RPC unreachable" };
+    }
+
     async function initNear() {
       try {
         near = await nearApi.connect(NEAR_CONFIG);
@@ -3560,20 +3671,26 @@
           const accId = wallet.getAccountId();
           currentConnectedAccount = accId;
           updateWalletUI(accId, "Ⓝ ...");
-          try {
-            const acc = await near.account(accId);
-            const bal = await acc.getAccountBalance();
-            const nearFormatted = nearApi.utils.format.formatNearAmount(bal.available, 2);
-            updateWalletUI(accId, `Ⓝ ${nearFormatted}`);
-          } catch (e) {
-            console.warn("Could not query balance from testnet RPC:", e);
+          const rpcRes = await fetchLiveNearBalance(accId);
+          if (rpcRes.success) {
+            liveWalletBalanceNear = rpcRes.near;
+            updateWalletUI(accId, rpcRes.formatted, 'MyNearWallet');
+          } else {
+            updateWalletUI(accId, "Ⓝ 0.00", 'MyNearWallet');
           }
         } else {
           const savedAcc = localStorage.getItem('rootbound_connected_account');
           const savedBal = localStorage.getItem('rootbound_connected_balance');
-          if (savedAcc) {
+          const savedType = localStorage.getItem('rootbound_connected_type');
+          if (savedAcc && savedAcc !== 'Not Connected') {
             currentConnectedAccount = savedAcc;
-            updateWalletUI(savedAcc, savedBal || "Ⓝ 50.00");
+            updateWalletUI(savedAcc, savedBal || "Ⓝ ...", savedType);
+            fetchLiveNearBalance(savedAcc).then(r => {
+              if (r.success) {
+                liveWalletBalanceNear = r.near;
+                updateWalletUI(savedAcc, r.formatted, savedType);
+              }
+            });
           } else {
             updateWalletUI(null, null);
           }
@@ -3605,7 +3722,7 @@
       } else {
         btn.style.display = 'inline-flex';
         badge.style.display = 'none';
-        if (adminNav) adminNav.innerText = 'admin.near';
+        if (adminNav) adminNav.innerText = 'Disconnected';
       }
     }
 
@@ -3754,15 +3871,18 @@
 
     async function setupConnectedWallet(accId, walletType = 'NEAR') {
       currentConnectedAccount = accId;
-      let balStr = "Ⓝ ...";
-      try {
-        if (!near) await initNear();
-        const acc = await near.account(accId);
-        const bal = await acc.getAccountBalance();
-        balStr = `Ⓝ ${nearApi.utils.format.formatNearAmount(bal.available, 2)}`;
-      } catch (e) {
-        balStr = "Ⓝ 25.00";
+      updateWalletUI(accId, "Ⓝ ...", walletType);
+
+      const rpcRes = await fetchLiveNearBalance(accId);
+      let balStr = "Ⓝ 0.00";
+      if (rpcRes.success) {
+        liveWalletBalanceNear = rpcRes.near;
+        balStr = rpcRes.formatted;
+      } else {
+        liveWalletBalanceNear = 0;
+        balStr = "Ⓝ 0.00 (Unregistered)";
       }
+
       localStorage.setItem('rootbound_connected_account', accId);
       localStorage.setItem('rootbound_connected_balance', balStr);
       localStorage.setItem('rootbound_connected_type', walletType);
@@ -3793,11 +3913,12 @@
       localStorage.removeItem('rootbound_connected_balance');
       localStorage.removeItem('rootbound_connected_type');
       currentConnectedAccount = null;
+      liveWalletBalanceNear = null;
 
       if (clientEngine && clientEngine.organization) {
-        clientEngine.organization.admin = 'admin.near';
+        clientEngine.organization.admin = 'Not Connected';
         const root = clientEngine.grants.find(g => g.depth === 1);
-        if (root) root.account = 'admin.near';
+        if (root) root.account = 'rootbound-vault.testnet';
         clientEngine.save();
       }
 
@@ -3832,10 +3953,14 @@
         select.appendChild(opt);
       });
 
+      const parentId = preselectedParentId || (eligibleParents[0] ? eligibleParents[0].agent_id : 'root_treasury');
+      const parent = appState.grants.find(g => g.agent_id === parentId);
+      const defaultBudget = parent && parent.available > 0 ? (parent.available * 0.5).toFixed(2) : '1.0';
+
       const uniqueSuffix = Math.floor(Math.random() * 900 + 100);
       document.getElementById('deploy-child-id').value = `agent_worker_${uniqueSuffix}`;
       document.getElementById('deploy-child-account').value = `worker_${uniqueSuffix}.near`;
-      document.getElementById('deploy-budget').value = '100000';
+      document.getElementById('deploy-budget').value = defaultBudget;
       document.getElementById('deploy-max-per-tx').value = '';
       document.getElementById('deploy-recipients').value = '';
       
@@ -3864,9 +3989,9 @@
       const parentId = document.getElementById('deploy-parent-select').value;
       const childId = document.getElementById('deploy-child-id').value.trim();
       const childAcc = document.getElementById('deploy-child-account').value.trim();
-      const budget = parseInt(document.getElementById('deploy-budget').value, 10);
+      const budget = parseFloat(document.getElementById('deploy-budget').value);
       const maxPerTxVal = document.getElementById('deploy-max-per-tx').value.trim();
-      const maxPerTx = maxPerTxVal ? parseInt(maxPerTxVal, 10) : null;
+      const maxPerTx = maxPerTxVal ? parseFloat(maxPerTxVal) : null;
       const recRaw = document.getElementById('deploy-recipients').value.trim();
       const recipients = recRaw ? recRaw.split(',').map(s => s.trim()).filter(Boolean) : null;
 
@@ -3874,7 +3999,7 @@
 
       if (!childId || !childAcc || isNaN(budget) || budget <= 0) {
         alertBox.className = 'modal-alert error';
-        alertBox.innerText = 'Please provide valid agent ID, account, and budget.';
+        alertBox.innerText = 'Please provide valid agent ID, account, and positive NEAR budget.';
         alertBox.style.display = 'block';
         return;
       }
@@ -3907,7 +4032,7 @@
         } catch (e) {}
 
         alertBox.className = 'modal-alert success';
-        alertBox.innerText = `Agent ${childId} deployed successfully on-chain!`;
+        alertBox.innerText = `Agent ${childId} deployed successfully with Ⓝ ${budget.toFixed(2)} budget!`;
         alertBox.style.display = 'block';
         await fetchAppState();
         setTimeout(closeDeployAgentModal, 800);
@@ -3928,7 +4053,7 @@
 
       const eligiblePayers = appState.grants.filter(g => !g.is_revoked && g.available > 0);
       if (eligiblePayers.length === 0) {
-        alert("No active agents currently have available balance to spend.");
+        alert("No active agents currently have available balance to spend. Deposit funds into Escrow Vault or delegate budget first.");
         return;
       }
 
@@ -3942,9 +4067,13 @@
         select.appendChild(opt);
       });
 
+      const payerId = preselectedPayerId || eligiblePayers[0].agent_id;
+      const payer = appState.grants.find(g => g.agent_id === payerId);
+      const defaultAmount = payer && payer.available > 0 ? (payer.available * 0.25).toFixed(2) : '1.0';
+
       const uniqueSuffix = Math.floor(Math.random() * 9000 + 1000);
       document.getElementById('payment-request-id').value = `req_live_${uniqueSuffix}`;
-      document.getElementById('payment-amount').value = '10000';
+      document.getElementById('payment-amount').value = defaultAmount;
       document.getElementById('payment-recipient').value = 'vendor_shade_compute.near';
 
       const alertBox = document.getElementById('payment-alert');
@@ -3972,13 +4101,13 @@
     async function submitPayment() {
       const payerId = document.getElementById('payment-payer-select').value;
       const recipient = document.getElementById('payment-recipient').value.trim();
-      const amount = parseInt(document.getElementById('payment-amount').value, 10);
+      const amount = parseFloat(document.getElementById('payment-amount').value);
       const reqId = document.getElementById('payment-request-id').value.trim();
       const alertBox = document.getElementById('payment-alert');
 
       if (!recipient || isNaN(amount) || amount <= 0) {
         alertBox.className = 'modal-alert error';
-        alertBox.innerText = 'Please enter a valid recipient and payment amount.';
+        alertBox.innerText = 'Please enter a valid recipient and positive payment amount.';
         alertBox.style.display = 'block';
         return;
       }
@@ -4008,7 +4137,7 @@
         } catch(e) {}
 
         alertBox.className = 'modal-alert success';
-        alertBox.innerText = `Payment ${reqId} settled successfully!`;
+        alertBox.innerText = `Payment ${reqId} settled successfully for Ⓝ ${amount.toFixed(2)}!`;
         alertBox.style.display = 'block';
         await fetchAppState();
         setTimeout(closePaymentModal, 800);
@@ -4026,9 +4155,15 @@
 
     function openVaultModal() {
       if (!appState || !appState.organization) return;
-      document.getElementById('vault-balance-helper').innerText = 
-        `Current Escrow Custody: ${formatNearAmount(appState.organization.escrow_balance)}`;
-      document.getElementById('vault-amount').value = '100000';
+      const currentEscrow = appState.organization.escrow_balance || 0;
+      const helper = document.getElementById('vault-balance-helper');
+      if (helper) {
+        const walletInfo = currentConnectedAccount 
+          ? ` | Connected Wallet (${currentConnectedAccount}): <strong>${liveWalletBalanceNear !== null ? 'Ⓝ ' + liveWalletBalanceNear.toFixed(2) : '...'}</strong>` 
+          : ' | (No wallet connected)';
+        helper.innerHTML = `Current Escrow Custody: <strong>${formatNearAmount(currentEscrow)}</strong>${walletInfo}`;
+      }
+      document.getElementById('vault-amount').value = liveWalletBalanceNear && liveWalletBalanceNear >= 10 ? '10.0' : '5.0';
       document.getElementById('vault-alert').style.display = 'none';
       switchVaultTab('deposit');
       document.getElementById('vault-modal').classList.add('active');
@@ -4049,11 +4184,11 @@
     }
 
     async function submitVaultAction() {
-      const amount = parseInt(document.getElementById('vault-amount').value, 10);
+      const amount = parseFloat(document.getElementById('vault-amount').value);
       const alertBox = document.getElementById('vault-alert');
       if (isNaN(amount) || amount <= 0) {
         alertBox.className = 'modal-alert error';
-        alertBox.innerText = 'Please specify a valid amount.';
+        alertBox.innerText = 'Please specify a positive NEAR amount.';
         alertBox.style.display = 'block';
         return;
       }
@@ -4061,6 +4196,14 @@
       try {
         if (currentVaultTab === 'deposit') {
           clientEngine.depositEscrow(amount);
+          if (currentConnectedAccount) {
+            fetchLiveNearBalance(currentConnectedAccount).then(r => {
+              if (r && r.success) {
+                liveWalletBalanceNear = r.near;
+                updateWalletUI(currentConnectedAccount, r.formatted);
+              }
+            });
+          }
         } else {
           clientEngine.withdrawEscrow(amount);
         }
@@ -4119,10 +4262,10 @@
             attachedDeposit: yocto
           });
         } else {
-          const amountUnits = Math.round(parseFloat(amtNear) * 1000);
-          clientEngine.depositEscrow(amountUnits);
+          const amountNear = parseFloat(amtNear);
+          clientEngine.depositEscrow(amountNear);
           await fetchAppState();
-          alert(`Testnet Escrow Deposit recorded: Ⓝ ${amtNear} deposited by ${currentConnectedAccount}`);
+          alert(`Testnet Escrow Deposit recorded: Ⓝ ${amountNear.toFixed(2)} deposited by ${currentConnectedAccount}`);
         }
       } catch (err) {
         alert("Testnet transaction: " + err.message);
@@ -4183,8 +4326,7 @@
           });
         } else {
           const budgetNear = parseFloat(document.getElementById('form-testnet-budget').value);
-          const budgetUnits = Math.round(budgetNear * 1000);
-          clientEngine.createAgent(parent, child, childAcc, budgetUnits, null, null);
+          clientEngine.createAgent(parent, child, childAcc, budgetNear, null, null);
           await fetchAppState();
           alert(`Testnet Delegation Grant deployed: ${child} created with Ⓝ ${budgetNear} budget!`);
         }

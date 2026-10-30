@@ -37,18 +37,18 @@ class DashboardState:
         self.audit_log: List[Dict[str, Any]] = []
 
         if clean:
-            # Pure clean state: only root treasury, zero mock child agents, zero mock payments, zero mock spend
+            # Pure clean state: only root treasury, zero mock child agents, zero mock payments, zero mock spend, zero mock escrow!
             self.engine.create_organization(
                 org_id=self.org_id,
                 admin=self.admin,
-                escrow_deposit=1_000_000,
+                escrow_deposit=0,
                 root_agent_id="root_treasury",
                 expires_at=500_000,
                 timestamp=1000
             )
             self.pm = None
             self.researcher = None
-            self.log_event("INITIALIZATION", "Organization and Root Treasury vault initialized with 1,000,000 yoctoNEAR.", "SUCCESS")
+            self.log_event("INITIALIZATION", "Organization and Root Treasury vault initialized at 0.00 Ⓝ. Awaiting wallet connection and escrow deposit.", "SUCCESS")
             return
 
         # Bootstrap Economy with standard 3-tier agents for tests

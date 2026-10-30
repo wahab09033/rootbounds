@@ -43,9 +43,9 @@ class RootboundEngine:
             raise RootboundSecurityException(
                 ErrorCode.ERR_DUPLICATE_REQUEST, f"Grant for root agent {root_agent_id} already exists"
             )
-        if escrow_deposit <= 0:
+        if escrow_deposit < 0:
             raise RootboundSecurityException(
-                ErrorCode.ERR_INSUFFICIENT_AVAILABLE_BUDGET, "Escrow deposit must be positive"
+                ErrorCode.ERR_INSUFFICIENT_AVAILABLE_BUDGET, "Escrow deposit cannot be negative"
             )
         if expires_at <= timestamp:
             raise RootboundSecurityException(
