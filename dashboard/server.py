@@ -337,7 +337,8 @@ class DashboardState:
 
     def execute_revocation(self, agent_id: str) -> Dict[str, Any]:
         try:
-            self.engine.revoke_grant(self.admin, self.org_id, agent_id, timestamp=int(time.time()))
+            now = 1000 + len(self.audit_log)
+            self.engine.revoke_grant(self.admin, self.org_id, agent_id, timestamp=now)
             self.log_event("POLICY_REVOCATION", f"Agent {agent_id} grant revoked by Admin.", "SUCCESS")
             return {"success": True, "message": f"Agent {agent_id} successfully revoked."}
         except Exception as e:
@@ -345,9 +346,106 @@ class DashboardState:
 
     def execute_reclaim(self, parent_agent_id: str, child_agent_id: str, amount: int) -> Dict[str, Any]:
         try:
-            self.engine.reclaim_delegated_funds(self.admin, self.org_id, parent_agent_id, child_agent_id, amount, timestamp=int(time.time()))
+            now = 1000 + len(self.audit_log)
+            self.engine.reclaim_delegated_funds(self.admin, self.org_id, parent_agent_id, child_agent_id, amount, timestamp=now)
             self.log_event("FUND_RECLAMATION", f"Reclaimed {amount:,} yoctoNEAR from {child_agent_id} back to {parent_agent_id}.", "SUCCESS")
             return {"success": True, "message": f"Successfully reclaimed {amount:,} to {parent_agent_id}."}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def execute_create_agent(
+        self,
+        parent_agent_id: str,
+        child_agent_id: str,
+        child_account: str,
+        budget: int,
+        permitted_recipients: Any = None,
+        max_per_tx: Any = None,
+        expires_at: Any = None
+    ) -> Dict[str, Any]:
+        try:
+            parent = self.engine.grants.get(parent_agent_id)
+            if not parent:
+                return {"success": False, "error": f"Parent agent {parent_agent_id} not found."}
+
+            now = 1000 + len(self.audit_log)
+            exp = int(expires_at) if (expires_at and int(expires_at) > now and int(expires_at) <= parent.expires_at) else parent.expires_at
+            recipients_set = set(permitted_recipients) if (permitted_recipients and len(permitted_recipients) > 0) else (
+                parent.permitted_recipients.copy() if parent.permitted_recipients else None
+            )
+            limit = int(max_per_tx) if (max_per_tx and int(max_per_tx) > 0) else parent.max_per_tx
+
+            grant = self.engine.create_delegation_grant(
+                caller=self.admin,
+                org_id=self.org_id,
+                parent_agent_id=parent_agent_id,
+                child_agent_id=child_agent_id,
+                child_account=child_account,
+                budget=budget,
+                expires_at=exp,
+                permitted_recipients=recipients_set,
+                max_per_tx=limit,
+                timestamp=now
+            )
+            self.log_event("AGENT_DEPLOYED", f"Created agent {child_agent_id} (Depth {grant.depth}) under {parent_agent_id} with budget {budget:,} yoctoNEAR.", "SUCCESS")
+            return {"success": True, "message": f"Agent {child_agent_id} successfully deployed.", "agent_id": child_agent_id}
+        except RootboundSecurityException as sec_err:
+            self.log_event(f"DEPLOYMENT_REJECTED", f"Policy prevented grant creation: {sec_err.message}", "REJECTED", error_code=sec_err.code.value)
+            return {"success": False, "error": sec_err.message, "error_code": sec_err.code.value}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def execute_custom_payment(
+        self,
+        agent_id: str,
+        recipient: str,
+        amount: int,
+        request_id: Any = None
+    ) -> Dict[str, Any]:
+        try:
+            grant = self.engine.grants.get(agent_id)
+            if not grant:
+                return {"success": False, "error": f"Agent {agent_id} not found."}
+
+            now = 1000 + len(self.audit_log)
+            req_id = request_id if request_id else f"req_{agent_id}_{now}_{grant.nonce + 1}"
+            promise = self.async_engine.dispatch_payment_async(
+                caller=grant.agent_account,
+                org_id=self.org_id,
+                agent_id=agent_id,
+                recipient=recipient,
+                amount=amount,
+                request_id=req_id,
+                nonce=grant.nonce + 1,
+                timestamp=now
+            )
+            # Settle callback on NEAR
+            self.async_engine.settle_promise(promise.promise_id, timestamp=now + 1)
+            self.log_event("PAYMENT_SETTLED", f"Agent {agent_id} transferred {amount:,} yoctoNEAR to {recipient}.", "SUCCESS", tx_id=req_id)
+            return {"success": True, "message": f"Payment {req_id} settled successfully.", "tx_id": req_id}
+        except RootboundSecurityException as sec_err:
+            self.log_event(f"PAYMENT_REJECTED", f"Policy intercepted spend: {sec_err.message}", "REJECTED", error_code=sec_err.code.value)
+            return {"success": False, "rejected": True, "error": sec_err.message, "error_code": sec_err.code.value}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def execute_deposit_escrow(self, amount: int) -> Dict[str, Any]:
+        try:
+            new_bal = self.engine.deposit_escrow(self.org_id, amount, self.admin)
+            self.log_event("ESCROW_DEPOSIT", f"Deposited {amount:,} yoctoNEAR into {self.org_id} vault.", "SUCCESS")
+            return {"success": True, "message": f"Successfully deposited {amount:,} yoctoNEAR.", "escrow_balance": new_bal}
+        except RootboundSecurityException as sec_err:
+            return {"success": False, "error": sec_err.message, "error_code": sec_err.code.value}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def execute_withdraw_escrow(self, amount: int) -> Dict[str, Any]:
+        try:
+            new_bal = self.engine.withdraw_escrow(self.org_id, amount, self.admin)
+            self.log_event("ESCROW_WITHDRAWAL", f"Withdrew {amount:,} yoctoNEAR from {self.org_id} vault.", "SUCCESS")
+            return {"success": True, "message": f"Successfully withdrew {amount:,} yoctoNEAR.", "escrow_balance": new_bal}
+        except RootboundSecurityException as sec_err:
+            return {"success": False, "error": sec_err.message, "error_code": sec_err.code.value}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
@@ -426,6 +524,33 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             amount = int(payload.get("amount", 0))
             res = STATE.execute_reclaim(parent_id, child_id, amount)
             self._send_json(res)
+        elif self.path == "/api/action/create-agent":
+            res = STATE.execute_create_agent(
+                parent_agent_id=payload.get("parent_agent_id"),
+                child_agent_id=payload.get("child_agent_id"),
+                child_account=payload.get("child_account"),
+                budget=int(payload.get("budget", 0)),
+                permitted_recipients=payload.get("permitted_recipients"),
+                max_per_tx=payload.get("max_per_tx"),
+                expires_at=payload.get("expires_at")
+            )
+            self._send_json(res)
+        elif self.path == "/api/action/payment":
+            res = STATE.execute_custom_payment(
+                agent_id=payload.get("agent_id"),
+                recipient=payload.get("recipient"),
+                amount=int(payload.get("amount", 0)),
+                request_id=payload.get("request_id")
+            )
+            self._send_json(res)
+        elif self.path == "/api/action/deposit":
+            amount = int(payload.get("amount", 0))
+            res = STATE.execute_deposit_escrow(amount)
+            self._send_json(res)
+        elif self.path == "/api/action/withdraw":
+            amount = int(payload.get("amount", 0))
+            res = STATE.execute_withdraw_escrow(amount)
+            self._send_json(res)
         else:
             self.send_response(404)
             self.end_headers()
@@ -441,8 +566,8 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         pass
 
 def start_dashboard_server(port: int = 8080):
-    server = HTTPServer(("127.0.0.1", port), DashboardRequestHandler)
-    print(f"ROOTBOUND Dashboard Server running at http://127.0.0.1:{port}")
+    server = HTTPServer(("0.0.0.0", port), DashboardRequestHandler)
+    print(f"ROOTBOUND Dashboard Server running at http://localhost:{port}")
     return server
 
 if __name__ == "__main__":
