@@ -1,0 +1,25 @@
+[package]
+name = "rootbound"
+version = "0.1.0"
+authors = ["ROOTBOUND Team <wahab@near.org>"]
+edition = "2021"
+description = "Hierarchical budget delegation and policy engine for autonomous AI agents on NEAR"
+repository = "https://github.com/wahab/rootbounds"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = { version = "5.5.0", default-features = false, features = ["legacy", "unit-testing"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+schemars = "0.8"
+thiserror = "1.0"
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true

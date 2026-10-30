@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROOTBOUND — AI Agent Governance & Attack Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --card-bg: #111726;
+      --border-color: #1e293b;
+      --accent-cyan: #00ec97;
+      --accent-blue: #00c0f9;
+      --accent-red: #ff4d4d;
+      --accent-yellow: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #00ec97 0%, #00c0f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .badge-success { background: rgba(0, 236, 151, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+    .badge-danger { background: rgba(255, 77, 77, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+    .badge-info { background: rgba(0, 192, 249, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+    @media(max-width: 1024px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--accent-cyan);
+    }
+
+    /* Hierarchy Tree */
+    .tree-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+    .agent-node {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .agent-node.depth-1 { border-left: 4px solid var(--accent-cyan); }
+    .agent-node.depth-2 { border-left: 4px solid var(--accent-blue); margin-left: 24px; }
+    .agent-node.depth-3 { border-left: 4px solid var(--accent-yellow); margin-left: 48px; }
+    .agent-node.revoked { border-color: var(--accent-red); background: rgba(255, 77, 77, 0.04); }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .node-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .balance-bar-container {
+      margin: 12px 0;
+    }
+    .balance-chips {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .chip {
+      background: #0f1522;
+      border: 1px solid #1e293b;
+      padding: 6px 8px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .chip-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+    .chip-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+    .chip-val.available { color: var(--accent-cyan); }
+    .chip-val.reserved { color: var(--accent-yellow); }
+    .chip-val.spent { color: var(--accent-blue); }
+
+    /* Simulator Panel */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button {
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: #27354f;
+      border-color: #3b82f6;
+    }
+    button.btn-primary {
+      background: linear-gradient(135deg, rgba(0, 236, 151, 0.2) 0%, rgba(0, 192, 249, 0.2) 100%);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+    button.btn-primary:hover {
+      background: linear-gradient(135deg, rgba(0, 236, 151, 0.35) 0%, rgba(0, 192, 249, 0.35) 100%);
+    }
+    button.btn-danger {
+      border-color: rgba(255, 77, 77, 0.4);
+      color: #ffa1a1;
+    }
+    button.btn-danger:hover {
+      background: rgba(255, 77, 77, 0.15);
+      border-color: var(--accent-red);
+    }
+
+    /* Audit Terminal */
+    .terminal {
+      background: #070a0f;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .terminal-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid #141b2b;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .entry-type { font-weight: 700; }
+    .entry-desc { color: #cbd5e1; }
+    .entry-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+    }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>ROOTBOUND</h1>
+      <span class="badge badge-info">NEAR Protocol AI Security</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="/demo_video.html" style="color: var(--cyan); background: rgba(0, 236, 151, 0.1); border: 1px solid var(--cyan); text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+        🎬 Watch Interactive Video Demo
+      </a>
+      <span id="invariant-badge" class="badge badge-success">INVARIANTS 100% SATISFIED</span>
+      <button onclick="resetState()" style="padding: 6px 12px; font-size: 12px;">Reset Demo</button>
+    </div>
+  </header>
+
+  <div class="grid-layout">
+    <!-- Left Column: Delegation Tree & Live Balances -->
+    <main>
+      <div class="card">
+        <div class="card-title">
+          <span>Root-Bound Hierarchy & 5-State Accounting Tree</span>
+          <span style="font-size: 12px; color: var(--text-muted);">Max Depth: 3 Levels</span>
+        </div>
+        <div id="tree-root" class="tree-container">
+          <p style="color: var(--text-muted);">Loading hierarchy...</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>Live On-Chain Policy & Audit Ledger</span>
+          <span style="font-size: 12px; color: var(--text-muted);">NEAR Consensus Verification</span>
+        </div>
+        <div id="audit-terminal" class="terminal">
+          <p style="color: var(--text-muted);">Awaiting transactions...</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Column: Interactive Attack Simulator -->
+    <aside>
+      <div class="card">
+        <div class="card-title">
+          <span>Adversarial Attack Simulator</span>
+          <span class="badge badge-danger">Live Injection</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          Trigger malicious attacks against the contract. ROOTBOUND mathematically enforces policy rules and guarantees structured on-chain rejection.
+        </p>
+
+        <div class="btn-group">
+          <button class="btn-primary" onclick="triggerLegitimatePurchase()">
+            <span>✅ Legitimate Multi-Tier Purchase</span>
+            <span style="font-size: 11px;">Happy Path</span>
+          </button>
+          
+          <button class="btn-danger" onclick="triggerAttack('overspend')">
+            <span>💥 Budget Overspending Attack</span>
+            <span class="badge badge-danger">Exceeds Budget</span>
+          </button>
+
+          <button class="btn-danger" onclick="triggerAttack('recipient_substitution')">
+            <span>🎯 Recipient Substitution (Prompt Injection)</span>
+            <span class="badge badge-danger">Unauthorized Payee</span>
+          </button>
+
+          <button class="btn-danger" onclick="triggerAttack('depth_exhaustion')">
+            <span>🌲 Depth Limit Breach (Depth 4)</span>
+            <span class="badge badge-danger">Max Depth = 3</span>
+          </button>
+
+          <button class="btn-danger" onclick="triggerAttack('concurrency_race')">
+            <span>⚡ Concurrent Double-Spend Race</span>
+            <span class="badge badge-danger">Race Condition</span>
+          </button>
+
+          <button class="btn-danger" onclick="triggerAttack('replay_nonce')">
+            <span>🔁 Nonce Replay Attack</span>
+            <span class="badge badge-danger">Anti-Replay</span>
+          </button>
+
+          <button class="btn-danger" onclick="triggerAttack('cascade_revocation')">
+            <span>⛓️ Cascade Revocation Attack</span>
+            <span class="badge badge-danger">Paralyze Branch</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>Security Invariant Guarantees</span>
+        </div>
+        <ul style="font-size: 12px; color: var(--text-muted); list-style: square; padding-left: 18px; display: flex; flex-direction: column; gap: 8px;">
+          <li><strong>Budget Conservation:</strong> Allocated ≡ Available + Delegated + Reserved + Spent</li>
+          <li><strong>Strict Attenuation:</strong> Child constraints strictly narrow parent bounds.</li>
+          <li><strong>Instant Revocation:</strong> Revoked ancestors instantly paralyze descendants.</li>
+          <li><strong>Zero Lock Leakage:</strong> Failed transfers safely restore reservations to Available.</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    async function fetchState() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+        renderTree(data.grants);
+        renderAudit(data.audit_log);
+        
+        const badge = document.getElementById('invariant-badge');
+        if (data.invariants_satisfied) {
+          badge.className = 'badge badge-success';
+          badge.innerText = 'INVARIANTS 100% SATISFIED';
+        } else {
+          badge.className = 'badge badge-danger';
+          badge.innerText = 'INVARIANT VIOLATION DETECTED';
+        }
+      } catch (err) {
+        console.error("Failed to fetch state:", err);
+      }
+    }
+
+    function renderTree(grants) {
+      const root = document.getElementById('tree-root');
+      root.innerHTML = '';
+      grants.forEach(g => {
+        const div = document.createElement('div');
+        const depthClass = `depth-${g.depth}`;
+        const revokedClass = g.is_revoked ? 'revoked' : '';
+        div.className = `agent-node ${depthClass} ${revokedClass}`;
+
+        const roleLabel = g.depth === 1 ? 'Root Vault (Depth 1)' : g.depth === 2 ? 'Project Manager (Depth 2)' : 'Research Agent (Depth 3)';
+        const statusBadge = g.is_revoked ? '<span class="badge badge-danger">REVOKED</span>' : '<span class="badge badge-success">ACTIVE</span>';
+
+        div.innerHTML = `
+          <div class="node-header">
+            <div>
+              <span class="node-id">${g.agent_id}</span>
+              <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">(${g.account})</span>
+            </div>
+            <div>
+              <span class="badge badge-info">${roleLabel}</span>
+              ${statusBadge}
+            </div>
+          </div>
+          <div class="balance-chips">
+            <div class="chip">
+              <div class="chip-label">Allocated</div>
+              <div class="chip-val">${g.allocated.toLocaleString()}</div>
+            </div>
+            <div class="chip">
+              <div class="chip-label">Available</div>
+              <div class="chip-val available">${g.available.toLocaleString()}</div>
+            </div>
+            <div class="chip">
+              <div class="chip-label">Delegated</div>
+              <div class="chip-val">${g.delegated.toLocaleString()}</div>
+            </div>
+            <div class="chip">
+              <div class="chip-label">Reserved</div>
+              <div class="chip-val reserved">${g.reserved.toLocaleString()}</div>
+            </div>
+            <div class="chip">
+              <div class="chip-label">Spent</div>
+              <div class="chip-val spent">${g.spent.toLocaleString()}</div>
+            </div>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; display: flex; justify-content: space-between;">
+            <span>Nonce: <code>${g.nonce}</code> | Expiry: <code>${g.expires_at}</code></span>
+            <span>Permitted Payees: <code>${g.permitted_recipients ? g.permitted_recipients.length : 'Unrestricted'}</code></span>
+          </div>
+        `;
+        root.appendChild(div);
+      });
+    }
+
+    function renderAudit(logs) {
+      const term = document.getElementById('audit-terminal');
+      term.innerHTML = '';
+      if (!logs || logs.length === 0) {
+        term.innerHTML = '<p style="color: var(--text-muted);">No entries yet.</p>';
+        return;
+      }
+      logs.forEach(l => {
+        const item = document.createElement('div');
+        item.className = 'terminal-entry';
+        const badgeClass = l.outcome === 'SUCCESS' ? 'badge-success' : l.outcome === 'REJECTED' ? 'badge-danger' : 'badge-warning';
+        item.innerHTML = `
+          <div class="entry-header">
+            <span class="entry-type">${l.event_type}</span>
+            <span class="badge ${badgeClass}">${l.outcome}</span>
+          </div>
+          <div class="entry-desc">${l.details}</div>
+          <div class="entry-meta">
+            <span>TX: <code>${l.tx_id}</code></span>
+            ${l.error_code ? `<span style="color: var(--accent-red);">Error: <strong>${l.error_code}</strong></span>` : ''}
+            <a href="${l.explorer_url}" target="_blank">Inspect On NEAR ↗</a>
+          </div>
+        `;
+        term.appendChild(item);
+      });
+    }
+
+    async function triggerLegitimatePurchase() {
+      await fetch('/api/action/legitimate-purchase', { method: 'POST' });
+      await fetchState();
+    }
+
+    async function triggerAttack(type) {
+      await fetch('/api/action/attack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attack_type: type })
+      });
+      await fetchState();
+    }
+
+    async function resetState() {
+      await fetch('/api/action/reset', { method: 'POST' });
+      await fetchState();
+    }
+
+    // Initial state fetch
+    fetchState();
+    setInterval(fetchState, 3000);
+  </script>
+</body>
+</html>
