@@ -1918,6 +1918,13 @@
       <path d="M12 3v18"/>
       <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
     </symbol>
+    <symbol id="icon-droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+    </symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+    </symbol>
   </svg>
 
   <!-- =========================================================================
@@ -1950,6 +1957,12 @@
     </div>
 
     <div class="header-controls">
+      <!-- Live NEAR Testnet Token Faucet -->
+      <button class="btn-wallet-connect" onclick="openFaucetModal()" title="Request free NEAR Testnet tokens for gas and treasury custody" style="border-color: rgba(183, 123, 84, 0.4); color: var(--accent-copper);">
+        <svg class="lucide-icon sm"><use href="#icon-droplet"></use></svg>
+        <span>Request Testnet Tokens</span>
+      </button>
+
       <!-- Live NEAR Testnet Wallet Connect -->
       <button id="btn-connect-near-wallet" class="btn-wallet-connect" onclick="openWalletModal()">
         <svg class="lucide-icon sm"><use href="#icon-wallet"></use></svg>
@@ -2665,6 +2678,17 @@
       </div>
       <p class="modal-desc">Connect an active NEAR wallet to control financial authority, deploy agents, and sign transactions.</p>
 
+      <!-- Free Testnet NEAR Banner -->
+      <div style="background: rgba(183, 123, 84, 0.08); border: 1px solid rgba(183, 123, 84, 0.28); border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg class="lucide-icon sm" style="color: var(--accent-copper);"><use href="#icon-droplet"></use></svg>
+          <span style="font-size: 12px; color: var(--text-secondary);">Need free NEAR testnet tokens for gas and escrow?</span>
+        </div>
+        <button onclick="closeWalletModal(); openFaucetModal();" class="status-pill copper" style="cursor: pointer; border: none; font-size: 11px; padding: 3px 8px; font-weight: 600;">
+          Claim Testnet Tokens →
+        </button>
+      </div>
+
       <div class="modal-tabs">
         <button id="tab-btn-wallets" class="modal-tab-btn active" onclick="switchWalletModalTab('wallets')">Extension & Web Wallets</button>
         <button id="tab-btn-operator" class="modal-tab-btn" onclick="switchWalletModalTab('operator')">Testnet Operator Session</button>
@@ -2703,6 +2727,35 @@
             <span class="status-pill" id="wallet-pill-meteor" style="font-size:10px;">Connect →</span>
           </div>
 
+          <!-- Meteor Inline Fallback / Web Connect Helper -->
+          <div id="meteor-helper-card" style="display:none; margin: -4px 0 10px 0; padding: 12px 14px; background: rgba(167, 139, 250, 0.05); border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #a78bfa;">Meteor Wallet Connection</span>
+              <button onclick="toggleMeteorInlineHelper(false)" style="background:transparent; border:none; color:var(--text-tertiary); cursor:pointer; font-size:13px;" title="Close helper">✕</button>
+            </div>
+            <p style="font-size: 11px; color: var(--text-secondary); margin: 0 0 10px 0; line-height: 1.4;">
+              If your Meteor extension was not automatically detected or you use the Meteor Web Wallet, enter your testnet account ID below or open the official Meteor app:
+            </p>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <input id="meteor-account-input" class="form-input code-font" style="flex: 1; padding: 6px 10px; font-size: 12px;" placeholder="e.g. yourname.testnet" />
+              <button class="btn-action copper" style="padding: 6px 12px; font-size: 11px;" onclick="activateMeteorWebAccount()">Connect</button>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="https://wallet.meteorwallet.app" target="_blank" class="chip-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-size:10px;">
+                <span>Open Meteor Web</span>
+                <svg class="lucide-icon sm" style="width:10px; height:10px;"><use href="#icon-external-link"></use></svg>
+              </a>
+              <a href="https://chromewebstore.google.com/detail/meteor-wallet/pcndjhknnfligdfngbkggaoggigflabe" target="_blank" class="chip-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-size:10px;">
+                <span>Chrome Extension</span>
+                <svg class="lucide-icon sm" style="width:10px; height:10px;"><use href="#icon-external-link"></use></svg>
+              </a>
+              <button type="button" class="chip-btn" onclick="startWalletExtensionWatcher();" style="display:inline-flex; align-items:center; gap:4px; font-size:10px;">
+                <svg class="lucide-icon sm" style="width:10px; height:10px;"><use href="#icon-rotate"></use></svg>
+                <span>Retry Detect</span>
+              </button>
+            </div>
+          </div>
+
           <!-- 3. Nightly Wallet -->
           <div class="wallet-option-card" onclick="connectNightlyWallet()">
             <div class="wallet-card-left">
@@ -2732,9 +2785,12 @@
           </div>
         </div>
 
-        <div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding-top:4px;">
-          Don't have Sender Wallet installed? 
-          <a href="https://sender.org" target="_blank" style="color:var(--accent-copper); text-decoration:none; font-weight:600;">Get Sender Extension ↗</a>
+        <div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding-top:6px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <span>Get: <a href="https://meteorwallet.app" target="_blank" style="color:var(--accent-copper); text-decoration:none; font-weight:600;">Meteor Wallet ↗</a></span>
+          <span>·</span>
+          <span><a href="https://sender.org" target="_blank" style="color:var(--accent-copper); text-decoration:none; font-weight:600;">Sender Wallet ↗</a></span>
+          <span>·</span>
+          <span><a href="https://testnet.mynearwallet.com" target="_blank" style="color:var(--accent-copper); text-decoration:none; font-weight:600;">MyNearWallet ↗</a></span>
         </div>
       </div>
 
@@ -2904,6 +2960,124 @@
         <button id="btn-vault-submit" class="btn-action copper" onclick="submitVaultAction()">
           <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
           <span>Execute Deposit</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEAR TESTNET TOKEN FAUCET MODAL -->
+  <div id="faucet-modal" class="modal-overlay">
+    <div class="modal-box wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:rgba(183,123,84,0.15); display:flex; align-items:center; justify-content:center; color:var(--accent-copper);">
+            <svg class="lucide-icon sm"><use href="#icon-droplet"></use></svg>
+          </div>
+          <h3 class="modal-title" style="margin:0;">Request NEAR Testnet Tokens</h3>
+        </div>
+        <button onclick="closeFaucetModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">
+          <svg class="lucide-icon sm"><use href="#icon-x"></use></svg>
+        </button>
+      </div>
+
+      <p class="modal-desc">
+        Claim free NEAR testnet tokens to fund your Root Treasury escrow custody, delegate sub-agent budgets, and execute zero-risk testnet transactions.
+      </p>
+
+      <!-- Destination Account Display with 1-Click Copy -->
+      <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-tertiary); font-weight:600;">Destination Testnet Account</span>
+          <span id="faucet-balance-badge" class="status-pill copper" style="font-size:10px; padding:2px 8px;">Live Balance: Ⓝ 0.00</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input id="faucet-account-input" class="form-input code-font" style="flex:1; font-size:13px; font-weight:500;" placeholder="e.g. yourname.testnet" />
+          <button id="btn-copy-faucet-account" class="btn-action" onclick="copyFaucetAccount()" style="white-space:nowrap; padding:8px 14px;">
+            <svg class="lucide-icon sm"><use href="#icon-copy"></use></svg>
+            <span id="copy-btn-text">Copy Address</span>
+          </button>
+        </div>
+        <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">
+          Paste this account ID into any of the official faucets below to receive free testnet NEAR tokens.
+        </div>
+      </div>
+
+      <!-- Faucet Resources 2x2 Grid -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <!-- Faucet 1: near-faucet.io -->
+        <div class="faucet-card" style="background:var(--surface-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+              <span style="font-weight:600; font-size:13px; color:var(--text-primary);">Near-Faucet.io</span>
+              <span class="status-pill authorized" style="font-size:9px; padding:1px 6px;">Instant 10 Ⓝ</span>
+            </div>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin:0 0 12px 0; line-height:1.4;">
+              Fastest testnet faucet. Enter your account ID to receive 10 testnet NEAR immediately with zero login.
+            </p>
+          </div>
+          <button class="btn-action copper" style="width:100%; justify-content:center; padding:7px 10px; font-size:11px;" onclick="openFaucetExternal('https://near-faucet.io/')">
+            <span>Copy & Open near-faucet.io</span>
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+          </button>
+        </div>
+
+        <!-- Faucet 2: testnet.mynearwallet.com -->
+        <div class="faucet-card" style="background:var(--surface-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+              <span style="font-weight:600; font-size:13px; color:var(--text-primary);">MyNearWallet Faucet</span>
+              <span class="status-pill" style="font-size:9px; padding:1px 6px;">Official Wallet</span>
+            </div>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin:0 0 12px 0; line-height:1.4;">
+              Create a new named testnet account that comes automatically pre-funded with 10 free testnet NEAR tokens.
+            </p>
+          </div>
+          <button class="btn-action" style="width:100%; justify-content:center; padding:7px 10px; font-size:11px;" onclick="openFaucetExternal('https://testnet.mynearwallet.com/')">
+            <span>Open MyNearWallet</span>
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+          </button>
+        </div>
+
+        <!-- Faucet 3: FastNear Faucet -->
+        <div class="faucet-card" style="background:var(--surface-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+              <span style="font-weight:600; font-size:13px; color:var(--text-primary);">FastNear Faucet</span>
+              <span class="status-pill" style="font-size:9px; padding:1px 6px;">Developer RPC</span>
+            </div>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin:0 0 12px 0; line-height:1.4;">
+              High-throughput testnet developer faucet powered by FastNear protocol infrastructure.
+            </p>
+          </div>
+          <button class="btn-action" style="width:100%; justify-content:center; padding:7px 10px; font-size:11px;" onclick="openFaucetExternal('https://testnet.fastnear.com/faucet')">
+            <span>Copy & Open FastNear</span>
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+          </button>
+        </div>
+
+        <!-- Faucet 4: NEAR Discord -->
+        <div class="faucet-card" style="background:var(--surface-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+              <span style="font-weight:600; font-size:13px; color:var(--text-primary);">NEAR Discord Bot</span>
+              <span class="status-pill" style="font-size:9px; padding:1px 6px;">Discord Bot</span>
+            </div>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin:0 0 12px 0; line-height:1.4;">
+              Official Discord channel. Send <code>/faucet &lt;account.testnet&gt;</code> in <strong>#testnet-faucet</strong> to receive tokens.
+            </p>
+          </div>
+          <button class="btn-action" style="width:100%; justify-content:center; padding:7px 10px; font-size:11px;" onclick="openFaucetExternal('https://discord.gg/near')">
+            <span>Join NEAR Discord</span>
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Guidance Footer -->
+      <div style="background:rgba(234,229,217,0.03); border:1px solid var(--border-subtle); border-radius:6px; padding:10px 14px; font-size:11.5px; color:var(--text-secondary); display:flex; align-items:center; justify-content:space-between;">
+        <span>💡 <strong>After receiving tokens:</strong> Open <strong>Vault Escrow</strong> in Rootbound to deposit testnet NEAR into your Root Treasury custody.</span>
+        <button class="btn-action copper" style="padding:4px 10px; font-size:10px;" onclick="closeFaucetModal(); openVaultModal();">
+          <span>Go to Vault Escrow →</span>
         </button>
       </div>
     </div>
@@ -3565,6 +3739,10 @@
                 <button class="btn-action" onclick="openVaultModal()">
                   <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
                   <span>Deposit Escrow</span>
+                </button>
+                <button class="btn-action" onclick="openFaucetModal()" title="Claim free testnet NEAR">
+                  <svg class="lucide-icon sm"><use href="#icon-droplet"></use></svg>
+                  <span>Get Testnet Tokens</span>
                 </button>
               </div>
             </div>
@@ -4485,7 +4663,7 @@
     }
 
     function openWalletModal() {
-      checkWalletExtensions();
+      startWalletExtensionWatcher();
       document.getElementById('wallet-modal').classList.add('active');
     }
 
@@ -4500,44 +4678,96 @@
       document.getElementById('tab-content-operator').style.display = tab === 'operator' ? 'block' : 'none';
     }
 
+    // =========================================================================
+    // MULTI-WALLET & PROVIDER DETECTION (METEOR, SENDER, NIGHTLY, WEB)
+    // =========================================================================
+    function getSenderProvider() {
+      if (typeof window === 'undefined') return null;
+      if (window.near && (window.near.isSender || typeof window.near.requestSignIn === 'function')) {
+        return window.near;
+      }
+      if (window.sender) return window.sender;
+      return null;
+    }
+
+    function getMeteorProvider() {
+      if (typeof window === 'undefined') return null;
+      if (window.meteorWallet) return window.meteorWallet;
+      if (window.meteor) return window.meteor;
+      if (window.injectedWallets && window.injectedWallets['meteor-wallet']) {
+        return window.injectedWallets['meteor-wallet'];
+      }
+      if (window.near && (window.near.isMeteor || window.near.isMeteorWallet || (window.near.name && window.near.name.toLowerCase().includes('meteor')))) {
+        return window.near;
+      }
+      return null;
+    }
+
+    let walletWatcherInterval = null;
+    function startWalletExtensionWatcher() {
+      checkWalletExtensions();
+      if (walletWatcherInterval) clearInterval(walletWatcherInterval);
+      let attempts = 0;
+      walletWatcherInterval = setInterval(() => {
+        attempts++;
+        checkWalletExtensions();
+        if ((getMeteorProvider() && getSenderProvider()) || attempts >= 20) {
+          clearInterval(walletWatcherInterval);
+          walletWatcherInterval = null;
+        }
+      }, 300);
+    }
+
     function checkWalletExtensions() {
-      const senderDetected = typeof window !== 'undefined' && window.near && (window.near.isSender || typeof window.near.requestSignIn === 'function');
-      const meteorDetected = typeof window !== 'undefined' && window.meteorWallet;
+      const senderProvider = getSenderProvider();
+      const meteorProvider = getMeteorProvider();
       
       const senderPill = document.getElementById('wallet-pill-sender');
+      const senderBadge = document.getElementById('wallet-badge-sender');
       if (senderPill) {
-        if (senderDetected) {
+        if (senderProvider) {
           senderPill.className = 'status-pill authorized';
           senderPill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-check"></use></svg><span>Detected</span>';
+          if (senderBadge) {
+            senderBadge.className = 'status-pill copper';
+            senderBadge.innerText = 'Ready';
+          }
         } else {
           senderPill.className = 'status-pill';
-          senderPill.innerText = 'Extension';
+          senderPill.innerText = 'Connect →';
         }
       }
 
       const meteorPill = document.getElementById('wallet-pill-meteor');
+      const meteorBadge = document.getElementById('wallet-badge-meteor');
       if (meteorPill) {
-        if (meteorDetected) {
+        if (meteorProvider) {
           meteorPill.className = 'status-pill authorized';
           meteorPill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-check"></use></svg><span>Detected</span>';
+          if (meteorBadge) {
+            meteorBadge.className = 'status-pill authorized';
+            meteorBadge.innerText = 'Extension Ready';
+          }
         } else {
           meteorPill.className = 'status-pill';
-          meteorPill.innerText = 'Extension';
+          meteorPill.innerText = 'Connect →';
         }
       }
     }
 
     // 1. SENDER WALLET CONNECTOR
     async function connectSenderWallet() {
-      if (typeof window !== 'undefined' && window.near) {
+      const provider = getSenderProvider();
+      if (provider) {
         try {
-          const targetContract = getTargetContract();
-          const res = await window.near.requestSignIn({
-            contractId: targetContract || ''
-          });
+          const targetContract = getTargetContract() || '';
+          let res = null;
+          if (typeof provider.requestSignIn === 'function') {
+            res = await provider.requestSignIn({ contractId: targetContract });
+          }
           let accId = null;
-          if (window.near.getAccountId && window.near.getAccountId()) {
-            accId = window.near.getAccountId();
+          if (typeof provider.getAccountId === 'function' && provider.getAccountId()) {
+            accId = provider.getAccountId();
           } else if (res && res.account_id) {
             accId = res.account_id;
           }
@@ -4562,25 +4792,121 @@
 
     // 2. METEOR WALLET CONNECTOR
     async function connectMeteorWallet() {
-      if (typeof window !== 'undefined' && window.meteorWallet) {
+      const provider = getMeteorProvider();
+      if (provider) {
         try {
-          await window.meteorWallet.requestSignIn({
-            contractId: getTargetContract() || ''
-          });
-          const accId = window.meteorWallet.getAccountId();
+          const targetContract = getTargetContract() || '';
+          let res = null;
+          if (typeof provider.requestSignIn === 'function') {
+            res = await provider.requestSignIn({
+              contractId: targetContract,
+              methods: []
+            });
+          } else if (typeof provider.signIn === 'function') {
+            res = await provider.signIn({
+              contractId: targetContract
+            });
+          } else if (typeof provider.connect === 'function') {
+            res = await provider.connect();
+          }
+
+          let accId = null;
+          if (typeof provider.getAccountId === 'function') {
+            accId = provider.getAccountId();
+          } else if (provider.accountId) {
+            accId = provider.accountId;
+          } else if (provider.account && provider.account.accountId) {
+            accId = provider.account.accountId;
+          } else if (res && (res.accountId || res.account_id)) {
+            accId = res.accountId || res.account_id;
+          }
+
           if (accId) {
             await setupConnectedWallet(accId, 'Meteor');
             closeWalletModal();
             return;
           }
         } catch (err) {
-          alert("Meteor Wallet connection: " + (err.message || err));
-          return;
+          console.warn("Meteor Wallet sign-in error:", err);
+          if (err && err.message && (err.message.includes('cancel') || err.message.includes('reject'))) {
+            return;
+          }
         }
       }
-      if (confirm("Meteor Wallet was not detected. Open meteorwallet.app?")) {
-        window.open('https://wallet.meteorwallet.app', '_blank');
+
+      // If extension was not found or failed, smoothly toggle inline Meteor Web helper
+      toggleMeteorInlineHelper(true);
+    }
+
+    function toggleMeteorInlineHelper(show) {
+      const helper = document.getElementById('meteor-helper-card');
+      if (!helper) return;
+      if (show === undefined) {
+        helper.style.display = helper.style.display === 'none' ? 'block' : 'none';
+      } else {
+        helper.style.display = show ? 'block' : 'none';
       }
+      if (helper.style.display === 'block') {
+        const inp = document.getElementById('meteor-account-input');
+        if (inp && !inp.value) {
+          inp.value = currentConnectedAccount || 'wahab.testnet';
+        }
+      }
+    }
+
+    async function activateMeteorWebAccount() {
+      const inp = document.getElementById('meteor-account-input');
+      if (!inp) return;
+      const accId = inp.value.trim();
+      if (!accId) return alert("Please specify a valid Meteor NEAR testnet account ID (e.g. user.testnet)");
+      await setupConnectedWallet(accId, 'Meteor');
+      toggleMeteorInlineHelper(false);
+      closeWalletModal();
+    }
+
+    // =========================================================================
+    // NEAR TESTNET TOKEN FAUCET MODAL UTILITIES
+    // =========================================================================
+    function openFaucetModal() {
+      const modal = document.getElementById('faucet-modal');
+      if (!modal) return;
+      const accInput = document.getElementById('faucet-account-input');
+      const balBadge = document.getElementById('faucet-balance-badge');
+      const targetAcc = currentConnectedAccount || (wallet && wallet.getAccountId ? wallet.getAccountId() : '') || 'wahab.testnet';
+      if (accInput) accInput.value = targetAcc;
+      if (balBadge) {
+        balBadge.innerText = `Live Balance: Ⓝ ${Number(liveWalletBalanceNear || 0).toFixed(2)}`;
+      }
+      modal.classList.add('active');
+    }
+
+    function closeFaucetModal() {
+      const modal = document.getElementById('faucet-modal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function copyFaucetAccount() {
+      const accInput = document.getElementById('faucet-account-input');
+      const copyBtn = document.getElementById('copy-btn-text');
+      if (!accInput) return;
+      const val = accInput.value.trim();
+      if (!val) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val);
+      } else {
+        accInput.select();
+        document.execCommand('copy');
+      }
+      if (copyBtn) {
+        const orig = copyBtn.innerText;
+        copyBtn.innerText = 'Copied!';
+        setTimeout(() => { copyBtn.innerText = orig; }, 2000);
+      }
+    }
+
+    function openFaucetExternal(url) {
+      copyFaucetAccount();
+      window.open(url, '_blank');
     }
 
     // 3. NIGHTLY WALLET CONNECTOR
@@ -5096,6 +5422,7 @@
     // =========================================================================
     // INITIALIZATION
     // =========================================================================
+    startWalletExtensionWatcher();
     initNear();
     fetchAppState();
     setInterval(fetchAppState, 3000);
