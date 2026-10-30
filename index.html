@@ -2741,10 +2741,10 @@
               <button class="btn-action copper" style="padding: 6px 12px; font-size: 11px;" onclick="activateMeteorWebAccount()">Connect</button>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <a href="https://wallet.meteorwallet.app" target="_blank" class="chip-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-size:10px;">
-                <span>Open Meteor Web</span>
+              <button type="button" class="chip-btn" onclick="openMeteorWebConnectPopup()" style="display:inline-flex; align-items:center; gap:4px; font-size:10px;">
+                <span>Open Meteor Web Connect</span>
                 <svg class="lucide-icon sm" style="width:10px; height:10px;"><use href="#icon-external-link"></use></svg>
-              </a>
+              </button>
               <a href="https://chromewebstore.google.com/detail/meteor-wallet/pcndjhknnfligdfngbkggaoggigflabe" target="_blank" class="chip-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; font-size:10px;">
                 <span>Chrome Extension</span>
                 <svg class="lucide-icon sm" style="width:10px; height:10px;"><use href="#icon-external-link"></use></svg>
@@ -4690,13 +4690,35 @@
       return null;
     }
 
+    function isMeteorInstalled() {
+      if (typeof window === 'undefined') return false;
+      return Boolean(
+        window.meteorCom ||
+        window.meteorComV2 ||
+        window.meteorWallet ||
+        window.meteor ||
+        (window.injectedWallets && window.injectedWallets['meteor-wallet']) ||
+        (window.near && (window.near.isMeteor || window.near.isMeteorWallet || (window.near.name && window.near.name.toLowerCase().includes('meteor'))))
+      );
+    }
+
     function getMeteorProvider() {
       if (typeof window === 'undefined') return null;
+      // 1. Official Meteor Extension Bridge (window.meteorCom / window.meteorComV2)
+      if (window.meteorCom || window.meteorComV2) {
+        return {
+          isBridge: true,
+          v1: window.meteorCom,
+          v2: window.meteorComV2
+        };
+      }
+      // 2. Direct Injected Object (window.meteorWallet / window.meteor)
       if (window.meteorWallet) return window.meteorWallet;
       if (window.meteor) return window.meteor;
       if (window.injectedWallets && window.injectedWallets['meteor-wallet']) {
         return window.injectedWallets['meteor-wallet'];
       }
+      // 3. window.near flagged as Meteor
       if (window.near && (window.near.isMeteor || window.near.isMeteorWallet || (window.near.name && window.near.name.toLowerCase().includes('meteor')))) {
         return window.near;
       }
@@ -4711,16 +4733,16 @@
       walletWatcherInterval = setInterval(() => {
         attempts++;
         checkWalletExtensions();
-        if ((getMeteorProvider() && getSenderProvider()) || attempts >= 20) {
+        if ((isMeteorInstalled() && getSenderProvider()) || attempts >= 25) {
           clearInterval(walletWatcherInterval);
           walletWatcherInterval = null;
         }
-      }, 300);
+      }, 250);
     }
 
     function checkWalletExtensions() {
       const senderProvider = getSenderProvider();
-      const meteorProvider = getMeteorProvider();
+      const meteorDetected = isMeteorInstalled();
       
       const senderPill = document.getElementById('wallet-pill-sender');
       const senderBadge = document.getElementById('wallet-badge-sender');
@@ -4741,7 +4763,7 @@
       const meteorPill = document.getElementById('wallet-pill-meteor');
       const meteorBadge = document.getElementById('wallet-badge-meteor');
       if (meteorPill) {
-        if (meteorProvider) {
+        if (meteorDetected) {
           meteorPill.className = 'status-pill authorized';
           meteorPill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-check"></use></svg><span>Detected</span>';
           if (meteorBadge) {
@@ -4751,6 +4773,10 @@
         } else {
           meteorPill.className = 'status-pill';
           meteorPill.innerText = 'Connect →';
+          if (meteorBadge) {
+            meteorBadge.className = 'status-pill';
+            meteorBadge.innerText = 'Extension / Web';
+          }
         }
       }
     }
@@ -4790,52 +4816,219 @@
       }
     }
 
-    // 2. METEOR WALLET CONNECTOR
+    // 2. METEOR WALLET EXTENSION BRIDGE PROTOCOL
+    function connectViaMeteorBridge(timeoutMs = 60000) {
+      return new Promise((resolve, reject) => {
+        const uid = 'meteor_uid_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+        const targetContract = getTargetContract() || '';
+        let intervalId = null;
+        let timeoutId = null;
+
+        const cleanup = () => {
+          if (intervalId) { clearInterval(intervalId); intervalId = null; }
+          if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+          if (window.meteorCom && typeof window.meteorCom.removeMessageDataListener === 'function') {
+            try { window.meteorCom.removeMessageDataListener(bridgeListener); } catch(e) {}
+          }
+          window.removeEventListener('message', windowMsgListener);
+        };
+
+        const bridgeListener = (data) => {
+          if (!data || data.uid !== uid) return;
+          console.log("[Meteor Bridge Message Received]:", data);
+          if (data.status === 'closed_success') {
+            cleanup();
+            const accId = data.payload?.accountId || (data.payload?.allKeys && data.payload.allKeys[0]?.accountId) || data.accountId;
+            if (accId) {
+              resolve(accId);
+            } else {
+              reject(new Error("No account ID returned from Meteor"));
+            }
+          } else if (data.status === 'closed_fail' || data.status === 'closed_window' || data.status === 'disconnected') {
+            cleanup();
+            reject(new Error("User closed or rejected the Meteor Wallet connection"));
+          }
+        };
+
+        const windowMsgListener = (event) => {
+          if (event && event.data && event.data.uid === uid) {
+            bridgeListener(event.data);
+          }
+        };
+
+        // Register message listener on both meteorCom and window.postMessage
+        if (window.meteorCom && typeof window.meteorCom.addMessageDataListener === 'function') {
+          window.meteorCom.addMessageDataListener(bridgeListener);
+        }
+        window.addEventListener('message', windowMsgListener);
+
+        const postMessage = {
+          endTags: [],
+          actionType: 'login',
+          status: 'initializing',
+          uid: uid,
+          network: 'testnet',
+          inputs: {
+            contract_id: targetContract,
+            methods: []
+          }
+        };
+
+        // 1. Direct call if V2 is present
+        if (window.meteorComV2 && typeof window.meteorComV2.sendMessageDataAndRespond === 'function') {
+          window.meteorComV2.sendMessageDataAndRespond(postMessage)
+            .then(res => {
+              if (res) bridgeListener(res);
+            })
+            .catch(err => {
+              console.warn("meteorComV2 direct error:", err);
+            });
+        }
+
+        // 2. Ping extension via sendMessageData
+        const sendPing = () => {
+          try {
+            if (window.meteorCom && typeof window.meteorCom.sendMessageData === 'function') {
+              window.meteorCom.sendMessageData(postMessage);
+            }
+          } catch(e) {
+            console.warn("meteorCom.sendMessageData error:", e);
+          }
+        };
+
+        sendPing();
+        intervalId = setInterval(sendPing, 500);
+
+        timeoutId = setTimeout(() => {
+          cleanup();
+          reject(new Error("Meteor Wallet connection timed out. Please unlock your extension or approve the connection popup."));
+        }, timeoutMs);
+      });
+    }
+
+    // 3. METEOR WALLET CONNECTOR (MULTI-PATH)
     async function connectMeteorWallet() {
-      const provider = getMeteorProvider();
-      if (provider) {
-        try {
-          const targetContract = getTargetContract() || '';
-          let res = null;
-          if (typeof provider.requestSignIn === 'function') {
-            res = await provider.requestSignIn({
-              contractId: targetContract,
-              methods: []
-            });
-          } else if (typeof provider.signIn === 'function') {
-            res = await provider.signIn({
-              contractId: targetContract
-            });
-          } else if (typeof provider.connect === 'function') {
-            res = await provider.connect();
-          }
+      const meteorPill = document.getElementById('wallet-pill-meteor');
+      const origHtml = meteorPill ? meteorPill.innerHTML : '';
+      const origClass = meteorPill ? meteorPill.className : '';
 
-          let accId = null;
-          if (typeof provider.getAccountId === 'function') {
-            accId = provider.getAccountId();
-          } else if (provider.accountId) {
-            accId = provider.accountId;
-          } else if (provider.account && provider.account.accountId) {
-            accId = provider.account.accountId;
-          } else if (res && (res.accountId || res.account_id)) {
-            accId = res.accountId || res.account_id;
-          }
+      try {
+        if (meteorPill) {
+          meteorPill.className = 'status-pill copper';
+          meteorPill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg><span>Check Extension...</span>';
+        }
 
-          if (accId) {
-            await setupConnectedWallet(accId, 'Meteor');
-            closeWalletModal();
-            return;
+        const provider = getMeteorProvider();
+
+        // Path A: Meteor Extension Bridge (window.meteorCom / window.meteorComV2)
+        if (provider && provider.isBridge) {
+          try {
+            const accId = await connectViaMeteorBridge(45000);
+            if (accId) {
+              await setupConnectedWallet(accId, 'Meteor');
+              closeWalletModal();
+              return;
+            }
+          } catch (bridgeErr) {
+            console.warn("Meteor Bridge connection error:", bridgeErr);
+            if (bridgeErr && bridgeErr.message && !bridgeErr.message.includes('closed') && !bridgeErr.message.includes('rejected')) {
+              console.info("Trying alternate Meteor connection paths...");
+            }
           }
-        } catch (err) {
-          console.warn("Meteor Wallet sign-in error:", err);
-          if (err && err.message && (err.message.includes('cancel') || err.message.includes('reject'))) {
+        }
+
+        // Path B: Standard Injected Provider (window.meteorWallet or window.near with requestSignIn)
+        if (provider && !provider.isBridge) {
+          try {
+            const targetContract = getTargetContract() || '';
+            let res = null;
+            if (typeof provider.requestSignIn === 'function') {
+              res = await provider.requestSignIn({ contractId: targetContract, methods: [] });
+            } else if (typeof provider.signIn === 'function') {
+              res = await provider.signIn({ contractId: targetContract });
+            } else if (typeof provider.connect === 'function') {
+              res = await provider.connect();
+            }
+
+            let accId = null;
+            if (typeof provider.getAccountId === 'function' && provider.getAccountId()) {
+              accId = provider.getAccountId();
+            } else if (provider.accountId) {
+              accId = provider.accountId;
+            } else if (provider.account?.accountId) {
+              accId = provider.account.accountId;
+            } else if (res && (res.accountId || res.account_id)) {
+              accId = res.accountId || res.account_id;
+            }
+
+            if (accId) {
+              await setupConnectedWallet(accId, 'Meteor');
+              closeWalletModal();
+              return;
+            }
+          } catch (stdErr) {
+            console.warn("Meteor standard provider error:", stdErr);
+            if (stdErr && stdErr.message && !stdErr.message.includes('cancel') && !stdErr.message.includes('reject')) {
+              alert("Meteor Wallet: " + (stdErr.message || stdErr));
+            }
+            if (meteorPill) {
+              meteorPill.className = origClass;
+              meteorPill.innerHTML = origHtml;
+            }
             return;
           }
         }
-      }
 
-      // If extension was not found or failed, smoothly toggle inline Meteor Web helper
-      toggleMeteorInlineHelper(true);
+        // Path C: Fallback to Meteor Web Connect or inline card
+        if (meteorPill) {
+          meteorPill.className = origClass;
+          meteorPill.innerHTML = origHtml;
+        }
+        toggleMeteorInlineHelper(true);
+
+      } catch (err) {
+        console.warn("connectMeteorWallet unexpected error:", err);
+        if (meteorPill) {
+          meteorPill.className = origClass;
+          meteorPill.innerHTML = origHtml;
+        }
+        toggleMeteorInlineHelper(true);
+      }
+    }
+
+    // Official Meteor Web Connect Popup Flow
+    function openMeteorWebConnectPopup() {
+      const uid = 'meteor_web_' + Date.now();
+      const targetContract = getTargetContract() || '';
+      const baseWalletUrl = 'https://wallet.meteorwallet.app';
+      const queryParams = new URLSearchParams({
+        source: 'wpm',
+        connectionUid: uid,
+        pageUri: window.location.href
+      });
+      const w = 440;
+      const h = 640;
+      const y = Math.max(0, (window.top.outerHeight / 2) + window.top.screenY - (h / 2));
+      const x = Math.max(0, (window.top.outerWidth / 2) + window.top.screenX - (w / 2));
+      const popup = window.open(
+        `${baseWalletUrl}/connect/testnet/login?${queryParams.toString()}`,
+        'meteor_wallet_popup',
+        `popup=1,width=${w},height=${h},top=${y},left=${x}`
+      );
+
+      const handleWebMsg = async (event) => {
+        if (event && event.data && event.data.uid === uid) {
+          if (event.data.status === 'closed_success') {
+            window.removeEventListener('message', handleWebMsg);
+            const accId = event.data.payload?.accountId || event.data.accountId;
+            if (accId) {
+              await setupConnectedWallet(accId, 'Meteor');
+              closeWalletModal();
+            }
+          }
+        }
+      };
+      window.addEventListener('message', handleWebMsg);
     }
 
     function toggleMeteorInlineHelper(show) {
