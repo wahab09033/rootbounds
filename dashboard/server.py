@@ -271,6 +271,48 @@ class DashboardState:
                     if p1.promise_id in self.async_engine.promise_queue:
                         self.async_engine.settle_promise(p1.promise_id, timestamp=2005)
 
+            elif attack_type == "cross_org_delegation":
+                # Rogue admin attempts to delegate from this org's PM agent into their own rogue org
+                if "org_rogue_adversary" not in self.engine.organizations:
+                    self.engine.create_organization(
+                        org_id="org_rogue_adversary",
+                        admin="attacker.near",
+                        escrow_deposit=100_000,
+                        root_agent_id="root_rogue",
+                        expires_at=500_000,
+                        timestamp=2000
+                    )
+                self.engine.create_delegation_grant(
+                    caller="attacker.near",
+                    org_id="org_rogue_adversary",
+                    parent_agent_id="agent_pm", # Belongs to org_rootbound_enterprise!
+                    child_agent_id="agent_stolen",
+                    child_account="attacker.near",
+                    budget=50_000,
+                    expires_at=300_000,
+                    timestamp=2000
+                )
+                return {"success": False, "error": "Attack succeeded unexpectedly!"}
+
+            elif attack_type == "cross_org_revocation":
+                # Rogue admin attempts to revoke this org's PM agent
+                if "org_rogue_adversary_2" not in self.engine.organizations:
+                    self.engine.create_organization(
+                        org_id="org_rogue_adversary_2",
+                        admin="attacker_2.near",
+                        escrow_deposit=100_000,
+                        root_agent_id="root_rogue_2",
+                        expires_at=500_000,
+                        timestamp=2000
+                    )
+                self.engine.revoke_grant(
+                    caller="attacker_2.near",
+                    org_id="org_rogue_adversary_2",
+                    agent_id="agent_pm", # Belongs to org_rootbound_enterprise!
+                    timestamp=2000
+                )
+                return {"success": False, "error": "Attack succeeded unexpectedly!"}
+
             else:
                 return {"success": False, "error": f"Unknown attack type {attack_type}"}
 

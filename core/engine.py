@@ -132,6 +132,50 @@ class RootboundEngine:
         root_grant.balance.assert_conservation_invariant(org.root_agent_id)
         return org.escrow_balance
 
+    def reserve_withdrawal(self, org_id: str, amount: int, caller: str) -> int:
+        if org_id not in self.organizations:
+            raise RootboundSecurityException(ErrorCode.ERR_PAYMENT_NOT_FOUND, "Organization not found")
+        org = self.organizations[org_id]
+        if not org.is_active:
+            raise RootboundSecurityException(ErrorCode.ERR_ANCESTOR_REVOKED, "Organization is inactive")
+        if org.admin != caller:
+            raise RootboundSecurityException(ErrorCode.ERR_UNAUTHORIZED_CALLER, "Only admin can withdraw escrow")
+        if amount <= 0:
+            raise RootboundSecurityException(ErrorCode.ERR_INSUFFICIENT_AVAILABLE_BUDGET, "Amount must be positive")
+
+        root_grant = self.grants[org.root_agent_id]
+        if amount > root_grant.balance.available:
+            raise RootboundSecurityException(
+                ErrorCode.ERR_WITHDRAWAL_EXCEEDS_AVAILABLE,
+                f"Withdrawal amount {amount} exceeds available uncommitted balance {root_grant.balance.available}"
+            )
+
+        root_grant.balance.available -= amount
+        root_grant.balance.reserved += amount
+        root_grant.balance.assert_conservation_invariant(org.root_agent_id)
+        return root_grant.balance.reserved
+
+    def finalize_withdrawal_success(self, org_id: str, amount: int) -> int:
+        org = self.organizations[org_id]
+        root_grant = self.grants[org.root_agent_id]
+        if amount > root_grant.balance.reserved:
+            raise RootboundSecurityException(ErrorCode.ERR_INVALID_PAYMENT_STATE, "Amount exceeds reserved withdrawal")
+        root_grant.balance.reserved -= amount
+        root_grant.balance.allocated -= amount
+        org.escrow_balance -= amount
+        root_grant.balance.assert_conservation_invariant(org.root_agent_id)
+        return org.escrow_balance
+
+    def finalize_withdrawal_failure(self, org_id: str, amount: int) -> int:
+        org = self.organizations[org_id]
+        root_grant = self.grants[org.root_agent_id]
+        if amount > root_grant.balance.reserved:
+            raise RootboundSecurityException(ErrorCode.ERR_INVALID_PAYMENT_STATE, "Amount exceeds reserved withdrawal")
+        root_grant.balance.reserved -= amount
+        root_grant.balance.available += amount
+        root_grant.balance.assert_conservation_invariant(org.root_agent_id)
+        return root_grant.balance.available
+
     # -------------------------------------------------------------------------
     # 2. Delegation Hierarchy & Attenuation Engine
     # -------------------------------------------------------------------------
@@ -163,6 +207,12 @@ class RootboundEngine:
         org = self.organizations.get(org_id)
         if not org:
             raise RootboundSecurityException(ErrorCode.ERR_PAYMENT_NOT_FOUND, "Organization not found")
+        if not org.is_active:
+            raise RootboundSecurityException(ErrorCode.ERR_ANCESTOR_REVOKED, "Organization is inactive")
+        if parent.org_id != org_id:
+            raise RootboundSecurityException(
+                ErrorCode.ERR_UNAUTHORIZED_CALLER, f"Parent agent {parent_agent_id} does not belong to organization {org_id}"
+            )
         if caller != parent.agent_account and caller != org.admin:
             raise RootboundSecurityException(
                 ErrorCode.ERR_UNAUTHORIZED_CALLER, "Only parent agent or admin can delegate"
@@ -265,6 +315,9 @@ class RootboundEngine:
             grant = self.grants.get(curr_id)
             if not grant or grant.is_revoked:
                 return False
+            org = self.organizations.get(grant.org_id)
+            if not org or not org.is_active:
+                return False
             curr_id = grant.parent_agent_id
         return True
 
@@ -276,6 +329,12 @@ class RootboundEngine:
         org = self.organizations.get(org_id)
         if not org:
             raise RootboundSecurityException(ErrorCode.ERR_PAYMENT_NOT_FOUND, "Organization not found")
+        if not org.is_active:
+            raise RootboundSecurityException(ErrorCode.ERR_ANCESTOR_REVOKED, "Organization is inactive")
+        if target.org_id != org_id:
+            raise RootboundSecurityException(
+                ErrorCode.ERR_UNAUTHORIZED_CALLER, f"Target agent {agent_id} does not belong to organization {org_id}"
+            )
 
         # Authorization check: only admin, self, or an ancestor can revoke
         is_authorized = (caller == org.admin) or (caller == target.agent_account)
@@ -291,6 +350,71 @@ class RootboundEngine:
 
         target.is_revoked = True
         return True
+
+    def set_organization_active(self, caller: str, org_id: str, is_active: bool) -> bool:
+        if org_id not in self.organizations:
+            raise RootboundSecurityException(ErrorCode.ERR_PAYMENT_NOT_FOUND, "Organization not found")
+        org = self.organizations[org_id]
+        if caller != org.admin:
+            raise RootboundSecurityException(ErrorCode.ERR_UNAUTHORIZED_CALLER, "Only admin can toggle organization active state")
+        org.is_active = is_active
+        return is_active
+
+    def reclaim_delegated_funds(
+        self,
+        caller: str,
+        org_id: str,
+        parent_agent_id: str,
+        child_agent_id: str,
+        amount: int,
+        timestamp: int = 0
+    ) -> DelegationGrant:
+        """
+        Reclaims uncommitted available funds from a child grant back to the parent.
+        Can only reclaim up to child.balance.available.
+        """
+        if org_id not in self.organizations:
+            raise RootboundSecurityException(ErrorCode.ERR_PAYMENT_NOT_FOUND, "Organization not found")
+        org = self.organizations[org_id]
+        if not org.is_active:
+            raise RootboundSecurityException(ErrorCode.ERR_ANCESTOR_REVOKED, "Organization is inactive")
+            
+        if parent_agent_id not in self.grants or child_agent_id not in self.grants:
+            raise RootboundSecurityException(ErrorCode.ERR_PAYMENT_NOT_FOUND, "Grant not found")
+            
+        parent = self.grants[parent_agent_id]
+        child = self.grants[child_agent_id]
+        
+        if parent.org_id != org_id or child.org_id != org_id:
+            raise RootboundSecurityException(ErrorCode.ERR_UNAUTHORIZED_CALLER, "Grants do not belong to organization")
+        if child.parent_agent_id != parent_agent_id:
+            raise RootboundSecurityException(ErrorCode.ERR_IMMUTABLE_PARENT, "Child does not belong to specified parent")
+            
+        if caller != parent.agent_account and caller != org.admin:
+            raise RootboundSecurityException(ErrorCode.ERR_UNAUTHORIZED_CALLER, "Only parent agent or admin can reclaim funds")
+            
+        if amount <= 0:
+            raise RootboundSecurityException(ErrorCode.ERR_INSUFFICIENT_AVAILABLE_BUDGET, "Reclaim amount must be positive")
+        if amount > child.balance.available:
+            raise RootboundSecurityException(
+                ErrorCode.ERR_INSUFFICIENT_AVAILABLE_BUDGET,
+                f"Requested reclaim amount {amount} exceeds child available balance {child.balance.available}"
+            )
+        if amount > parent.balance.delegated:
+            raise RootboundSecurityException(
+                ErrorCode.ERR_BUDGET_EXCEEDS_PARENT_AUTHORITY,
+                f"Requested reclaim amount {amount} exceeds parent delegated balance {parent.balance.delegated}"
+            )
+            
+        child.balance.available -= amount
+        child.balance.allocated -= amount
+        child.balance.assert_conservation_invariant(child_agent_id)
+        
+        parent.balance.delegated -= amount
+        parent.balance.available += amount
+        parent.balance.assert_conservation_invariant(parent_agent_id)
+        
+        return child
 
     # -------------------------------------------------------------------------
     # 4. Asynchronous Payment Lifecycle Engine
@@ -316,6 +440,13 @@ class RootboundEngine:
             )
         
         agent = self.grants[agent_id]
+        if agent.org_id != org_id:
+            raise RootboundSecurityException(
+                ErrorCode.ERR_UNAUTHORIZED_CALLER, f"Agent {agent_id} does not belong to organization {org_id}"
+            )
+        org = self.organizations.get(org_id)
+        if not org or not org.is_active:
+            raise RootboundSecurityException(ErrorCode.ERR_ANCESTOR_REVOKED, "Organization is inactive")
 
         # Caller authentication
         if caller != agent.agent_account:

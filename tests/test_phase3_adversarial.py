@@ -626,5 +626,169 @@ class TestPhase3AdversarialAndInvariants(unittest.TestCase):
         res.balance.assert_conservation_invariant("agent_researcher")
         self.assertTrue(self.engine.verify_global_invariants(self.org_id))
 
+    # -------------------------------------------------------------------------
+    # Attack 11: Cross-Tenant Delegation Exploit
+    # -------------------------------------------------------------------------
+    def test_attack_11_cross_tenant_delegation(self):
+        """Attacker admin of Org 2 attempts to delegate from Org 1's PM agent."""
+        # 1. Create legitimate PM in Org 1
+        self.engine.create_delegation_grant(
+            caller=self.admin,
+            org_id=self.org_id,
+            parent_agent_id=self.root_agent_id,
+            child_agent_id="org1_pm",
+            child_account="org1_pm.near",
+            budget=400_000,
+            expires_at=400_000,
+            permitted_recipients={"vendor_compute_1.near"},
+            max_per_tx=100_000,
+            timestamp=1000
+        )
+
+        # 2. Attacker creates Org 2
+        self.engine.create_organization(
+            org_id="org_attacker_tenant",
+            admin="attacker.near",
+            escrow_deposit=100_000,
+            root_agent_id="attacker_root",
+            expires_at=500_000,
+            timestamp=1000
+        )
+
+        # 3. Attacker tries to steal Org 1's PM budget into Org 2
+        with self.assertRaises(RootboundSecurityException) as ctx:
+            self.engine.create_delegation_grant(
+                caller="attacker.near",
+                org_id="org_attacker_tenant",
+                parent_agent_id="org1_pm",
+                child_agent_id="stolen_child",
+                child_account="attacker.near",
+                budget=200_000,
+                expires_at=350_000,
+                timestamp=1100
+            )
+        self.assertEqual(ctx.exception.code, ErrorCode.ERR_UNAUTHORIZED_CALLER)
+
+    # -------------------------------------------------------------------------
+    # Attack 12: Cross-Tenant Revocation Exploit
+    # -------------------------------------------------------------------------
+    def test_attack_12_cross_tenant_revocation(self):
+        """Attacker admin of Org 2 attempts to revoke an agent in Org 1."""
+        self.engine.create_organization(
+            org_id="org_attacker_tenant_2",
+            admin="attacker_2.near",
+            escrow_deposit=100_000,
+            root_agent_id="attacker_root_2",
+            expires_at=500_000,
+            timestamp=1000
+        )
+
+        with self.assertRaises(RootboundSecurityException) as ctx:
+            self.engine.revoke_grant(
+                caller="attacker_2.near",
+                org_id="org_attacker_tenant_2",
+                agent_id=self.root_agent_id,
+                timestamp=1100
+            )
+        self.assertEqual(ctx.exception.code, ErrorCode.ERR_UNAUTHORIZED_CALLER)
+
+    # -------------------------------------------------------------------------
+    # Attack 13: Inactive Organization Freeze Exploit
+    # -------------------------------------------------------------------------
+    def test_attack_13_inactive_org_blocks_payments(self):
+        """When an organization is deactivated, all descendant operations are frozen."""
+        self.engine.create_delegation_grant(
+            caller=self.admin,
+            org_id=self.org_id,
+            parent_agent_id=self.root_agent_id,
+            child_agent_id="active_pm",
+            child_account="active_pm.near",
+            budget=300_000,
+            expires_at=400_000,
+            permitted_recipients={"vendor_compute_1.near"},
+            max_per_tx=100_000,
+            timestamp=1000
+        )
+
+        # Admin deactivates organization
+        self.engine.set_organization_active(self.admin, self.org_id, False)
+
+        # Spend attempt should now fail with ERR_ANCESTOR_REVOKED
+        with self.assertRaises(RootboundSecurityException) as ctx:
+            self.engine.authorize_and_reserve_payment(
+                caller="active_pm.near",
+                org_id=self.org_id,
+                agent_id="active_pm",
+                recipient="vendor_compute_1.near",
+                amount=10_000,
+                request_id="req_inactive_1",
+                nonce=1,
+                timestamp=1100
+            )
+        self.assertEqual(ctx.exception.code, ErrorCode.ERR_ANCESTOR_REVOKED)
+
+    # -------------------------------------------------------------------------
+    # Feature 14: Fund Reclamation Lifecycle
+    # -------------------------------------------------------------------------
+    def test_feature_fund_reclamation(self):
+        """Parent successfully reclaims uncommitted available funds from child."""
+        self.engine.create_delegation_grant(
+            caller=self.admin,
+            org_id=self.org_id,
+            parent_agent_id=self.root_agent_id,
+            child_agent_id="reclaim_pm",
+            child_account="reclaim_pm.near",
+            budget=400_000,
+            expires_at=400_000,
+            permitted_recipients={"vendor_compute_1.near"},
+            max_per_tx=100_000,
+            timestamp=1000
+        )
+
+        root_before = self.engine.grants[self.root_agent_id]
+        self.assertEqual(root_before.balance.available, 600_000)
+        self.assertEqual(root_before.balance.delegated, 400_000)
+
+        # Root reclaims 150_000 from reclaim_pm
+        self.engine.reclaim_delegated_funds(
+            caller=self.admin,
+            org_id=self.org_id,
+            parent_agent_id=self.root_agent_id,
+            child_agent_id="reclaim_pm",
+            amount=150_000,
+            timestamp=1100
+        )
+
+        root_after = self.engine.grants[self.root_agent_id]
+        pm_after = self.engine.grants["reclaim_pm"]
+
+        self.assertEqual(root_after.balance.available, 750_000)
+        self.assertEqual(root_after.balance.delegated, 250_000)
+        self.assertEqual(pm_after.balance.available, 250_000)
+        self.assertEqual(pm_after.balance.allocated, 250_000)
+
+        # Invariant check
+        root_after.balance.assert_conservation_invariant(self.root_agent_id)
+        pm_after.balance.assert_conservation_invariant("reclaim_pm")
+
+    # -------------------------------------------------------------------------
+    # Feature 15: Escrow Withdrawal Asynchronous Recovery
+    # -------------------------------------------------------------------------
+    def test_feature_withdrawal_failure_recovery(self):
+        """Failed withdrawal restores funds from reserved back to available."""
+        root = self.engine.grants[self.root_agent_id]
+        avail_before = root.balance.available
+
+        # Reserve 100_000 for withdrawal
+        self.engine.reserve_withdrawal(self.org_id, 100_000, self.admin)
+        self.assertEqual(root.balance.available, avail_before - 100_000)
+        self.assertEqual(root.balance.reserved, 100_000)
+
+        # Simulate failed cross-contract withdrawal transfer -> Recovery
+        self.engine.finalize_withdrawal_failure(self.org_id, 100_000)
+        self.assertEqual(root.balance.available, avail_before)
+        self.assertEqual(root.balance.reserved, 0)
+        root.balance.assert_conservation_invariant(self.root_agent_id)
+
 if __name__ == "__main__":
     unittest.main()

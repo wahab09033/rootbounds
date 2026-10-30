@@ -2,7 +2,7 @@
 
 [![NEAR Protocol](https://img.shields.io/badge/NEAR-Protocol-black?logo=near)](https://near.org)
 [![Track: AI Security & Defense](https://img.shields.io/badge/NEAR%20Hackathon-AI%20Security%20%26%20Defense-00ec97)](https://nearhackathon.com)
-[![Tests Passing](https://img.shields.io/badge/Tests-58%2F58%20Passing-brightgreen)](file:///c:/Users/wahab/rootbounds/tests)
+[![Tests Passing](https://img.shields.io/badge/Tests-63%2F63%20Passing-brightgreen)](file:///c:/Users/wahab/rootbounds/tests)
 [![Invariants Verified](https://img.shields.io/badge/Invariants-100%25%20Conserved-blue)](#formal-security-invariants)
 [![Smart Contract](https://img.shields.io/badge/Smart%20Contract-Rust%20%2F%20near--sdk%205.5-orange)](file:///c:/Users/wahab/rootbounds/contracts/rootbound)
 
@@ -82,16 +82,16 @@ $$\text{Reserved} \longrightarrow \text{Available}$$
 
 Designed to be reproduced deterministically by **Claude Code, Codex, and human judges**:
 
-### Step 1: Run the Complete Automated Test Suite (58 Tests)
+### Step 1: Run the Complete Automated Test Suite (63 Tests)
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 **Expected Output (See Y):**
 ```
-Ran 58 tests in 0.046s
+Ran 63 tests in 0.047s
 OK
 ```
-*(All 58 tests pass with 0 failures, verifying all 10 adversarial attack vectors, budget conservation, and 3-level depth limits.)*
+*(All 63 tests pass with 0 failures, verifying all 13 adversarial attack vectors including cross-tenant isolation, fund reclamation, budget conservation, and 3-level depth limits.)*
 
 ---
 
@@ -162,7 +162,11 @@ ROOTBOUND Dashboard Server running at http://127.0.0.1:8080
 | **Replay Attack** | Attacker replays previously processed nonce | `ERR_INVALID_NONCE` |
 | **Duplicate Callback** | Duplicate callback execution attempt | `ERR_INVALID_PAYMENT_STATE` |
 | **Cascade Revocation** | Spend attempted through revoked ancestor | `ERR_ANCESTOR_REVOKED` |
-| **Transfer Failure** | NEAR receiver panics or runs out of gas | Safe Recovery: `Reserved` $\rightarrow$ `Available` |
+| **Cross-Tenant Delegation** | Rogue tenant attempts to delegate from victim's agent | `ERR_UNAUTHORIZED_CALLER` |
+| **Cross-Tenant Revocation** | Rogue tenant attempts to revoke victim's agent | `ERR_UNAUTHORIZED_CALLER` |
+| **Inactive Org Freeze** | Spend/delegation attempted under paused organization | `ERR_ANCESTOR_REVOKED` |
+| **Capital Lockup Vector** | Expired/revoked delegation traps available budget | Resolved via `reclaim_delegated_funds` |
+| **Transfer / Withdrawal Failure** | NEAR receiver panics or runs out of gas | Safe Recovery: `Reserved` $\rightarrow$ `Available` |
 
 ---
 

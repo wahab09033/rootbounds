@@ -66,12 +66,20 @@ mod tests {
         let root_grant = contract.get_grant("root_agent".to_string()).unwrap();
         assert_eq!(root_grant.balance.available, 1_500_000);
 
-        // Authorized Withdraw 200,000
+        // Authorized Withdraw 200,000 (Atomic reservation)
         testing_env!(context.attached_deposit(0).build());
         contract.withdraw_escrow("org_1".to_string(), 200_000);
-        let updated_grant = contract.get_grant("root_agent".to_string()).unwrap();
-        assert_eq!(updated_grant.balance.available, 1_300_000);
-        assert_eq!(updated_grant.balance.allocated, 1_300_000);
+        let reserved_grant = contract.get_grant("root_agent".to_string()).unwrap();
+        assert_eq!(reserved_grant.balance.available, 1_300_000);
+        assert_eq!(reserved_grant.balance.reserved, 200_000);
+
+        // Simulate successful withdrawal callback
+        testing_env!(context.predecessor_account_id(accounts(0)).build());
+        contract.on_withdraw_settled("org_1".to_string(), 200_000, Ok(()));
+        let finalized_grant = contract.get_grant("root_agent".to_string()).unwrap();
+        assert_eq!(finalized_grant.balance.available, 1_300_000);
+        assert_eq!(finalized_grant.balance.allocated, 1_300_000);
+        assert_eq!(finalized_grant.balance.reserved, 0);
     }
 
     #[test]
@@ -220,5 +228,88 @@ mod tests {
         assert_eq!(recovered_grant.balance.available, 300_000);
         assert_eq!(recovered_grant.balance.reserved, 0);
         assert_eq!(recovered_grant.balance.spent, 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "ERR_UNAUTHORIZED_CALLER")]
+    fn test_cross_org_delegation_blocked() {
+        let admin_1 = accounts(1);
+        let mut context = get_context(admin_1.clone(), 1_000_000, 1000);
+        testing_env!(context.build());
+
+        let mut contract = RootboundContract::new();
+        // Org 1
+        contract.create_organization("org_1".to_string(), "root_1".to_string(), 100_000, None, None);
+
+        // Org 2 by admin 2
+        let admin_2 = accounts(2);
+        testing_env!(context.predecessor_account_id(admin_2.clone()).attached_deposit(500_000).build());
+        contract.create_organization("org_2".to_string(), "root_2".to_string(), 100_000, None, None);
+
+        // Admin 2 attempts to delegate from Org 1's root agent
+        contract.create_delegation_grant(
+            "org_2".to_string(),
+            "root_1".to_string(), // Belongs to org_1!
+            "rogue_child".to_string(),
+            accounts(3),
+            100_000,
+            90_000,
+            None,
+            None,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "ERR_UNAUTHORIZED_CALLER")]
+    fn test_cross_org_revocation_blocked() {
+        let admin_1 = accounts(1);
+        let mut context = get_context(admin_1.clone(), 1_000_000, 1000);
+        testing_env!(context.build());
+
+        let mut contract = RootboundContract::new();
+        contract.create_organization("org_1".to_string(), "root_1".to_string(), 100_000, None, None);
+
+        let admin_2 = accounts(2);
+        testing_env!(context.predecessor_account_id(admin_2.clone()).attached_deposit(500_000).build());
+        contract.create_organization("org_2".to_string(), "root_2".to_string(), 100_000, None, None);
+
+        // Admin 2 attempts to revoke Org 1's agent
+        contract.revoke_grant("org_2".to_string(), "root_1".to_string());
+    }
+
+    #[test]
+    fn test_reclaim_delegated_funds() {
+        let admin = accounts(1);
+        let mut context = get_context(admin.clone(), 1_000_000, 1000);
+        testing_env!(context.build());
+
+        let mut contract = RootboundContract::new();
+        contract.create_organization("org_1".to_string(), "root".to_string(), 100_000, None, None);
+
+        contract.create_delegation_grant(
+            "org_1".to_string(),
+            "root".to_string(),
+            "pm".to_string(),
+            accounts(2),
+            400_000,
+            90_000,
+            None,
+            None,
+        );
+
+        let root_before = contract.get_grant("root".to_string()).unwrap();
+        assert_eq!(root_before.balance.available, 600_000);
+        assert_eq!(root_before.balance.delegated, 400_000);
+
+        // Reclaim 150_000 from PM back to Root
+        contract.reclaim_delegated_funds("org_1".to_string(), "root".to_string(), "pm".to_string(), 150_000);
+
+        let root_after = contract.get_grant("root".to_string()).unwrap();
+        assert_eq!(root_after.balance.available, 750_000);
+        assert_eq!(root_after.balance.delegated, 250_000);
+
+        let pm_after = contract.get_grant("pm".to_string()).unwrap();
+        assert_eq!(pm_after.balance.available, 250_000);
+        assert_eq!(pm_after.balance.allocated, 250_000);
     }
 }

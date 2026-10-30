@@ -4,8 +4,18 @@ __pycache__/
 *$py.class
 *.so
 
-# Environments
+# Environments & Secrets
 .env
+.env.*
+*.env
+*.pem
+*.key
+*.secret
+*.pk
+*.credentials
+near_credentials/
+.near/
+.near-credentials/
 .venv
 env/
 venv/
@@ -15,6 +25,8 @@ ENV/
 contracts/rootbound/target/
 Cargo.lock
 
-# OS metadata
+# OS metadata & Editor
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/

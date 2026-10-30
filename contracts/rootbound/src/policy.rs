@@ -101,15 +101,18 @@ impl PolicyEngine {
         Ok(())
     }
 
-    /// Verifies the full ancestor lineage from agent up to Root.
+    /// Verifies the full ancestor lineage from agent up to Root using a grant lookup closure.
     /// If any ancestor is revoked or missing, returns Err(ERR_ANCESTOR_REVOKED).
-    pub fn verify_ancestor_chain(
+    pub fn verify_ancestor_chain<F>(
         agent_id: &AgentId,
-        grants: &HashMap<AgentId, DelegationGrant>,
-    ) -> Result<(), &'static str> {
+        lookup: F,
+    ) -> Result<(), &'static str>
+    where
+        F: Fn(&AgentId) -> Option<DelegationGrant>,
+    {
         let mut curr_id = Some(agent_id.clone());
         while let Some(id) = curr_id {
-            let grant = grants.get(&id).ok_or(ERR_ANCESTOR_REVOKED)?;
+            let grant = lookup(&id).ok_or(ERR_ANCESTOR_REVOKED)?;
             if grant.is_revoked {
                 return Err(ERR_ANCESTOR_REVOKED);
             }

@@ -110,17 +110,47 @@ impl RootboundContract {
     }
 
     pub fn withdraw_escrow(&mut self, org_id: OrgId, amount: Balance) -> Promise {
-        let mut org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        let org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
         let caller = env::predecessor_account_id();
         require!(caller == org.admin, ERR_UNAUTHORIZED_CALLER);
+        require!(org.is_active, ERR_ANCESTOR_REVOKED);
 
         let mut root_grant = self.grants.get(&org.root_agent_id).expect(ERR_PAYMENT_NOT_FOUND);
-        AccountingEngine::withdraw(&mut org, &mut root_grant, amount);
+        AccountingEngine::reserve_withdrawal(&mut root_grant, amount);
+
+        self.grants.insert(&org.root_agent_id, &root_grant);
+
+        Promise::new(org.admin.clone())
+            .transfer(amount)
+            .then(
+                Self::ext(env::current_account_id())
+                    .with_static_gas(near_sdk::Gas::from_tgas(15))
+                    .on_withdraw_settled(org_id, amount)
+            )
+    }
+
+    #[private]
+    pub fn on_withdraw_settled(
+        &mut self,
+        org_id: OrgId,
+        amount: Balance,
+        #[callback_result] result: Result<(), PromiseError>,
+    ) -> Balance {
+        let mut org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        let mut root_grant = self.grants.get(&org.root_agent_id).expect(ERR_PAYMENT_NOT_FOUND);
+
+        match result {
+            Ok(()) => {
+                AccountingEngine::finalize_withdrawal_success(&mut org, &mut root_grant, amount);
+            }
+            Err(_) => {
+                AccountingEngine::finalize_withdrawal_failure(&mut root_grant, amount);
+            }
+        }
 
         self.organizations.insert(&org_id, &org);
         self.grants.insert(&org.root_agent_id, &root_grant);
-
-        Promise::new(org.admin.clone()).transfer(amount)
+        org.escrow_balance
     }
 
     // -------------------------------------------------------------------------
@@ -141,6 +171,8 @@ impl RootboundContract {
         require!(self.grants.get(&child_agent_id).is_none(), ERR_DUPLICATE_REQUEST);
         let mut parent = self.grants.get(&parent_agent_id).expect(ERR_PAYMENT_NOT_FOUND);
         let org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        require!(org.is_active, ERR_ANCESTOR_REVOKED);
+        require!(parent.org_id == org_id, ERR_UNAUTHORIZED_CALLER);
 
         let caller = env::predecessor_account_id();
         require!(caller == parent.agent_account || caller == org.admin, ERR_UNAUTHORIZED_CALLER);
@@ -183,6 +215,34 @@ impl RootboundContract {
         child_grant
     }
 
+    /// Step 6b: Fund Reclamation / Undelegate
+    /// Reclaims uncommitted available funds from a child grant back to the parent.
+    pub fn reclaim_delegated_funds(
+        &mut self,
+        org_id: OrgId,
+        parent_agent_id: AgentId,
+        child_agent_id: AgentId,
+        amount: Balance,
+    ) -> DelegationGrant {
+        let org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        require!(org.is_active, ERR_ANCESTOR_REVOKED);
+        let mut parent = self.grants.get(&parent_agent_id).expect(ERR_PAYMENT_NOT_FOUND);
+        let mut child = self.grants.get(&child_agent_id).expect(ERR_PAYMENT_NOT_FOUND);
+
+        require!(parent.org_id == org_id && child.org_id == org_id, ERR_UNAUTHORIZED_CALLER);
+        require!(child.parent_agent_id.as_ref() == Some(&parent_agent_id), ERR_IMMUTABLE_PARENT);
+
+        let caller = env::predecessor_account_id();
+        require!(caller == parent.agent_account || caller == org.admin, ERR_UNAUTHORIZED_CALLER);
+
+        AccountingEngine::reclaim(&mut parent, &mut child, amount);
+
+        self.grants.insert(&parent_agent_id, &parent);
+        self.grants.insert(&child_agent_id, &child);
+
+        child
+    }
+
     // -------------------------------------------------------------------------
     // Step 7: Budget Reservation & Payment Request Lifecycle
     // -------------------------------------------------------------------------
@@ -198,6 +258,9 @@ impl RootboundContract {
     ) -> Promise {
         require!(self.payments.get(&request_id).is_none(), ERR_DUPLICATE_REQUEST);
         let mut grant = self.grants.get(&agent_id).expect(ERR_PAYMENT_NOT_FOUND);
+        require!(grant.org_id == org_id, ERR_UNAUTHORIZED_CALLER);
+        let org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        require!(org.is_active, ERR_ANCESTOR_REVOKED);
 
         let caller = env::predecessor_account_id();
         require!(caller == grant.agent_account, ERR_UNAUTHORIZED_CALLER);
@@ -277,6 +340,8 @@ impl RootboundContract {
     pub fn revoke_grant(&mut self, org_id: OrgId, agent_id: AgentId) -> bool {
         let mut target = self.grants.get(&agent_id).expect(ERR_PAYMENT_NOT_FOUND);
         let org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        require!(org.is_active, ERR_ANCESTOR_REVOKED);
+        require!(target.org_id == org_id, ERR_UNAUTHORIZED_CALLER);
 
         let caller = env::predecessor_account_id();
         let mut is_authorized = (caller == org.admin) || (caller == target.agent_account);
@@ -294,6 +359,15 @@ impl RootboundContract {
         target.is_revoked = true;
         self.grants.insert(&agent_id, &target);
         true
+    }
+
+    pub fn set_organization_active(&mut self, org_id: OrgId, is_active: bool) -> bool {
+        let mut org = self.organizations.get(&org_id).expect(ERR_PAYMENT_NOT_FOUND);
+        let caller = env::predecessor_account_id();
+        require!(caller == org.admin, ERR_UNAUTHORIZED_CALLER);
+        org.is_active = is_active;
+        self.organizations.insert(&org_id, &org);
+        is_active
     }
 
     // -------------------------------------------------------------------------
@@ -322,6 +396,13 @@ impl RootboundContract {
             match self.grants.get(&id) {
                 Some(grant) => {
                     if grant.is_revoked {
+                        return false;
+                    }
+                    if let Some(org) = self.organizations.get(&grant.org_id) {
+                        if !org.is_active {
+                            return false;
+                        }
+                    } else {
                         return false;
                     }
                     curr_id = grant.parent_agent_id;
