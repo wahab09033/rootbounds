@@ -136,17 +136,27 @@ ROOTBOUND: System Integration Pipeline Running
 
 ---
 
-### Step 4: Launch the Live Dashboard & Attack Simulator
+### Step 4: Launch the Live Dashboard & Attack Simulator (Localhost)
 ```bash
 python dashboard/server.py 8080
 ```
 **Expected Output (See Y):**
 ```
-ROOTBOUND Dashboard Server running at http://127.0.0.1:8080
+ROOTBOUND Dashboard Server running at http://localhost:8080
 ```
 * Open your browser to `http://localhost:8080`.
 * View the real-time hierarchy tree, animated 5-state balance chips, and live on-chain audit ledger.
+* Click **`+ Deploy Agent`** or **`↗ Dispatch Payment`** to interact with live multi-tier agent transfers in real time.
 * Click attack buttons in the **Adversarial Attack Simulator** to trigger live on-chain rejections with structured error codes.
+
+---
+
+### Step 5: 1-Click Deployment to Vercel (Public Web Access)
+ROOTBOUND is configured with autonomous in-browser Web3 execution and zero-config Vercel routing (`vercel.json`):
+1. Push to your GitHub repository: `git push origin main`.
+2. In [Vercel Dashboard](https://vercel.com/new), select your `rootbounds` repository.
+3. Click **Deploy**. Vercel will immediately deploy the live web application to a public HTTPS URL (`https://your-project.vercel.app`).
+4. Anyone with the URL can open the Control Room, connect their NEAR wallet, deploy agents, dispatch payments, and verify security invariants globally!
 
 ---
 

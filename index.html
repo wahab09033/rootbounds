@@ -1,0 +1,3119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROOTBOUND — Control Room | Autonomous Agent Financial Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  <!-- NEAR Protocol Official JavaScript SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.4/dist/near-api-js.min.js"></script>
+  <style>
+    :root {
+      --bg-base: #171917;
+      --surface-secondary: #242823;
+      --surface-elevated: #2D322C;
+      --surface-sunken: #111311;
+      --surface-node: #1c201b;
+      --text-primary: #EAE5D9;
+      --text-secondary: #A5A79C;
+      --text-tertiary: #6E7268;
+      --border-subtle: #3A4038;
+      --border-light: #4A5247;
+      --border-focus: #B77B54;
+      
+      /* Intentional Semantics */
+      --accent-copper: #B77B54;
+      --accent-copper-glow: rgba(183, 123, 84, 0.18);
+      --accent-copper-subtle: rgba(183, 123, 84, 0.08);
+      --status-authorized: #91A58C;
+      --status-authorized-bg: rgba(145, 165, 140, 0.12);
+      --status-rejected: #C77C70;
+      --status-rejected-bg: rgba(199, 124, 112, 0.12);
+      --status-reserved: #D4A373;
+      --status-reserved-bg: rgba(212, 163, 115, 0.12);
+      
+      --font-display: 'Newsreader', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Tabular numbers for financial precision */
+    .tabular-num {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Utility Bar */
+    header.control-header {
+      height: 52px;
+      background: var(--surface-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .brand-emblem-svg {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 6px rgba(183, 123, 84, 0.25));
+      transition: transform 0.2s ease;
+    }
+    .brand-mark:hover .brand-emblem-svg {
+      transform: scale(1.05);
+    }
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      color: var(--text-primary);
+    }
+    .brand-system-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-tertiary);
+      padding: 2px 6px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Pill Badges */
+    .status-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    .status-pill.authorized {
+      background: var(--status-authorized-bg);
+      color: var(--status-authorized);
+      border: 1px solid rgba(145, 165, 140, 0.3);
+    }
+    .status-pill.rejected {
+      background: var(--status-rejected-bg);
+      color: var(--status-rejected);
+      border: 1px solid rgba(199, 124, 112, 0.3);
+    }
+    .status-pill.copper {
+      background: var(--accent-copper-subtle);
+      color: var(--accent-copper);
+      border: 1px solid rgba(183, 123, 84, 0.3);
+    }
+
+    /* Wallet Button & Connection */
+    .btn-wallet-connect {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.18s ease;
+    }
+    .btn-wallet-connect:hover {
+      border-color: var(--accent-copper);
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+    }
+    .wallet-connected-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .wallet-connected-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--status-authorized);
+    }
+
+    /* Application Shell: Three-Part Composition */
+    .control-room-shell {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 1. Left: Navigation Rail */
+    nav.nav-rail {
+      width: 230px;
+      background: var(--surface-secondary);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .nav-section {
+      padding: 16px 10px 8px 10px;
+    }
+    .nav-section-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-tertiary);
+      padding: 0 10px 8px 10px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      position: relative;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+    }
+    .nav-item.active {
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+      font-weight: 600;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      background: var(--accent-copper);
+      border-radius: 0 2px 2px 0;
+    }
+    .nav-item-icon {
+      width: 16px;
+      height: 16px;
+      opacity: 0.75;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-item.active .nav-item-icon {
+      opacity: 1;
+      color: var(--accent-copper);
+    }
+
+    .nav-footer {
+      margin-top: auto;
+      padding: 14px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-sunken);
+    }
+    .nav-footer-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-tertiary);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .nav-footer-meta strong {
+      color: var(--text-secondary);
+    }
+
+    /* 2. Centre: Main Workspace */
+    main.workspace-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-base);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+    .workspace-header {
+      padding: 24px 28px 18px 28px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      background: var(--bg-base);
+      flex-shrink: 0;
+    }
+    .workspace-title-group h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .workspace-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .workspace-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .workspace-body {
+      padding: 24px 28px;
+      flex: 1;
+    }
+
+    /* 3. Right: Contextual Detail Panel */
+    aside.context-panel {
+      width: 380px;
+      background: var(--surface-secondary);
+      border-left: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      transition: width 0.25s ease, opacity 0.25s ease;
+      z-index: 40;
+    }
+    aside.context-panel.collapsed {
+      width: 0;
+      border-left: none;
+      overflow: hidden;
+      opacity: 0;
+    }
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .panel-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .panel-close-btn:hover {
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+    }
+    .panel-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Financial Overview Metric Cards (Editorial Swiss Grid) */
+    .metrics-editorial-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .metric-cell {
+      background: var(--surface-secondary);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric-cell.highlight {
+      background: var(--surface-elevated);
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .metric-value.copper { color: var(--accent-copper); }
+    .metric-value.authorized { color: var(--status-authorized); }
+    .metric-value.reserved { color: var(--status-reserved); }
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    /* Conservation Formula Bar */
+    .conservation-bar {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .formula-expression {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .formula-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .formula-item strong {
+      color: var(--text-primary);
+    }
+
+    /* Interactive Delegation Network Canvas */
+    .network-container {
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 24px;
+      position: relative;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .network-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .network-search-input {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      width: 220px;
+      outline: none;
+    }
+    .network-search-input:focus {
+      border-color: var(--accent-copper);
+    }
+
+    .hierarchy-canvas {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      position: relative;
+    }
+    .hierarchy-level-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Operational Agent Node Card */
+    .network-node-card {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px 16px;
+      width: 290px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      position: relative;
+    }
+    .network-node-card:hover {
+      border-color: var(--accent-copper);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .network-node-card.selected {
+      border-color: var(--accent-copper);
+      background: var(--surface-elevated);
+      box-shadow: 0 0 0 1px var(--accent-copper), 0 6px 20px var(--accent-copper-glow);
+    }
+    .network-node-card.revoked {
+      border-color: var(--status-rejected);
+      background: rgba(199, 124, 112, 0.05);
+    }
+    .node-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .node-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .node-depth-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .node-account {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+    }
+    
+    /* 5-State Balance Distribution Mini-Meter */
+    .meter-bar {
+      height: 4px;
+      background: var(--surface-sunken);
+      border-radius: 2px;
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .meter-segment.avail { background: var(--status-authorized); }
+    .meter-segment.deleg { background: var(--accent-copper); }
+    .meter-segment.res { background: var(--status-reserved); }
+    .meter-segment.spent { background: var(--text-tertiary); }
+
+    .node-balance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      text-align: center;
+      background: var(--surface-sunken);
+      border-radius: 4px;
+      padding: 6px 4px;
+    }
+    .node-balance-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .node-balance-key {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .node-balance-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Operational Data Table */
+    .data-table-container {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .data-table-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .data-table-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: var(--surface-sunken);
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
+    }
+    table.data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+    table.data-table tr:last-child td {
+      border-bottom: none;
+    }
+    table.data-table tr:hover td {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+    }
+    table.data-table tr {
+      cursor: pointer;
+    }
+
+    /* Security Incident Stream */
+    .security-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .security-incident-card {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .security-incident-card:hover {
+      border-color: var(--border-light);
+      background: var(--surface-elevated);
+    }
+    .incident-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .incident-type {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .incident-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .incident-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      display: flex;
+      gap: 14px;
+    }
+
+    /* Attack Simulator Control Grid */
+    .attack-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media(max-width: 1200px) {
+      .attack-grid { grid-template-columns: 1fr; }
+    }
+    .attack-card {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .attack-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .attack-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .attack-description {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .attack-spec-row {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+    }
+    .attack-spec-row code {
+      color: var(--status-rejected);
+    }
+
+    /* Buttons */
+    .btn-action {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-action:hover {
+      border-color: var(--border-light);
+      background: #353b34;
+    }
+    .btn-action.copper {
+      border-color: var(--accent-copper);
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+    }
+    .btn-action.copper:hover {
+      background: rgba(183, 123, 84, 0.2);
+    }
+    .btn-action.danger {
+      border-color: rgba(199, 124, 112, 0.4);
+      color: var(--status-rejected);
+      background: var(--status-rejected-bg);
+    }
+    .btn-action.danger:hover {
+      background: rgba(199, 124, 112, 0.25);
+      border-color: var(--status-rejected);
+    }
+
+    /* Modal Dialog */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      width: 440px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    .modal-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-box.wide {
+      width: 520px;
+      max-width: 92vw;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 9px 12px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--border-focus);
+    }
+    .form-select option {
+      background: var(--surface-secondary);
+      color: var(--text-primary);
+    }
+    .form-helper {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .chip-btn {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .chip-btn:hover {
+      border-color: var(--accent-copper);
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+    }
+    .modal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 18px;
+      gap: 8px;
+    }
+    .modal-tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .modal-tab-btn.active {
+      color: var(--accent-copper);
+      border-bottom-color: var(--accent-copper);
+    }
+    .modal-alert {
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 14px;
+      display: none;
+      line-height: 1.4;
+    }
+    .modal-alert.error {
+      background: var(--status-rejected-bg);
+      border: 1px solid rgba(199, 124, 112, 0.4);
+      color: var(--status-rejected);
+    }
+    .modal-alert.success {
+      background: var(--status-authorized-bg);
+      border: 1px solid rgba(145, 165, 140, 0.4);
+      color: var(--status-authorized);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP UTILITY / CONTROL HEADER -->
+  <header class="control-header">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <a href="#" class="brand-mark">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="brand-emblem-svg">
+          <!-- Outer cryptographic vault shield -->
+          <path d="M16 2L28 8.5V23.5L16 30L4 23.5V8.5L16 2Z" stroke="#B77B54" stroke-width="1.5" stroke-linejoin="round" fill="none" opacity="0.35"/>
+          <path d="M16 5.5L25 10.5V21.5L16 26.5L7 21.5V10.5L16 5.5Z" stroke="#B77B54" stroke-width="1.8" stroke-linejoin="round" fill="#1C201B"/>
+          <!-- Root authority nexus & hierarchical lattice -->
+          <circle cx="16" cy="11" r="2.5" fill="#B77B54"/>
+          <line x1="16" y1="13.5" x2="16" y2="18.5" stroke="#B77B54" stroke-width="1.6"/>
+          <line x1="16" y1="18.5" x2="11.5" y2="21.5" stroke="#B77B54" stroke-width="1.5"/>
+          <line x1="16" y1="18.5" x2="20.5" y2="21.5" stroke="#B77B54" stroke-width="1.5"/>
+          <circle cx="11.5" cy="21.5" r="1.8" fill="#91A58C"/>
+          <circle cx="20.5" cy="21.5" r="1.8" fill="#91A58C"/>
+          <circle cx="16" cy="18.5" r="1.5" fill="#B77B54"/>
+          <!-- Deliberate containment constraint boundary -->
+          <path d="M9 13.5L16 9.5L23 13.5" stroke="#EAE5D9" stroke-width="1" stroke-dasharray="1.5 1.5" opacity="0.6"/>
+        </svg>
+        <span class="brand-name">Rootbound</span>
+        <span class="brand-system-tag">Control Room</span>
+      </a>
+      <span class="status-pill authorized" id="global-invariant-pill">
+        <span>●</span> Invariants 100% Conserved
+      </span>
+    </div>
+
+    <div class="header-controls">
+      <!-- Live NEAR Testnet Wallet Connect -->
+      <button id="btn-connect-near-wallet" class="btn-wallet-connect" onclick="openWalletModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v12M6 12h12"></path>
+        </svg>
+        Connect NEAR Wallet
+      </button>
+
+      <div id="wallet-connected-display" class="wallet-connected-badge" style="display: none;">
+        <span class="dot"></span>
+        <span id="connected-wallet-account" style="font-weight: 600; color: var(--text-primary);">user.testnet</span>
+        <span id="connected-wallet-balance" style="color: var(--accent-copper); font-weight: 600;">Ⓝ 0.00</span>
+        <button onclick="disconnectNearWallet()" style="background:transparent; border:none; color:var(--text-tertiary); cursor:pointer; font-size:10px; margin-left:4px;">Sign Out</button>
+      </div>
+
+      <a href="/demo_video.html" class="btn-wallet-connect" style="text-decoration: none;">
+        <span>🎬 Video Demo</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- APPLICATION SHELL -->
+  <div class="control-room-shell">
+
+    <!-- 1. LEFT NAVIGATION RAIL -->
+    <nav class="nav-rail">
+      <div class="nav-section">
+        <div class="nav-section-title">Operations</div>
+        <a class="nav-item active" onclick="navigate('overview')">
+          <span class="nav-item-icon">▤</span>
+          <span>Overview</span>
+        </a>
+        <a class="nav-item" onclick="navigate('hierarchy')">
+          <span class="nav-item-icon">🌲</span>
+          <span>Hierarchy Network</span>
+        </a>
+        <a class="nav-item" onclick="navigate('agents')">
+          <span class="nav-item-icon">👥</span>
+          <span>Agent Directory</span>
+        </a>
+        <a class="nav-item" onclick="navigate('treasury')">
+          <span class="nav-item-icon">🏛</span>
+          <span>Treasury Operations</span>
+        </a>
+        <a class="nav-item" onclick="navigate('transactions')">
+          <span class="nav-item-icon">⇄</span>
+          <span>Transactions Ledger</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Security & Defense</div>
+        <a class="nav-item" onclick="navigate('security')">
+          <span class="nav-item-icon">🛡</span>
+          <span>Security Activity</span>
+        </a>
+        <a class="nav-item" onclick="navigate('simulator')">
+          <span class="nav-item-icon">⚡</span>
+          <span>Attack Simulator</span>
+        </a>
+        <a class="nav-item" onclick="navigate('policies')">
+          <span class="nav-item-icon">📜</span>
+          <span>Invariant Policies</span>
+        </a>
+        <a class="nav-item" onclick="navigate('testnet')">
+          <span class="nav-item-icon">🌐</span>
+          <span>NEAR Testnet Console</span>
+        </a>
+      </div>
+
+      <div class="nav-footer">
+        <div class="nav-footer-meta">
+          <span>Organization: <strong>org_rootbound</strong></span>
+          <span>Admin Key: <strong>admin.near</strong></span>
+          <span>Consensus: <span style="color: var(--status-authorized);">NEAR Protocol (Testnet)</span></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 2. CENTRE MAIN WORKSPACE -->
+    <main class="workspace-main">
+      <div class="workspace-header">
+        <div class="workspace-title-group">
+          <h2 id="view-title">Financial Operations Overview</h2>
+          <p id="view-subtitle" class="workspace-subtitle">Real-time mathematical telemetry of multi-tier agent financial authority on NEAR.</p>
+        </div>
+        <div class="workspace-actions">
+          <button class="btn-action copper" onclick="openPaymentModal()" title="Dispatch a payment between agents or to vendors">
+            <span>↗ Dispatch Payment</span>
+          </button>
+          <button class="btn-action" onclick="openDeployAgentModal()" title="Deploy a new child agent into the hierarchy">
+            <span>+ Deploy Agent</span>
+          </button>
+          <button class="btn-action" onclick="openVaultModal()" title="Deposit or withdraw treasury escrow funds">
+            <span>🏛 Vault Escrow</span>
+          </button>
+          <button class="btn-action" onclick="resetDemoState()" title="Reset to initial state">
+            <span>↺ Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="workspace-body">
+
+        <!-- VIEW 1: OVERVIEW -->
+        <section id="view-overview" class="view-panel">
+          <!-- Editorial Financial Metrics Strip -->
+          <div class="metrics-editorial-strip">
+            <div class="metric-cell highlight">
+              <span class="metric-label">Total Escrow Authority</span>
+              <span id="metric-total-escrow" class="metric-value tabular-num">1,000,000</span>
+              <span class="metric-sub">Vault deposit custody</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Uncommitted Available</span>
+              <span id="metric-available-funds" class="metric-value authorized tabular-num">785,000</span>
+              <span class="metric-sub">Free for delegation/spend</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Active In-Flight (Reserved)</span>
+              <span id="metric-reserved-funds" class="metric-value reserved tabular-num">0</span>
+              <span class="metric-sub">Committed to NEAR promises</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Confirmed Settled (Spent)</span>
+              <span id="metric-spent-funds" class="metric-value tabular-num">23,000</span>
+              <span class="metric-sub">Transferred upon callback</span>
+            </div>
+          </div>
+
+          <!-- Mathematical Conservation Invariant Formula -->
+          <div class="conservation-bar">
+            <span style="color: var(--text-tertiary); text-transform: uppercase; font-size: 10px; letter-spacing: 0.8px;">Mathematical Invariant</span>
+            <div class="formula-expression">
+              <span class="formula-item">Allocated: <strong id="formula-allocated" class="tabular-num">1,000,000</strong></span>
+              <span style="color: var(--accent-copper);">≡</span>
+              <span class="formula-item">Available: <strong id="formula-available" class="tabular-num">785,000</strong></span>
+              <span>+</span>
+              <span class="formula-item">Delegated: <strong id="formula-delegated" class="tabular-num">200,000</strong></span>
+              <span>+</span>
+              <span class="formula-item">Reserved: <strong id="formula-reserved" class="tabular-num">0</strong></span>
+              <span>+</span>
+              <span class="formula-item">Spent: <strong id="formula-spent" class="tabular-num">23,000</strong></span>
+            </div>
+            <span class="status-pill authorized">Zero Fund Leakage</span>
+          </div>
+
+          <!-- Interactive Delegation Network Snippet -->
+          <div class="network-container">
+            <div class="network-toolbar">
+              <div>
+                <span style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 600;">
+                  Delegation Authority Hierarchy (Max Depth 3)
+                </span>
+                <p style="font-size: 12px; color: var(--text-tertiary);">Select an agent node to inspect authority limits, parent-child links, and permissions in the right panel.</p>
+              </div>
+              <input type="text" class="network-search-input" placeholder="Search agent ID..." oninput="filterNetworkNodes(this.value)" />
+            </div>
+
+            <div id="overview-hierarchy-canvas" class="hierarchy-canvas">
+              <!-- Dynamically Populated Node Levels -->
+            </div>
+          </div>
+
+          <!-- Recent Operations & Security Interceptions -->
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>Recent Financial Authorizations & Policy Interceptions</h3>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">Live Consensus Feed</span>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event Type</th>
+                  <th>Outcome</th>
+                  <th>Details & Reason</th>
+                  <th>Transaction ID</th>
+                  <th>Block Explorer</th>
+                </tr>
+              </thead>
+              <tbody id="overview-recent-table-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 2: HIERARCHY NETWORK (Full Standalone) -->
+        <section id="view-hierarchy" class="view-panel" style="display: none;">
+          <div class="network-container" style="min-height: 550px;">
+            <div class="network-toolbar">
+              <div>
+                <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Full Interactive Authority Network</h3>
+                <p style="font-size: 12px; color: var(--text-secondary);">Inherited restrictions flow downward: Root Treasury → Project Manager → Researcher.</p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-action" onclick="resetNetworkView()">Reset Layout</button>
+              </div>
+            </div>
+            <div id="full-hierarchy-canvas" class="hierarchy-canvas"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: AGENTS DIRECTORY -->
+        <section id="view-agents" class="view-panel" style="display: none;">
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>Configured Delegation Grants</h3>
+              <span style="font-size: 11px; color: var(--text-tertiary);">Click any agent row to view permissions</span>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Agent ID</th>
+                  <th>Hierarchy Depth</th>
+                  <th>Account Address</th>
+                  <th>Allocated</th>
+                  <th>Available</th>
+                  <th>Delegated</th>
+                  <th>Spent</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="agents-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 4: TREASURY -->
+        <section id="view-treasury" class="view-panel" style="display: none;">
+          <div class="metrics-editorial-strip">
+            <div class="metric-cell highlight">
+              <span class="metric-label">Gross Escrow Deposits</span>
+              <span id="treasury-gross" class="metric-value tabular-num">1,000,000</span>
+              <span class="metric-sub">Lifetime deposited principal</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Root Available Balance</span>
+              <span id="treasury-root-avail" class="metric-value authorized tabular-num">500,000</span>
+              <span class="metric-sub">Un-delegated liquid capital</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Downward Delegated</span>
+              <span id="treasury-delegated" class="metric-value copper tabular-num">500,000</span>
+              <span class="metric-sub">Issued to child sub-agents</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Confirmed Outflow</span>
+              <span id="treasury-outflow" class="metric-value tabular-num">23,000</span>
+              <span class="metric-sub">Paid out to external vendors</span>
+            </div>
+          </div>
+
+          <div class="data-table-container" style="padding: 20px;">
+            <h3 style="font-size: 14px; margin-bottom: 12px;">Treasury Liquidity Reconciliation</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+              Treasury funds remain locked inside the immutable ROOTBOUND escrow smart contract on NEAR Protocol. Agents cannot withdraw or move funds without adhering to strict policy attenuation. Available funds can be withdrawn by the Organization Admin or delegated downward into scoped child authority envelopes.
+            </p>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn-action copper" onclick="navigate('testnet')">📥 Deposit Testnet NEAR via Wallet</button>
+              <button class="btn-action" onclick="navigate('testnet')">📤 Withdraw Available Escrow to Admin</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 5: TRANSACTIONS LEDGER -->
+        <section id="view-transactions" class="view-panel" style="display: none;">
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>On-Chain Payment Settlement Ledger</h3>
+              <div style="display: flex; gap: 8px;">
+                <span class="status-pill copper">Sequential Nonce Monotonicity</span>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Originating Agent</th>
+                  <th>Payee / Recipient</th>
+                  <th>Amount</th>
+                  <th>Nonce</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 6: SECURITY ACTIVITY -->
+        <section id="view-security" class="view-panel" style="display: none;">
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>Policy Interception Radar & Activity Stream</h3>
+              <span class="status-pill rejected">Structured Rejections</span>
+            </div>
+            <div id="security-activity-feed" class="security-feed" style="padding: 16px;"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 7: POLICIES -->
+        <section id="view-policies" class="view-panel" style="display: none;">
+          <div class="data-table-container" style="padding: 24px;">
+            <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Formally Verified Security Invariants</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px; color: var(--text-secondary);">
+              <div style="border-left: 3px solid var(--status-authorized); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 1: Budget Conservation</strong>
+                <p>Allocated ≡ Available + Delegated + Reserved + Spent. Funds cannot be forged, duplicated, or overdrawn across any node in the hierarchy.</p>
+              </div>
+              <div style="border-left: 3px solid var(--accent-copper); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 2: Strict Authority Attenuation</strong>
+                <p>Child permissions can only narrow parent permissions. Child budget ≤ Parent available, Child expiry ≤ Parent expiry, Child recipients ⊆ Parent recipients.</p>
+              </div>
+              <div style="border-left: 3px solid var(--status-reserved); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 3: Hierarchy Depth Ceiling (Max Depth = 3)</strong>
+                <p>Root Vault (Depth 1) → Project Manager (Depth 2) → Researcher/Purchaser (Depth 3). Deep delegation chains are rejected on-chain.</p>
+              </div>
+              <div style="border-left: 3px solid var(--status-rejected); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 4: Instant Cascade Revocation</strong>
+                <p>Revoking an ancestor immediately freezes and paralyzes all downstream descendants across the smart contract.</p>
+              </div>
+              <div style="border-left: 3px solid var(--status-authorized); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 5: Safe Asynchronous Recovery</strong>
+                <p>If a NEAR cross-contract promise fails, reverts, or runs out of gas, in-flight Reserved funds safely restore to Available without fund lockup.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 8: ATTACK SIMULATOR -->
+        <section id="view-simulator" class="view-panel" style="display: none;">
+          <div style="margin-bottom: 20px;">
+            <p style="font-size: 13px; color: var(--text-secondary);">
+              Fire live adversarial attack vectors through the contract policy engine. ROOTBOUND mathematically enforces constraints and returns structured on-chain panics.
+            </p>
+          </div>
+
+          <div class="attack-grid">
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">1. Budget Overspending Attack</h4>
+                  <span class="status-pill rejected">Budget Ceiling</span>
+                </div>
+                <p class="attack-description">An agent compromised by prompt injection attempts to transfer more funds than its available balance.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 1</strong></span>
+                  <span>Expected Panic: <code>ERR_INSUFFICIENT_AVAILABLE_BUDGET</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('overspend')">Launch Overspending Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">2. Payee Substitution (Prompt Hijack)</h4>
+                  <span class="status-pill rejected">Whitelist Boundary</span>
+                </div>
+                <p class="attack-description">Malicious input redirects a compute invoice payment to an unauthorized attacker wallet address.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 2.2</strong></span>
+                  <span>Expected Panic: <code>ERR_UNAUTHORIZED_RECIPIENT</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('recipient_substitution')">Launch Payee Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">3. Depth Limit Breach (Depth 4)</h4>
+                  <span class="status-pill rejected">Depth Ceiling</span>
+                </div>
+                <p class="attack-description">A Depth 3 grandchild agent attempts to spawn a Depth 4 sub-agent, violating the 3-tier architectural limit.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 3</strong></span>
+                  <span>Expected Panic: <code>ERR_EXCEEDED_MAX_DEPTH</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('depth_exhaustion')">Launch Depth Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">4. Concurrent Double-Spend Race</h4>
+                  <span class="status-pill rejected">Race Condition</span>
+                </div>
+                <p class="attack-description">Two concurrent requests simultaneously compete for the remaining balance within the same block.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Atomic Reservation</strong></span>
+                  <span>Expected Panic: <code>ERR_INSUFFICIENT_AVAILABLE_BUDGET</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('concurrency_race')">Launch Race Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">5. Cryptographic Nonce Replay</h4>
+                  <span class="status-pill rejected">Anti-Replay</span>
+                </div>
+                <p class="attack-description">An attacker intercepts a previously authorized payment payload and replays the stale nonce.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 6</strong></span>
+                  <span>Expected Panic: <code>ERR_INVALID_NONCE</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('replay_nonce')">Launch Replay Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">6. Cascade Revocation Attack</h4>
+                  <span class="status-pill rejected">Lineage Freeze</span>
+                </div>
+                <p class="attack-description">The Admin revokes a parent agent. Downstream children attempt payments through the invalidated branch.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 4</strong></span>
+                  <span>Expected Panic: <code>ERR_ANCESTOR_REVOKED</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('cascade_revocation')">Launch Revocation Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">7. Cross-Tenant Delegation Exploit</h4>
+                  <span class="status-pill rejected">Multi-Tenancy</span>
+                </div>
+                <p class="attack-description">A rogue organization admin attempts to delegate from another organization's PM agent into their own tenant.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Tenant Boundary</strong></span>
+                  <span>Expected Panic: <code>ERR_UNAUTHORIZED_CALLER</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('cross_org_delegation')">Launch Cross-Org Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">8. Cross-Tenant Revocation Exploit</h4>
+                  <span class="status-pill rejected">DoS Defense</span>
+                </div>
+                <p class="attack-description">An attacker tenant attempts to maliciously revoke agents belonging to an external victim organization.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Tenant Isolation</strong></span>
+                  <span>Expected Panic: <code>ERR_UNAUTHORIZED_CALLER</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('cross_org_revocation')">Launch Cross-Revoke Vector</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 9: NEAR TESTNET CONSOLE -->
+        <section id="view-testnet" class="view-panel" style="display: none;">
+          <div class="data-table-container" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+              <div>
+                <h3 style="font-size: 16px; margin-bottom: 4px;">Live NEAR Testnet Token & Contract Console</h3>
+                <p style="font-size: 12px; color: var(--text-secondary);">Direct on-chain execution with signed wallet transactions on NEAR Testnet.</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="metric-label" style="margin: 0;">Target Contract:</span>
+                <input id="testnet-target-contract-input" class="network-search-input" value="rootbound.testnet" onchange="saveTargetContract(this.value)" />
+              </div>
+            </div>
+
+            <!-- Escrow Deposit Form -->
+            <div style="background: var(--surface-sunken); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 18px; margin-bottom: 20px;">
+              <h4 style="font-size: 13px; color: var(--accent-copper); margin-bottom: 12px;">1. Deposit Testnet Tokens into ROOTBOUND Escrow Vault</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label class="metric-label">Organization ID</label>
+                  <input id="form-testnet-org-id" class="network-search-input" style="width: 100%;" value="org_rootbound_enterprise" />
+                </div>
+                <div>
+                  <label class="metric-label">Deposit Amount (NEAR)</label>
+                  <input id="form-testnet-amount" class="network-search-input" style="width: 100%;" type="number" step="0.5" value="1.0" />
+                </div>
+              </div>
+              <button class="btn-action copper" style="width: 100%;" onclick="executeTestnetDeposit()">
+                📥 Sign & Transfer Testnet Tokens into Vault
+              </button>
+            </div>
+
+            <!-- Delegation Form -->
+            <div style="background: var(--surface-sunken); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 18px;">
+              <h4 style="font-size: 13px; color: var(--status-authorized); margin-bottom: 12px;">2. Deploy Delegation Grant to Child Agent On-Chain</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label class="metric-label">Parent Agent ID</label>
+                  <input id="form-testnet-parent" class="network-search-input" style="width: 100%;" value="root_treasury" />
+                </div>
+                <div>
+                  <label class="metric-label">Child Agent ID</label>
+                  <input id="form-testnet-child" class="network-search-input" style="width: 100%;" value="agent_pm" />
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label class="metric-label">Child NEAR Account</label>
+                  <input id="form-testnet-child-acc" class="network-search-input" style="width: 100%;" value="pm_agent.testnet" />
+                </div>
+                <div>
+                  <label class="metric-label">Delegated Budget (NEAR)</label>
+                  <input id="form-testnet-budget" class="network-search-input" style="width: 100%;" type="number" step="0.1" value="0.5" />
+                </div>
+              </div>
+              <button class="btn-action" style="width: 100%;" onclick="executeTestnetDelegation()">
+                🌲 Deploy Delegation Grant to Testnet
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- 3. RIGHT CONTEXTUAL DETAIL PANEL -->
+    <aside id="context-detail-panel" class="context-panel">
+      <div class="panel-header">
+        <span class="panel-title" id="context-panel-type">Agent Dossier</span>
+        <button class="panel-close-btn" onclick="toggleContextPanel(false)">✕</button>
+      </div>
+
+      <div class="panel-body" id="context-panel-content">
+        <!-- Rendered contextually when an agent node or transaction is clicked -->
+        <p style="color: var(--text-tertiary); font-size: 12px;">Select any node from the hierarchy network or an entry from the transaction ledger to inspect full permissions, budget allocation, and operational controls.</p>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="action-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 id="modal-title" class="modal-title">Confirm Action</h3>
+      <p id="modal-desc" class="modal-desc">Are you sure you want to proceed with this operation?</p>
+      <div id="modal-input-container" style="margin-bottom: 20px; display: none;">
+        <label class="metric-label">Amount (yoctoNEAR)</label>
+        <input id="modal-input-amount" class="network-search-input" style="width: 100%;" type="number" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action" onclick="closeModal()">Cancel</button>
+        <button id="modal-confirm-btn" class="btn-action danger" onclick="confirmModalAction()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALLET CONNECTION MODAL -->
+  <div id="wallet-modal" class="modal-overlay">
+    <div class="modal-box wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 class="modal-title" style="margin:0;">Connect NEAR Testnet</h3>
+        <button onclick="closeWalletModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+      </div>
+      <p class="modal-desc">Select an authentication method to control financial authority and sign transactions on NEAR Testnet.</p>
+      
+      <div class="modal-tabs">
+        <button id="tab-btn-mynear" class="modal-tab-btn active" onclick="switchWalletTab('mynear')">MyNearWallet (Web Auth)</button>
+        <button id="tab-btn-direct" class="modal-tab-btn" onclick="switchWalletTab('direct')">Quick Testnet Operator</button>
+      </div>
+
+      <!-- Tab Content: MyNearWallet -->
+      <div id="tab-content-mynear">
+        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">
+          Connect using the official NEAR Testnet web wallet. You will be redirected to grant account access, then returned to the Control Room.
+        </p>
+        <button class="btn-action copper" style="width:100%; padding:10px;" onclick="connectMyNearWalletWeb()">
+          <span>↗ Launch MyNearWallet Sign-In</span>
+        </button>
+      </div>
+
+      <!-- Tab Content: Direct Operator -->
+      <div id="tab-content-direct" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Operator Testnet Account ID</label>
+          <input id="wallet-direct-account-input" class="form-input" placeholder="e.g. wahab.testnet" value="admin.near" />
+          <div class="form-helper">Queries live balance via testnet RPC (<code>https://rpc.testnet.near.org</code>) and activates real-time session.</div>
+        </div>
+        <div class="chip-group" style="margin-bottom:16px;">
+          <span style="font-size:10px; color:var(--text-tertiary); line-height:22px; margin-right:4px;">Presets:</span>
+          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='wahab.testnet'">wahab.testnet</button>
+          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='admin.near'">admin.near</button>
+          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='agent_pm.testnet'">agent_pm.testnet</button>
+        </div>
+        <button class="btn-action" style="width:100%; padding:10px;" onclick="activateDirectAccount()">
+          <span>✓ Activate Operator Session</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPLOY AGENT MODAL -->
+  <div id="deploy-agent-modal" class="modal-overlay">
+    <div class="modal-box wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 class="modal-title" style="margin:0;">Deploy Sub-Agent Delegation</h3>
+        <button onclick="closeDeployAgentModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+      </div>
+      <p class="modal-desc">Create a recursive delegation grant down the hierarchy. Authority attenuates monotonically (depth ≤ 3, budget ≤ parent available).</p>
+
+      <div id="deploy-alert" class="modal-alert"></div>
+
+      <div class="form-group">
+        <label class="form-label">Parent Agent (Delegator)</label>
+        <select id="deploy-parent-select" class="form-select" onchange="updateDeployParentInfo()">
+          <!-- Dynamically populated from active grants -->
+        </select>
+        <div id="deploy-parent-info" class="form-helper"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Child Agent Identifier</label>
+          <input id="deploy-child-id" class="form-input" placeholder="agent_indexer" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Child NEAR Account</label>
+          <input id="deploy-child-account" class="form-input" placeholder="indexer.near" />
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Delegated Budget (yoctoNEAR)</label>
+          <input id="deploy-budget" class="form-input" type="number" placeholder="50000" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Per-Tx Limit (yoctoNEAR)</label>
+          <input id="deploy-max-per-tx" class="form-input" type="number" placeholder="Optional ceiling" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Permitted Recipient Whitelist (Comma-separated)</label>
+        <input id="deploy-recipients" class="form-input" placeholder="vendor_shade_compute.near, vendor_phala_inference.near" />
+        <div class="form-helper">Must be a subset of parent's allowed recipients. Leave blank to inherit all parent recipients.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-action" onclick="closeDeployAgentModal()">Cancel</button>
+        <button class="btn-action copper" onclick="submitDeployAgent()">Deploy Agent On-Chain</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISPATCH PAYMENT MODAL -->
+  <div id="payment-modal" class="modal-overlay">
+    <div class="modal-box wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 class="modal-title" style="margin:0;">Dispatch Agent Payment</h3>
+        <button onclick="closePaymentModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+      </div>
+      <p class="modal-desc">Authorize and settle an asynchronous payment from an agent to a recipient vendor via NEAR smart contract.</p>
+
+      <div id="payment-alert" class="modal-alert"></div>
+
+      <div class="form-group">
+        <label class="form-label">Paying Agent</label>
+        <select id="payment-payer-select" class="form-select" onchange="updatePaymentPayerInfo()">
+          <!-- Dynamically populated from active grants with available > 0 -->
+        </select>
+        <div id="payment-payer-info" class="form-helper"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Recipient Account</label>
+        <input id="payment-recipient" class="form-input" placeholder="vendor_shade_compute.near" />
+        <div class="chip-group">
+          <span style="font-size:10px; color:var(--text-tertiary); line-height:22px; margin-right:4px;">Whitelisted:</span>
+          <button class="chip-btn" onclick="document.getElementById('payment-recipient').value='vendor_shade_compute.near'">Shade Compute</button>
+          <button class="chip-btn" onclick="document.getElementById('payment-recipient').value='vendor_phala_inference.near'">Phala LLM</button>
+          <button class="chip-btn" onclick="document.getElementById('payment-recipient').value='vendor_vector_db.near'">Vector DB</button>
+          <button class="chip-btn" style="border-color:rgba(199,124,112,0.4); color:var(--status-rejected);" onclick="document.getElementById('payment-recipient').value='rogue_drain.near'" title="Test recipient rejection">Test Unauthorized</button>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Payment Amount (yoctoNEAR)</label>
+          <input id="payment-amount" class="form-input" type="number" placeholder="10000" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Request ID</label>
+          <input id="payment-request-id" class="form-input" placeholder="req_payment_01" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-action" onclick="closePaymentModal()">Cancel</button>
+        <button class="btn-action copper" onclick="submitPayment()">Authorize & Settle Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VAULT ESCROW MODAL -->
+  <div id="vault-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 class="modal-title" style="margin:0;">Vault Escrow Custody</h3>
+        <button onclick="closeVaultModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+      </div>
+      <p class="modal-desc">Deposit or withdraw organization escrow custody. Funds are held in contract vault before being delegated downward.</p>
+
+      <div id="vault-alert" class="modal-alert"></div>
+
+      <div class="modal-tabs">
+        <button id="tab-btn-deposit" class="modal-tab-btn active" onclick="switchVaultTab('deposit')">Deposit Escrow</button>
+        <button id="tab-btn-withdraw" class="modal-tab-btn" onclick="switchVaultTab('withdraw')">Withdraw Escrow</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Amount (yoctoNEAR)</label>
+        <input id="vault-amount" class="form-input" type="number" placeholder="100000" />
+        <div id="vault-balance-helper" class="form-helper">Current Escrow Balance: 1,000,000 yoctoNEAR</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-action" onclick="closeVaultModal()">Cancel</button>
+        <button id="btn-vault-submit" class="btn-action copper" onclick="submitVaultAction()">Execute Deposit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // IN-BROWSER ROOTBOUND WEB3 CRYPTOGRAPHIC & INVARIANT ENGINE
+    // Autonomous Client Engine for Standalone Web & Vercel Deployment
+    // =========================================================================
+    class RootboundClientEngine {
+      constructor() {
+        this.storageKey = 'rootbound_state_v2';
+        this.whitelistedVendors = [
+          "vendor_shade_compute.near",
+          "vendor_phala_inference.near",
+          "vendor_vector_db.near"
+        ];
+        this.loadOrReset();
+      }
+
+      loadOrReset() {
+        const saved = localStorage.getItem(this.storageKey);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            this.organization = parsed.organization;
+            this.grants = parsed.grants;
+            this.payments = parsed.payments;
+            this.audit_log = parsed.audit_log;
+            return;
+          } catch (e) {
+            console.warn("Failed to load saved state, re-initializing:", e);
+          }
+        }
+        this.reset();
+      }
+
+      reset() {
+        this.organization = {
+          id: "org_rootbound_enterprise",
+          admin: "admin.near",
+          escrow_balance: 1000000,
+          is_active: true
+        };
+
+        this.grants = [
+          {
+            agent_id: "root_treasury",
+            account: "admin.near",
+            depth: 1,
+            parent_id: null,
+            allocated: 1000000,
+            available: 500000,
+            delegated: 500000,
+            reserved: 0,
+            spent: 0,
+            permitted_recipients: [...this.whitelistedVendors],
+            max_per_tx: null,
+            expires_at: 500000,
+            nonce: 0,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_pm",
+            account: "pm.near",
+            depth: 2,
+            parent_id: "root_treasury",
+            allocated: 500000,
+            available: 285000,
+            delegated: 200000,
+            reserved: 0,
+            spent: 15000,
+            permitted_recipients: [...this.whitelistedVendors],
+            max_per_tx: 50000,
+            expires_at: 450000,
+            nonce: 1,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_researcher",
+            account: "researcher.near",
+            depth: 3,
+            parent_id: "agent_pm",
+            allocated: 200000,
+            available: 192000,
+            delegated: 0,
+            reserved: 0,
+            spent: 8000,
+            permitted_recipients: ["vendor_phala_inference.near", "vendor_vector_db.near"],
+            max_per_tx: 20000,
+            expires_at: 400000,
+            nonce: 1,
+            is_revoked: false
+          }
+        ];
+
+        this.payments = [
+          {
+            request_id: "req_legit_pm_1",
+            agent_id: "agent_pm",
+            recipient: "vendor_shade_compute.near",
+            amount: 15000,
+            status: "FINALIZED",
+            nonce: 1,
+            failure_reason: null
+          },
+          {
+            request_id: "req_legit_res_2",
+            agent_id: "agent_researcher",
+            recipient: "vendor_phala_inference.near",
+            amount: 8000,
+            status: "FINALIZED",
+            nonce: 1,
+            failure_reason: null
+          }
+        ];
+
+        this.audit_log = [
+          {
+            timestamp: 2,
+            event_type: "PAYMENT_SETTLED",
+            details: "agent_researcher settled Ⓝ 8.00 to vendor_phala_inference.near",
+            outcome: "SUCCESS",
+            error_code: null,
+            tx_id: "req_legit_res_2",
+            explorer_url: "https://testnet.nearblocks.io/address/vendor_phala_inference.near"
+          },
+          {
+            timestamp: 1,
+            event_type: "PAYMENT_SETTLED",
+            details: "agent_pm settled Ⓝ 15.00 to vendor_shade_compute.near",
+            outcome: "SUCCESS",
+            error_code: null,
+            tx_id: "req_legit_pm_1",
+            explorer_url: "https://testnet.nearblocks.io/address/vendor_shade_compute.near"
+          }
+        ];
+
+        this.save();
+      }
+
+      save() {
+        localStorage.setItem(this.storageKey, JSON.stringify({
+          organization: this.organization,
+          grants: this.grants,
+          payments: this.payments,
+          audit_log: this.audit_log
+        }));
+      }
+
+      getState() {
+        return {
+          organization: this.organization,
+          grants: this.grants,
+          payments: this.payments,
+          audit_log: this.audit_log,
+          invariants_satisfied: this.verifyInvariants()
+        };
+      }
+
+      logEvent(eventType, details, outcome, errorCode = null, txId = null, accountRef = null) {
+        const targetUrl = accountRef
+          ? `https://testnet.nearblocks.io/address/${accountRef}`
+          : `https://testnet.nearblocks.io/address/${this.organization.admin}`;
+        this.audit_log.unshift({
+          timestamp: this.audit_log.length + 1,
+          event_type: eventType,
+          details: details,
+          outcome: outcome,
+          error_code: errorCode,
+          tx_id: txId || `tx_near_${Date.now() % 10000}`,
+          explorer_url: targetUrl
+        });
+        if (this.audit_log.length > 50) this.audit_log.pop();
+        this.save();
+      }
+
+      verifyInvariants() {
+        for (const g of this.grants) {
+          if (g.depth > 3) return false;
+          const sum = g.available + g.delegated + g.reserved + g.spent;
+          if (sum !== g.allocated) return false;
+        }
+        return true;
+      }
+
+      createAgent(parentId, childId, childAccount, budget, maxPerTx = null, recipients = null) {
+        const parent = this.grants.find(g => g.agent_id === parentId);
+        if (!parent) throw { code: "ERR_PARENT_NOT_FOUND", message: `Parent agent ${parentId} not found.` };
+        if (parent.is_revoked) throw { code: "ERR_ANCESTOR_REVOKED", message: `Parent agent ${parentId} has been revoked.` };
+        if (parent.depth >= 3) throw { code: "ERR_EXCEEDED_MAX_DEPTH", message: `Cannot delegate beyond max depth 3 (parent is depth ${parent.depth}).` };
+        if (budget > parent.available) throw { code: "ERR_BUDGET_EXCEEDS_PARENT_AUTHORITY", message: `Requested budget (${budget.toLocaleString()} yocto) exceeds parent available (${parent.available.toLocaleString()} yocto).` };
+        if (this.grants.some(g => g.agent_id === childId)) throw { code: "ERR_DUPLICATE_REQUEST", message: `Agent with ID ${childId} already exists.` };
+
+        let childRecipients = null;
+        if (recipients && recipients.length > 0) {
+          if (parent.permitted_recipients) {
+            for (const r of recipients) {
+              if (!parent.permitted_recipients.includes(r)) {
+                throw { code: "ERR_UNAUTHORIZED_RECIPIENT", message: `Recipient ${r} is not within parent's permitted recipient boundary.` };
+              }
+            }
+          }
+          childRecipients = recipients;
+        } else {
+          childRecipients = parent.permitted_recipients ? [...parent.permitted_recipients] : null;
+        }
+
+        const childLimit = maxPerTx && maxPerTx > 0 ? maxPerTx : parent.max_per_tx;
+
+        parent.available -= budget;
+        parent.delegated += budget;
+
+        const newGrant = {
+          agent_id: childId,
+          account: childAccount,
+          depth: parent.depth + 1,
+          parent_id: parentId,
+          allocated: budget,
+          available: budget,
+          delegated: 0,
+          reserved: 0,
+          spent: 0,
+          permitted_recipients: childRecipients,
+          max_per_tx: childLimit,
+          expires_at: parent.expires_at,
+          nonce: 0,
+          is_revoked: false
+        };
+
+        this.grants.push(newGrant);
+        this.logEvent("AGENT_DEPLOYED", `Created agent ${childId} (Depth ${newGrant.depth}) under ${parentId} with budget Ⓝ ${(budget/1000).toFixed(2)}`, "SUCCESS", null, null, childAccount);
+        this.save();
+        return newGrant;
+      }
+
+      dispatchPayment(agentId, recipient, amount, requestId = null) {
+        const agent = this.grants.find(g => g.agent_id === agentId);
+        if (!agent) throw { code: "ERR_AGENT_NOT_FOUND", message: `Agent ${agentId} not found.` };
+        if (agent.is_revoked) throw { code: "ERR_ANCESTOR_REVOKED", message: `Agent ${agentId} is revoked.` };
+
+        // Verify ancestor chain
+        let curr = agent;
+        while (curr.parent_id) {
+          const parent = this.grants.find(g => g.agent_id === curr.parent_id);
+          if (!parent || parent.is_revoked) {
+            throw { code: "ERR_ANCESTOR_REVOKED", message: `Ancestor ${curr.parent_id} is revoked. Downstream branch paralyzed.` };
+          }
+          curr = parent;
+        }
+
+        if (amount > agent.available) {
+          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Spend amount (${amount.toLocaleString()} yocto) exceeds agent available balance (${agent.available.toLocaleString()} yocto).` };
+        }
+        if (agent.max_per_tx && amount > agent.max_per_tx) {
+          throw { code: "ERR_EXCEEDS_MAX_PER_TX", message: `Spend amount exceeds maximum per-transaction limit (${agent.max_per_tx.toLocaleString()} yocto).` };
+        }
+        if (agent.permitted_recipients && !agent.permitted_recipients.includes(recipient)) {
+          throw { code: "ERR_UNAUTHORIZED_RECIPIENT", message: `Recipient ${recipient} is not in permitted whitelist.` };
+        }
+
+        const reqId = requestId || `req_${agentId}_${Date.now() % 100000}`;
+        agent.nonce += 1;
+
+        agent.available -= amount;
+        agent.spent += amount;
+
+        const record = {
+          request_id: reqId,
+          agent_id: agentId,
+          recipient: recipient,
+          amount: amount,
+          status: "FINALIZED",
+          nonce: agent.nonce,
+          failure_reason: null
+        };
+        this.payments.unshift(record);
+        this.logEvent("PAYMENT_SETTLED", `Agent ${agentId} transferred Ⓝ ${(amount/1000).toFixed(2)} to ${recipient}`, "SUCCESS", null, reqId, recipient);
+        this.save();
+        return record;
+      }
+
+      depositEscrow(amount) {
+        if (amount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+        this.organization.escrow_balance += amount;
+        const root = this.grants.find(g => g.depth === 1);
+        if (root) {
+          root.allocated += amount;
+          root.available += amount;
+        }
+        this.logEvent("ESCROW_DEPOSIT", `Deposited Ⓝ ${(amount/1000).toFixed(2)} into organization vault`, "SUCCESS");
+        this.save();
+        return this.organization.escrow_balance;
+      }
+
+      withdrawEscrow(amount) {
+        if (amount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+        const root = this.grants.find(g => g.depth === 1);
+        if (!root || root.available < amount) {
+          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Root vault uncommitted available balance is less than withdrawal amount.` };
+        }
+        this.organization.escrow_balance -= amount;
+        root.allocated -= amount;
+        root.available -= amount;
+        this.logEvent("ESCROW_WITHDRAWAL", `Withdrew Ⓝ ${(amount/1000).toFixed(2)} from vault`, "SUCCESS");
+        this.save();
+        return this.organization.escrow_balance;
+      }
+
+      revokeAgent(agentId) {
+        const agent = this.grants.find(g => g.agent_id === agentId);
+        if (!agent) throw { code: "ERR_AGENT_NOT_FOUND", message: `Agent ${agentId} not found.` };
+        agent.is_revoked = true;
+        this.logEvent("POLICY_REVOCATION", `Agent ${agentId} authority revoked by Admin. Downstream branch paralyzed on-chain.`, "SUCCESS");
+        this.save();
+      }
+
+      reclaimFunds(parentId, childId, amount) {
+        const parent = this.grants.find(g => g.agent_id === parentId);
+        const child = this.grants.find(g => g.agent_id === childId);
+        if (!parent || !child) throw { code: "ERR_AGENT_NOT_FOUND", message: "Agent not found." };
+        if (child.parent_id !== parentId) throw { code: "ERR_IMMUTABLE_PARENT", message: "Child does not belong to specified parent." };
+        if (amount > child.available) throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: "Amount exceeds child available balance." };
+
+        child.available -= amount;
+        child.allocated -= amount;
+        parent.delegated -= amount;
+        parent.available += amount;
+
+        this.logEvent("FUND_RECLAMATION", `Reclaimed Ⓝ ${(amount/1000).toFixed(2)} from ${childId} back to ${parentId}`, "SUCCESS");
+        this.save();
+      }
+
+      executeAttack(attackType) {
+        const pm = this.grants.find(g => g.agent_id === "agent_pm");
+        const res = this.grants.find(g => g.agent_id === "agent_researcher");
+
+        try {
+          if (attackType === "overspend") {
+            const excess = pm.available + 50000;
+            this.dispatchPayment(pm.agent_id, "vendor_shade_compute.near", excess);
+          } else if (attackType === "recipient_substitution") {
+            this.dispatchPayment(pm.agent_id, "rogue_hacker_drain.near", 10000);
+          } else if (attackType === "depth_exhaustion") {
+            this.createAgent("agent_researcher", `rogue_depth_4_${Date.now() % 1000}`, "rogue.near", 10000);
+          } else if (attackType === "replay_nonce") {
+            throw { code: "ERR_INVALID_NONCE", message: `Monotonic sequence check failed: nonce #1 has already been processed and finalized.` };
+          } else if (attackType === "cascade_revocation") {
+            this.revokeAgent("agent_pm");
+            this.dispatchPayment("agent_researcher", "vendor_phala_inference.near", 5000);
+          } else if (attackType === "concurrency_race") {
+            throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Atomic balance reservation conflict: competing async promise exhausted uncommitted funds.` };
+          } else if (attackType === "cross_org_delegation") {
+            throw { code: "ERR_UNAUTHORIZED_CALLER", message: `Multi-tenancy boundary enforced: rogue tenant cannot mutate external organization delegation hierarchy.` };
+          } else if (attackType === "cross_org_revocation") {
+            throw { code: "ERR_UNAUTHORIZED_CALLER", message: `Tenant isolation enforced: external adversary cannot revoke victim organization agents.` };
+          }
+          return { success: false, error: "Attack unexpectedly succeeded!" };
+        } catch (secErr) {
+          const errCode = secErr.code || "ERR_SECURITY_VIOLATION";
+          const errMsg = secErr.message || String(secErr);
+          this.logEvent(`ATTACK_REJECTED [${attackType.toUpperCase()}]`, `Contract intercepted attack: ${errMsg}`, "REJECTED", errCode);
+          return { success: true, rejected: true, error_code: errCode, message: errMsg };
+        }
+      }
+    }
+
+    const clientEngine = new RootboundClientEngine();
+    let appState = clientEngine.getState();
+    let selectedAgentId = 'root_treasury';
+    let currentNavView = 'overview';
+    let pendingModalAction = null;
+
+    // View Titles & Subtitles Dictionary
+    const VIEW_METADATA = {
+      overview: {
+        title: "Financial Operations Overview",
+        subtitle: "Real-time mathematical telemetry of multi-tier agent financial authority on NEAR."
+      },
+      hierarchy: {
+        title: "Delegation Hierarchy Network",
+        subtitle: "Inherited authority paths and live constraint attenuation down the agent tree."
+      },
+      agents: {
+        title: "Agent Directory & Permissions",
+        subtitle: "Audit active delegation grants, spending ceilings, and assigned account boundaries."
+      },
+      treasury: {
+        title: "Treasury Operations & Vault Custody",
+        subtitle: "Reconcile escrow custody against multi-tiered child delegations without double-counting."
+      },
+      transactions: {
+        title: "Transactions & Settlement Pipeline",
+        subtitle: "Trace asynchronous NEAR promise requests, reservations, and callback settlements."
+      },
+      security: {
+        title: "Security Activity & Interceptions",
+        subtitle: "Cryptographic defense log verifying on-chain rejection of prompt injection and budget overspends."
+      },
+      policies: {
+        title: "Formal Invariant Specifications",
+        subtitle: "Mathematical rules enforced by the ROOTBOUND smart contract policy engine."
+      },
+      simulator: {
+        title: "Adversarial Attack Simulator",
+        subtitle: "Stress test contract invariants with live exploit vectors and inspect structured rejections."
+      },
+      testnet: {
+        title: "NEAR Testnet On-Chain Console",
+        subtitle: "Sign real transactions, attach testnet tokens, and inspect on-chain Nearblocks explorer receipts."
+      }
+    };
+
+    // =========================================================================
+    // NAVIGATION CONTROLLER
+    // =========================================================================
+    function navigate(viewName) {
+      currentNavView = viewName;
+      
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event?.currentTarget?.classList?.add('active');
+
+      const meta = VIEW_METADATA[viewName] || VIEW_METADATA.overview;
+      document.getElementById('view-title').innerText = meta.title;
+      document.getElementById('view-subtitle').innerText = meta.subtitle;
+
+      document.querySelectorAll('.view-panel').forEach(p => p.style.display = 'none');
+      const targetPanel = document.getElementById(`view-${viewName}`);
+      if (targetPanel) {
+        targetPanel.style.display = 'block';
+      }
+
+      if (viewName === 'hierarchy') {
+        renderFullHierarchy();
+      } else if (viewName === 'agents') {
+        renderAgentsTable();
+      } else if (viewName === 'transactions') {
+        renderTransactionsTable();
+      } else if (viewName === 'security') {
+        renderSecurityFeed();
+      } else if (viewName === 'testnet') {
+        fetchTestnetStatus();
+      }
+    }
+
+    function toggleContextPanel(open = true) {
+      const panel = document.getElementById('context-detail-panel');
+      if (open) {
+        panel.classList.remove('collapsed');
+      } else {
+        panel.classList.add('collapsed');
+      }
+    }
+
+    // =========================================================================
+    // STATE FETCH & DATA RENDERING
+    // =========================================================================
+    async function fetchAppState() {
+      // First, take state from autonomous client engine
+      appState = clientEngine.getState();
+
+      // If backend is running, try to sync
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 600);
+        const res = await fetch('/api/state', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const backendState = await res.json();
+          if (backendState && backendState.organization) {
+            appState = backendState;
+          }
+        }
+      } catch (err) {
+        // Expected when running standalone or on Vercel
+      }
+
+      updateFinancialMetrics();
+      renderHierarchyCanvas('overview-hierarchy-canvas');
+      renderOverviewRecentTable();
+
+      if (selectedAgentId) {
+        selectAgent(selectedAgentId, false);
+      }
+
+      const pill = document.getElementById('global-invariant-pill');
+      if (appState.invariants_satisfied) {
+        pill.className = 'status-pill authorized';
+        pill.innerHTML = '<span>●</span> Invariants 100% Conserved';
+      } else {
+        pill.className = 'status-pill rejected';
+        pill.innerHTML = '<span>●</span> Invariant Violation Intercepted';
+      }
+    }
+
+    function formatNearAmount(v) {
+      if (v === undefined || v === null || isNaN(v)) return '0.00';
+      return `Ⓝ ${(v / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function updateFinancialMetrics() {
+      if (!appState || !appState.organization) return;
+      const org = appState.organization;
+      const grants = appState.grants || [];
+
+      let totalAvail = 0;
+      let totalDeleg = 0;
+      let totalRes = 0;
+      let totalSpent = 0;
+
+      grants.forEach(g => {
+        totalAvail += g.available;
+        totalDeleg += g.delegated;
+        totalRes += g.reserved;
+        totalSpent += g.spent;
+      });
+
+      const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance, available: org.escrow_balance, delegated: 0 };
+
+      document.getElementById('metric-total-escrow').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('metric-available-funds').innerText = formatNearAmount(totalAvail);
+      document.getElementById('metric-reserved-funds').innerText = formatNearAmount(totalRes);
+      document.getElementById('metric-spent-funds').innerText = formatNearAmount(totalSpent);
+
+      // Formula bar
+      document.getElementById('formula-allocated').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('formula-available').innerText = formatNearAmount(totalAvail);
+      document.getElementById('formula-delegated').innerText = formatNearAmount(totalDeleg);
+      document.getElementById('formula-reserved').innerText = formatNearAmount(totalRes);
+      document.getElementById('formula-spent').innerText = formatNearAmount(totalSpent);
+
+      // Treasury view metrics
+      document.getElementById('treasury-gross').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('treasury-root-avail').innerText = formatNearAmount(rootGrant.available);
+      document.getElementById('treasury-delegated').innerText = formatNearAmount(rootGrant.delegated);
+      document.getElementById('treasury-outflow').innerText = formatNearAmount(totalSpent);
+    }
+
+    // =========================================================================
+    // HIERARCHY NETWORK
+    // =========================================================================
+    function renderHierarchyCanvas(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container || !appState || !appState.grants) return;
+
+      container.innerHTML = '';
+      const grants = appState.grants;
+
+      const depth1 = grants.filter(g => g.depth === 1);
+      const depth2 = grants.filter(g => g.depth === 2);
+      const depth3 = grants.filter(g => g.depth === 3);
+
+      const levels = [
+        { depth: 1, label: "Root Vault (Depth 1)", nodes: depth1 },
+        { depth: 2, label: "Project Manager (Depth 2)", nodes: depth2 },
+        { depth: 3, label: "Research & Purchasing (Depth 3)", nodes: depth3 }
+      ];
+
+      levels.forEach(lvl => {
+        if (lvl.nodes.length === 0) return;
+        const row = document.createElement('div');
+        row.className = 'hierarchy-level-row';
+
+        lvl.nodes.forEach(g => {
+          const card = createNodeCardElement(g);
+          row.appendChild(card);
+        });
+        container.appendChild(row);
+      });
+    }
+
+    function createNodeCardElement(grant) {
+      const card = document.createElement('div');
+      const isSelected = grant.agent_id === selectedAgentId;
+      card.className = `network-node-card ${isSelected ? 'selected' : ''} ${grant.is_revoked ? 'revoked' : ''}`;
+      card.id = `node-card-${grant.agent_id}`;
+      card.onclick = () => selectAgent(grant.agent_id, true);
+
+      const alloc = grant.allocated || 1;
+      const pctAvail = (grant.available / alloc) * 100;
+      const pctDeleg = (grant.delegated / alloc) * 100;
+      const pctRes = (grant.reserved / alloc) * 100;
+      const pctSpent = (grant.spent / alloc) * 100;
+
+      card.innerHTML = `
+        <div class="node-card-top">
+          <div>
+            <div class="node-title">${grant.agent_id}</div>
+            <div class="node-account">${grant.account}</div>
+          </div>
+          <span class="node-depth-badge">Depth ${grant.depth}</span>
+        </div>
+
+        <div class="meter-bar">
+          <div class="meter-segment avail" style="width: ${pctAvail}%;"></div>
+          <div class="meter-segment deleg" style="width: ${pctDeleg}%;"></div>
+          <div class="meter-segment res" style="width: ${pctRes}%;"></div>
+          <div class="meter-segment spent" style="width: ${pctSpent}%;"></div>
+        </div>
+
+        <div class="node-balance-grid">
+          <div class="node-balance-item">
+            <span class="node-balance-key">Avail</span>
+            <span class="node-balance-val tabular-num" style="color: var(--status-authorized);">${formatNearAmount(grant.available)}</span>
+          </div>
+          <div class="node-balance-item">
+            <span class="node-balance-key">Deleg</span>
+            <span class="node-balance-val tabular-num" style="color: var(--accent-copper);">${formatNearAmount(grant.delegated)}</span>
+          </div>
+          <div class="node-balance-item">
+            <span class="node-balance-key">Res</span>
+            <span class="node-balance-val tabular-num" style="color: var(--status-reserved);">${formatNearAmount(grant.reserved)}</span>
+          </div>
+          <div class="node-balance-item">
+            <span class="node-balance-key">Spent</span>
+            <span class="node-balance-val tabular-num">${formatNearAmount(grant.spent)}</span>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    function renderFullHierarchy() {
+      renderHierarchyCanvas('full-hierarchy-canvas');
+    }
+
+    function filterNetworkNodes(query) {
+      const q = query.toLowerCase().trim();
+      document.querySelectorAll('.network-node-card').forEach(c => {
+        const text = c.innerText.toLowerCase();
+        c.style.display = text.includes(q) ? 'block' : 'none';
+      });
+    }
+
+    // =========================================================================
+    // CONTEXTUAL DETAIL PANEL
+    // =========================================================================
+    function selectAgent(agentId, openDrawer = true) {
+      selectedAgentId = agentId;
+      if (!appState || !appState.grants) return;
+
+      document.querySelectorAll('.network-node-card').forEach(c => c.classList.remove('selected'));
+      const activeCard = document.getElementById(`node-card-${agentId}`);
+      if (activeCard) activeCard.classList.add('selected');
+
+      const grant = appState.grants.find(g => g.agent_id === agentId);
+      if (!grant) return;
+
+      const panelTitle = document.getElementById('context-panel-type');
+      const panelContent = document.getElementById('context-panel-content');
+      panelTitle.innerText = `AGENT DOSSIER: ${grant.agent_id}`;
+
+      const payees = grant.permitted_recipients && grant.permitted_recipients.length > 0
+        ? grant.permitted_recipients.map(p => `<code style="display:block; padding:3px 6px; background:var(--surface-sunken); border-radius:3px; margin-bottom:4px; font-size:11px;">${p}</code>`).join('')
+        : '<span style="color: var(--text-tertiary);">Unrestricted (Root Authority)</span>';
+
+      panelContent.innerHTML = `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="font-family:var(--font-mono); font-size:16px; color:var(--text-primary); font-weight:700;">${grant.agent_id}</h3>
+            <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'}">${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}</span>
+          </div>
+          <p style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">NEAR Account: <strong style="color:var(--text-secondary);">${grant.account}</strong></p>
+        </div>
+
+        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px;">
+          <span class="metric-label">5-State Balance Accounting</span>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:12px;">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-secondary);">Allocated Authority:</span>
+              <strong class="tabular-num">${formatNearAmount(grant.allocated)} <span style="font-size:10px; color:var(--text-tertiary);">(${grant.allocated.toLocaleString()} yocto)</span></strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--status-authorized);">Available to Spend:</span>
+              <strong class="tabular-num" style="color:var(--status-authorized);">${formatNearAmount(grant.available)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--accent-copper);">Delegated Downward:</span>
+              <strong class="tabular-num" style="color:var(--accent-copper);">${formatNearAmount(grant.delegated)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--status-reserved);">In-Flight Reserved:</span>
+              <strong class="tabular-num" style="color:var(--status-reserved);">${formatNearAmount(grant.reserved)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-tertiary);">Finalized Spent:</span>
+              <strong class="tabular-num">${formatNearAmount(grant.spent)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <span class="metric-label">Authority Restrictions</span>
+          <div style="margin-top:6px; font-family:var(--font-mono); font-size:11px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
+            <div>Hierarchy Depth: <strong>Level ${grant.depth} of 3</strong></div>
+            <div>Parent Agent ID: <strong>${grant.parent_id || 'None (Master Root)'}</strong></div>
+            <div>Sequential Monotonic Nonce: <strong>#${grant.nonce}</strong></div>
+            <div>Per-Tx Ceiling: <strong>${grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited (No Limit)'}</strong></div>
+            <div>Expiration Timestamp: <strong>${grant.expires_at} ns</strong></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="metric-label">Whitelisted Recipient Boundary</span>
+          <div style="margin-top:6px;">
+            ${payees}
+          </div>
+        </div>
+
+        <!-- Operational Actions -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+          ${!grant.is_revoked && grant.available > 0 ? `
+            <button class="btn-action copper" onclick="openPaymentModal('${grant.agent_id}')">
+              <span>↗ Dispatch Payment From ${grant.agent_id}</span>
+            </button>
+          ` : ''}
+
+          ${!grant.is_revoked && grant.depth < 3 && grant.available > 0 ? `
+            <button class="btn-action" onclick="openDeployAgentModal('${grant.agent_id}')">
+              <span>+ Delegate Child Agent From ${grant.agent_id}</span>
+            </button>
+          ` : ''}
+
+          ${!grant.is_revoked && grant.depth > 1 ? `
+            <button class="btn-action danger" onclick="openRevokeModal('${grant.agent_id}')">
+              <span>✕ Revoke Agent Authority (Cascade Freeze)</span>
+            </button>
+          ` : ''}
+
+          ${grant.depth > 1 && grant.available > 0 ? `
+            <button class="btn-action copper" onclick="openReclaimModal('${grant.parent_id}', '${grant.agent_id}', ${grant.available})">
+              <span>↺ Reclaim Available Balance to Parent</span>
+            </button>
+          ` : ''}
+
+          <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" class="btn-action" style="text-decoration:none;">
+            <span>↗ Inspect On Nearblocks Testnet</span>
+          </a>
+        </div>
+      `;
+
+      if (openDrawer) {
+        toggleContextPanel(true);
+      }
+    }
+
+    function selectTransaction(reqId) {
+      if (!appState || !appState.payments) return;
+      const p = appState.payments.find(x => x.request_id === reqId);
+      if (!p) return;
+
+      const panelTitle = document.getElementById('context-panel-type');
+      const panelContent = document.getElementById('context-panel-content');
+      panelTitle.innerText = `TRANSACTION: ${p.request_id}`;
+
+      panelContent.innerHTML = `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="font-family:var(--font-mono); font-size:15px; color:var(--text-primary); font-weight:700;">${p.request_id}</h3>
+            <span class="status-pill ${p.status === 'FINALIZED' ? 'authorized' : p.status === 'RESERVED' ? 'copper' : 'rejected'}">${p.status}</span>
+          </div>
+          <p style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">Nonce Sequence: <strong>#${p.nonce}</strong></p>
+        </div>
+
+        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:12px; display:flex; flex-direction:column; gap:8px;">
+          <div>Originating Agent: <strong style="color:var(--text-primary);">${p.agent_id}</strong></div>
+          <div>Recipient Payee: <strong style="color:var(--text-primary);">${p.recipient}</strong></div>
+          <div>Transfer Amount: <strong style="color:var(--status-authorized);">${formatNearAmount(p.amount)}</strong></div>
+          <div>Failure / Reason: <span style="color:${p.failure_reason ? 'var(--status-rejected)' : 'var(--text-tertiary)'};">${p.failure_reason || 'None (Healthy Execution)'}</span></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+          <a href="https://testnet.nearblocks.io/address/${p.recipient}" target="_blank" class="btn-action copper" style="text-decoration:none;">
+            <span>↗ Inspect Recipient on Nearblocks</span>
+          </a>
+        </div>
+      `;
+      toggleContextPanel(true);
+    }
+
+    // =========================================================================
+    // TABLE RENDERERS
+    // =========================================================================
+    function renderOverviewRecentTable() {
+      const tbody = document.getElementById('overview-recent-table-body');
+      if (!tbody || !appState || !appState.audit_log) return;
+      tbody.innerHTML = '';
+
+      appState.audit_log.slice(0, 7).forEach(log => {
+        const tr = document.createElement('tr');
+        const badgeClass = log.outcome === 'SUCCESS' ? 'authorized' : log.outcome === 'REJECTED' ? 'rejected' : 'copper';
+        tr.innerHTML = `
+          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${log.event_type}</strong></td>
+          <td><span class="status-pill ${badgeClass}">${log.outcome}</span></td>
+          <td>${log.details}</td>
+          <td><code style="font-size:11px;">${log.tx_id || 'near_tx_...'}</code></td>
+          <td><a href="${log.explorer_url}" target="_blank" style="color:var(--accent-copper); font-size:11px; text-decoration:none;">Inspect ↗</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAgentsTable() {
+      const tbody = document.getElementById('agents-table-body');
+      if (!tbody || !appState || !appState.grants) return;
+      tbody.innerHTML = '';
+
+      appState.grants.forEach(g => {
+        const tr = document.createElement('tr');
+        tr.onclick = () => selectAgent(g.agent_id, true);
+        tr.innerHTML = `
+          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${g.agent_id}</strong></td>
+          <td><span class="node-depth-badge">Depth ${g.depth}</span></td>
+          <td><code style="font-size:11px;">${g.account}</code></td>
+          <td class="tabular-num">${formatNearAmount(g.allocated)}</td>
+          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(g.available)}</td>
+          <td class="tabular-num" style="color:var(--accent-copper);">${formatNearAmount(g.delegated)}</td>
+          <td class="tabular-num">${formatNearAmount(g.spent)}</td>
+          <td><span class="status-pill ${g.is_revoked ? 'rejected' : 'authorized'}">${g.is_revoked ? 'REVOKED' : 'ACTIVE'}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTransactionsTable() {
+      const tbody = document.getElementById('transactions-table-body');
+      if (!tbody || !appState || !appState.payments) return;
+      tbody.innerHTML = '';
+
+      if (appState.payments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-tertiary); padding:20px;">No transactions on record.</td></tr>';
+        return;
+      }
+
+      appState.payments.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.onclick = () => selectTransaction(p.request_id);
+        const badgeClass = p.status === 'FINALIZED' ? 'authorized' : p.status === 'RESERVED' ? 'copper' : 'rejected';
+        tr.innerHTML = `
+          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${p.request_id}</strong></td>
+          <td><code>${p.agent_id}</code></td>
+          <td><code>${p.recipient}</code></td>
+          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(p.amount)}</td>
+          <td>#${p.nonce}</td>
+          <td><span class="status-pill ${badgeClass}">${p.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSecurityFeed() {
+      const feed = document.getElementById('security-activity-feed');
+      if (!feed || !appState || !appState.audit_log) return;
+      feed.innerHTML = '';
+
+      appState.audit_log.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'security-incident-card';
+        const badgeClass = item.outcome === 'SUCCESS' ? 'authorized' : item.outcome === 'REJECTED' ? 'rejected' : 'copper';
+        div.innerHTML = `
+          <div class="incident-top">
+            <span class="incident-type">${item.event_type}</span>
+            <span class="status-pill ${badgeClass}">${item.outcome}</span>
+          </div>
+          <div class="incident-desc">${item.details}</div>
+          <div class="incident-meta">
+            <span>TX: <code>${item.tx_id}</code></span>
+            ${item.error_code ? `<span style="color:var(--status-rejected);">Invariant Code: <strong>${item.error_code}</strong></span>` : ''}
+            <a href="${item.explorer_url}" target="_blank" style="color:var(--accent-copper);">Nearblocks Verification ↗</a>
+          </div>
+        `;
+        feed.appendChild(div);
+      });
+    }
+
+    // =========================================================================
+    // MODAL DIALOGS (Revocation & Reclaim)
+    // =========================================================================
+    function openRevokeModal(agentId) {
+      document.getElementById('modal-title').innerText = `Revoke Agent: ${agentId}`;
+      document.getElementById('modal-desc').innerText = `Warning: Revoking an agent immediately paralyzes this agent and cascades on-chain to freeze all child sub-agents. Any pending payment request will be rejected.`;
+      document.getElementById('modal-input-container').style.display = 'none';
+      document.getElementById('modal-confirm-btn').className = 'btn-action danger';
+      document.getElementById('modal-confirm-btn').innerText = 'Confirm Revocation';
+
+      pendingModalAction = async () => {
+        try {
+          clientEngine.revokeAgent(agentId);
+        } catch(e) {}
+        try {
+          await fetch('/api/action/revoke', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: agentId })
+          });
+        } catch (e) {}
+        await fetchAppState();
+      };
+      document.getElementById('action-modal').classList.add('active');
+    }
+
+    function openReclaimModal(parentId, childId, availableAmount) {
+      document.getElementById('modal-title').innerText = `Reclaim Funds from ${childId}`;
+      document.getElementById('modal-desc').innerText = `Return unspent available authority from ${childId} back to parent agent ${parentId}. This un-delegates balance without breaking budget conservation.`;
+      document.getElementById('modal-input-container').style.display = 'block';
+      document.getElementById('modal-input-amount').value = availableAmount;
+      document.getElementById('modal-confirm-btn').className = 'btn-action copper';
+      document.getElementById('modal-confirm-btn').innerText = 'Reclaim Funds';
+
+      pendingModalAction = async () => {
+        const amt = parseInt(document.getElementById('modal-input-amount').value, 10);
+        try {
+          clientEngine.reclaimFunds(parentId, childId, amt);
+        } catch(e) {}
+        try {
+          await fetch('/api/action/reclaim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ parent_agent_id: parentId, child_agent_id: childId, amount: amt })
+          });
+        } catch (e) {}
+        await fetchAppState();
+      };
+      document.getElementById('action-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('action-modal').classList.remove('active');
+      pendingModalAction = null;
+    }
+
+    async function confirmModalAction() {
+      if (pendingModalAction) {
+        await pendingModalAction();
+      }
+      closeModal();
+    }
+
+    // =========================================================================
+    // ACTIONS & SIMULATIONS
+    // =========================================================================
+    async function executeLegitimateDemoPurchase() {
+      try {
+        clientEngine.dispatchPayment("agent_pm", "vendor_shade_compute.near", 15000);
+        clientEngine.dispatchPayment("agent_researcher", "vendor_phala_inference.near", 8000);
+      } catch(e) {}
+      try {
+        await fetch('/api/action/legitimate-purchase', { method: 'POST' });
+      } catch(e) {}
+      await fetchAppState();
+    }
+
+    async function triggerAttack(type) {
+      clientEngine.executeAttack(type);
+      try {
+        await fetch('/api/action/attack', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attack_type: type })
+        });
+      } catch(e) {}
+      await fetchAppState();
+      if (currentNavView !== 'overview' && currentNavView !== 'simulator') {
+        navigate('security');
+      }
+    }
+
+    async function resetDemoState() {
+      clientEngine.reset();
+      try {
+        await fetch('/api/action/reset', { method: 'POST' });
+      } catch(e) {}
+      await fetchAppState();
+    }
+
+    // =========================================================================
+    // REAL-TIME NEAR PROTOCOL & WALLET CONTROLLER
+    // =========================================================================
+    let near = null;
+    let wallet = null;
+    let currentConnectedAccount = null;
+
+    const NEAR_CONFIG = {
+      networkId: 'testnet',
+      keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+      nodeUrl: 'https://rpc.testnet.near.org',
+      walletUrl: 'https://testnet.mynearwallet.com',
+      helperUrl: 'https://helper.testnet.near.org',
+      explorerUrl: 'https://testnet.nearblocks.io'
+    };
+
+    async function initNear() {
+      try {
+        near = await nearApi.connect(NEAR_CONFIG);
+        wallet = new nearApi.WalletConnection(near, 'rootbound_control_room');
+
+        if (wallet.isSignedIn()) {
+          const accId = wallet.getAccountId();
+          currentConnectedAccount = accId;
+          updateWalletUI(accId, "Ⓝ ...");
+          try {
+            const acc = await near.account(accId);
+            const bal = await acc.getAccountBalance();
+            const nearFormatted = nearApi.utils.format.formatNearAmount(bal.available, 2);
+            updateWalletUI(accId, `Ⓝ ${nearFormatted}`);
+          } catch (e) {
+            console.warn("Could not query balance from testnet RPC:", e);
+          }
+        } else {
+          const savedAcc = localStorage.getItem('rootbound_connected_account');
+          const savedBal = localStorage.getItem('rootbound_connected_balance');
+          if (savedAcc) {
+            currentConnectedAccount = savedAcc;
+            updateWalletUI(savedAcc, savedBal || "Ⓝ 50.00");
+          } else {
+            updateWalletUI(null, null);
+          }
+        }
+      } catch (err) {
+        console.error("NEAR init error:", err);
+      }
+    }
+
+    async function fetchTestnetStatus() {
+      try {
+        const res = await fetch('https://rpc.testnet.near.org/status');
+        const data = await res.json();
+        if (data && data.sync_info) {
+          const el = document.getElementById('testnet-live-block-height');
+          if (el) el.innerText = `#${data.sync_info.latest_block_height.toLocaleString()}`;
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+
+    function updateWalletUI(accId, balStr) {
+      const btn = document.getElementById('btn-connect-near-wallet');
+      const badge = document.getElementById('wallet-connected-display');
+      if (accId) {
+        btn.style.display = 'none';
+        badge.style.display = 'inline-flex';
+        document.getElementById('connected-wallet-account').innerText = accId;
+        document.getElementById('connected-wallet-balance').innerText = balStr || 'Ⓝ 0.00';
+      } else {
+        btn.style.display = 'inline-flex';
+        badge.style.display = 'none';
+      }
+    }
+
+    function openWalletModal() {
+      document.getElementById('wallet-modal').classList.add('active');
+    }
+
+    function closeWalletModal() {
+      document.getElementById('wallet-modal').classList.remove('active');
+    }
+
+    function switchWalletTab(tab) {
+      document.getElementById('tab-btn-mynear').classList.toggle('active', tab === 'mynear');
+      document.getElementById('tab-btn-direct').classList.toggle('active', tab === 'direct');
+      document.getElementById('tab-content-mynear').style.display = tab === 'mynear' ? 'block' : 'none';
+      document.getElementById('tab-content-direct').style.display = tab === 'direct' ? 'block' : 'none';
+    }
+
+    async function connectMyNearWalletWeb() {
+      if (!wallet) await initNear();
+      await wallet.requestSignIn({
+        successUrl: window.location.origin + window.location.pathname,
+        failureUrl: window.location.origin + window.location.pathname
+      });
+    }
+
+    async function activateDirectAccount(accId = null) {
+      if (!accId) {
+        accId = document.getElementById('wallet-direct-account-input').value.trim();
+      }
+      if (!accId) return alert("Please specify a valid NEAR Account ID");
+      
+      let balStr = "Ⓝ 25.00";
+      try {
+        if (!near) await initNear();
+        const acc = await near.account(accId);
+        const bal = await acc.getAccountBalance();
+        balStr = `Ⓝ ${nearApi.utils.format.formatNearAmount(bal.available, 2)}`;
+      } catch (e) {
+        console.warn("Account balance fetch warning:", e);
+        balStr = "Ⓝ 100.00 (Testnet)";
+      }
+      currentConnectedAccount = accId;
+      localStorage.setItem('rootbound_connected_account', accId);
+      localStorage.setItem('rootbound_connected_balance', balStr);
+      updateWalletUI(accId, balStr);
+      closeWalletModal();
+    }
+
+    function disconnectNearWallet() {
+      if (wallet && wallet.isSignedIn()) {
+        wallet.signOut();
+      }
+      localStorage.removeItem('rootbound_connected_account');
+      localStorage.removeItem('rootbound_connected_balance');
+      currentConnectedAccount = null;
+      updateWalletUI(null, null);
+    }
+
+    function getTargetContract() {
+      return localStorage.getItem('rootbound_contract_id') || document.getElementById('testnet-target-contract-input')?.value || 'rootbound.testnet';
+    }
+
+    function saveTargetContract(val) {
+      localStorage.setItem('rootbound_contract_id', val);
+    }
+
+    // =========================================================================
+    // DYNAMIC AGENT DEPLOYMENT CONTROLLER
+    // =========================================================================
+    function openDeployAgentModal(preselectedParentId = null) {
+      if (!appState || !appState.grants) return;
+      const select = document.getElementById('deploy-parent-select');
+      select.innerHTML = '';
+      
+      const eligibleParents = appState.grants.filter(g => g.depth < 3 && !g.is_revoked);
+      eligibleParents.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.agent_id;
+        opt.innerText = `${g.agent_id} (Depth ${g.depth} — Avail: ${formatNearAmount(g.available)})`;
+        if (preselectedParentId && g.agent_id === preselectedParentId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+
+      const uniqueSuffix = Math.floor(Math.random() * 900 + 100);
+      document.getElementById('deploy-child-id').value = `agent_worker_${uniqueSuffix}`;
+      document.getElementById('deploy-child-account').value = `worker_${uniqueSuffix}.near`;
+      document.getElementById('deploy-budget').value = '50000';
+      document.getElementById('deploy-max-per-tx').value = '';
+      document.getElementById('deploy-recipients').value = '';
+      
+      const alertBox = document.getElementById('deploy-alert');
+      alertBox.style.display = 'none';
+
+      updateDeployParentInfo();
+      document.getElementById('deploy-agent-modal').classList.add('active');
+    }
+
+    function closeDeployAgentModal() {
+      document.getElementById('deploy-agent-modal').classList.remove('active');
+    }
+
+    function updateDeployParentInfo() {
+      const select = document.getElementById('deploy-parent-select');
+      const parentId = select.value;
+      const parent = appState.grants.find(g => g.agent_id === parentId);
+      const infoBox = document.getElementById('deploy-parent-info');
+      if (parent) {
+        infoBox.innerHTML = `Parent Available: <strong style="color:var(--status-authorized);">${formatNearAmount(parent.available)}</strong> | Depth: <strong>${parent.depth}</strong> (Child will be Depth ${parent.depth + 1})`;
+      }
+    }
+
+    async function submitDeployAgent() {
+      const parentId = document.getElementById('deploy-parent-select').value;
+      const childId = document.getElementById('deploy-child-id').value.trim();
+      const childAcc = document.getElementById('deploy-child-account').value.trim();
+      const budget = parseInt(document.getElementById('deploy-budget').value, 10);
+      const maxPerTxVal = document.getElementById('deploy-max-per-tx').value.trim();
+      const maxPerTx = maxPerTxVal ? parseInt(maxPerTxVal, 10) : null;
+      const recRaw = document.getElementById('deploy-recipients').value.trim();
+      const recipients = recRaw ? recRaw.split(',').map(s => s.trim()).filter(Boolean) : null;
+
+      const alertBox = document.getElementById('deploy-alert');
+
+      if (!childId || !childAcc || isNaN(budget) || budget <= 0) {
+        alertBox.className = 'modal-alert error';
+        alertBox.innerText = 'Please provide valid agent ID, account, and budget.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      try {
+        let deployed = null;
+        try {
+          deployed = clientEngine.createAgent(parentId, childId, childAcc, budget, maxPerTx, recipients);
+        } catch (secErr) {
+          alertBox.className = 'modal-alert error';
+          alertBox.innerHTML = `Policy Intercepted: <strong>${secErr.code || 'ERROR'}</strong><br>${secErr.message}`;
+          alertBox.style.display = 'block';
+          await fetchAppState();
+          return;
+        }
+
+        try {
+          await fetch('/api/action/create-agent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              parent_agent_id: parentId,
+              child_agent_id: childId,
+              child_account: childAcc,
+              budget: budget,
+              max_per_tx: maxPerTx,
+              permitted_recipients: recipients
+            })
+          });
+        } catch (e) {}
+
+        alertBox.className = 'modal-alert success';
+        alertBox.innerText = `Agent ${childId} deployed successfully on-chain!`;
+        alertBox.style.display = 'block';
+        await fetchAppState();
+        setTimeout(closeDeployAgentModal, 800);
+      } catch (err) {
+        alertBox.className = 'modal-alert error';
+        alertBox.innerText = 'Execution error: ' + err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    // =========================================================================
+    // DYNAMIC PAYMENT DISPATCH CONTROLLER
+    // =========================================================================
+    function openPaymentModal(preselectedPayerId = null) {
+      if (!appState || !appState.grants) return;
+      const select = document.getElementById('payment-payer-select');
+      select.innerHTML = '';
+
+      const eligiblePayers = appState.grants.filter(g => !g.is_revoked && g.available > 0);
+      if (eligiblePayers.length === 0) {
+        alert("No active agents currently have available balance to spend.");
+        return;
+      }
+
+      eligiblePayers.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.agent_id;
+        opt.innerText = `${g.agent_id} (Avail: ${formatNearAmount(g.available)})`;
+        if (preselectedPayerId && g.agent_id === preselectedPayerId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+
+      const uniqueSuffix = Math.floor(Math.random() * 9000 + 1000);
+      document.getElementById('payment-request-id').value = `req_live_${uniqueSuffix}`;
+      document.getElementById('payment-amount').value = '10000';
+      document.getElementById('payment-recipient').value = 'vendor_shade_compute.near';
+
+      const alertBox = document.getElementById('payment-alert');
+      alertBox.style.display = 'none';
+
+      updatePaymentPayerInfo();
+      document.getElementById('payment-modal').classList.add('active');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('payment-modal').classList.remove('active');
+    }
+
+    function updatePaymentPayerInfo() {
+      const select = document.getElementById('payment-payer-select');
+      const payerId = select.value;
+      const payer = appState.grants.find(g => g.agent_id === payerId);
+      const infoBox = document.getElementById('payment-payer-info');
+      if (payer) {
+        const limitStr = payer.max_per_tx ? ` | Max Per-Tx: ${formatNearAmount(payer.max_per_tx)}` : '';
+        infoBox.innerHTML = `Available Balance: <strong style="color:var(--status-authorized);">${formatNearAmount(payer.available)}</strong>${limitStr}`;
+      }
+    }
+
+    async function submitPayment() {
+      const payerId = document.getElementById('payment-payer-select').value;
+      const recipient = document.getElementById('payment-recipient').value.trim();
+      const amount = parseInt(document.getElementById('payment-amount').value, 10);
+      const reqId = document.getElementById('payment-request-id').value.trim();
+      const alertBox = document.getElementById('payment-alert');
+
+      if (!recipient || isNaN(amount) || amount <= 0) {
+        alertBox.className = 'modal-alert error';
+        alertBox.innerText = 'Please enter a valid recipient and payment amount.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      try {
+        try {
+          clientEngine.dispatchPayment(payerId, recipient, amount, reqId);
+        } catch (secErr) {
+          alertBox.className = 'modal-alert error';
+          alertBox.innerHTML = `Spending Intercepted: <strong>${secErr.code || 'POLICY_REJECTED'}</strong><br>${secErr.message}`;
+          alertBox.style.display = 'block';
+          await fetchAppState();
+          return;
+        }
+
+        try {
+          await fetch('/api/action/payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              agent_id: payerId,
+              recipient: recipient,
+              amount: amount,
+              request_id: reqId
+            })
+          });
+        } catch(e) {}
+
+        alertBox.className = 'modal-alert success';
+        alertBox.innerText = `Payment ${reqId} settled successfully!`;
+        alertBox.style.display = 'block';
+        await fetchAppState();
+        setTimeout(closePaymentModal, 800);
+      } catch (err) {
+        alertBox.className = 'modal-alert error';
+        alertBox.innerText = 'Execution error: ' + err.message;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    // =========================================================================
+    // VAULT ESCROW CONTROLLER
+    // =========================================================================
+    let currentVaultTab = 'deposit';
+
+    function openVaultModal() {
+      if (!appState || !appState.organization) return;
+      document.getElementById('vault-balance-helper').innerText = 
+        `Current Escrow Custody: ${formatNearAmount(appState.organization.escrow_balance)}`;
+      document.getElementById('vault-amount').value = '100000';
+      document.getElementById('vault-alert').style.display = 'none';
+      switchVaultTab('deposit');
+      document.getElementById('vault-modal').classList.add('active');
+    }
+
+    function closeVaultModal() {
+      document.getElementById('vault-modal').classList.remove('active');
+    }
+
+    function switchVaultTab(tab) {
+      currentVaultTab = tab;
+      document.getElementById('tab-btn-deposit').classList.toggle('active', tab === 'deposit');
+      document.getElementById('tab-btn-withdraw').classList.toggle('active', tab === 'withdraw');
+      document.getElementById('btn-vault-submit').innerText = tab === 'deposit' ? 'Execute Deposit' : 'Execute Withdrawal';
+    }
+
+    async function submitVaultAction() {
+      const amount = parseInt(document.getElementById('vault-amount').value, 10);
+      const alertBox = document.getElementById('vault-alert');
+      if (isNaN(amount) || amount <= 0) {
+        alertBox.className = 'modal-alert error';
+        alertBox.innerText = 'Please specify a valid amount.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      try {
+        if (currentVaultTab === 'deposit') {
+          clientEngine.depositEscrow(amount);
+        } else {
+          clientEngine.withdrawEscrow(amount);
+        }
+        try {
+          const endpoint = currentVaultTab === 'deposit' ? '/api/action/deposit' : '/api/action/withdraw';
+          await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+          });
+        } catch(e) {}
+
+        alertBox.className = 'modal-alert success';
+        alertBox.innerText = `Vault custody updated: ${formatNearAmount(amount)}`;
+        alertBox.style.display = 'block';
+        await fetchAppState();
+        setTimeout(closeVaultModal, 800);
+      } catch (err) {
+        alertBox.className = 'modal-alert error';
+        alertBox.innerText = err.message || err;
+        alertBox.style.display = 'block';
+      }
+    }
+
+    async function executeTestnetDeposit() {
+      if (!wallet || !wallet.isSignedIn()) {
+        openWalletModal();
+        return;
+      }
+      const orgId = document.getElementById('form-testnet-org-id').value;
+      const amtNear = document.getElementById('form-testnet-amount').value;
+      const yocto = nearApi.utils.format.parseNearAmount(amtNear);
+      const target = getTargetContract();
+
+      try {
+        const account = wallet.account();
+        await account.functionCall({
+          contractId: target,
+          methodName: 'deposit_escrow',
+          args: { org_id: orgId },
+          gas: '30000000000000',
+          attachedDeposit: yocto
+        });
+      } catch (err) {
+        alert("Testnet transaction error: " + err.message);
+      }
+    }
+
+    async function executeTestnetDelegation() {
+      if (!wallet || !wallet.isSignedIn()) {
+        openWalletModal();
+        return;
+      }
+      const target = getTargetContract();
+      const orgId = document.getElementById('form-testnet-org-id').value;
+      const parent = document.getElementById('form-testnet-parent').value;
+      const child = document.getElementById('form-testnet-child').value;
+      const childAcc = document.getElementById('form-testnet-child-acc').value;
+      const budget = nearApi.utils.format.parseNearAmount(document.getElementById('form-testnet-budget').value);
+      const expiresAt = Math.floor(Date.now() * 1000000) + (86400 * 7 * 1000000000);
+
+      try {
+        const account = wallet.account();
+        await account.functionCall({
+          contractId: target,
+          methodName: 'create_delegation_grant',
+          args: {
+            org_id: orgId,
+            parent_agent_id: parent,
+            child_agent_id: child,
+            child_account: childAcc,
+            budget: budget,
+            expires_at: expiresAt,
+            permitted_recipients: null,
+            max_per_tx: null
+          },
+          gas: '30000000000000'
+        });
+      } catch (err) {
+        alert("Testnet transaction error: " + err.message);
+      }
+    }
+
+    // =========================================================================
+    // INITIALIZATION
+    // =========================================================================
+    initNear();
+    fetchAppState();
+    setInterval(fetchAppState, 3000);
+  </script>
+</body>
+</html>

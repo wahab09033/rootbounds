@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROOTBOUND — Official Video Demonstration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: #0f1420;
+      --border: #1e293b;
+      --cyan: #00ec97;
+      --blue: #00c0f9;
+      --red: #ff4d4d;
+      --yellow: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .video-wrapper {
+      width: 100%;
+      max-width: 1100px;
+      background: #020408;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 236, 151, 0.15);
+      position: relative;
+    }
+    .video-viewport {
+      width: 100%;
+      height: 600px;
+      position: relative;
+      background: #080b12;
+      overflow: hidden;
+    }
+    /* Virtual Screen Inside Video */
+    .screen {
+      width: 100%;
+      height: 100%;
+      padding: 24px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Subtitle Banner */
+    .subtitle-bar {
+      position: absolute;
+      bottom: 24px;
+      left: 5%;
+      right: 5%;
+      background: rgba(10, 15, 25, 0.92);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #e2e8f0;
+      text-align: center;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      transition: all 0.3s ease;
+    }
+    .subtitle-bar strong {
+      color: var(--cyan);
+      margin-right: 6px;
+    }
+    /* Virtual Mouse Cursor */
+    .virtual-cursor {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      pointer-events: none;
+      z-index: 100;
+      transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .virtual-cursor::after {
+      content: '▲';
+      font-size: 18px;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      transform: rotate(-30deg);
+      display: block;
+    }
+    .click-pulse {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--cyan);
+      border-radius: 50%;
+      transform: translate(-10px, -10px) scale(0);
+      animation: pulseAnim 0.5s ease-out;
+    }
+    @keyframes pulseAnim {
+      0% { transform: translate(-10px, -10px) scale(0.2); opacity: 1; }
+      100% { transform: translate(-10px, -10px) scale(2); opacity: 0; }
+    }
+
+    /* Video Player Controls */
+    .player-controls {
+      background: #0a0e17;
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-ctrl {
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-ctrl:hover { background: #27354f; }
+    .btn-record {
+      background: linear-gradient(135deg, rgba(0, 236, 151, 0.2) 0%, rgba(0, 192, 249, 0.2) 100%);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+    .scene-pills {
+      display: flex;
+      gap: 6px;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      background: #141b2b;
+      border-radius: 4px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .pill.active {
+      background: rgba(0, 236, 151, 0.15);
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+    }
+
+    /* UI Simulation Components */
+    .sim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .sim-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .tree-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .node-box {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      transition: all 0.3s ease;
+    }
+    .node-box.highlight {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 236, 151, 0.3);
+    }
+    .node-box.danger-highlight {
+      border-color: var(--red);
+      background: rgba(255, 77, 77, 0.08);
+      box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
+    }
+    .chip-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 6px;
+    }
+    .alert-banner {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .alert-banner.success { background: rgba(0, 236, 151, 0.15); border: 1px solid var(--cyan); color: var(--cyan); }
+    .alert-banner.danger { background: rgba(255, 77, 77, 0.15); border: 1px solid var(--red); color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <div style="width: 100%; max-width: 1100px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="font-size: 20px; font-weight: 700;">ROOTBOUND — Live Video Demonstration</h2>
+      <p style="font-size: 12px; color: var(--muted);">Autonomous AI Agent Governance & Adversarial Defense on NEAR</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="/" style="color: var(--cyan); font-size: 13px; text-decoration: none; padding: 6px 12px; border: 1px solid var(--cyan); border-radius: 6px;">← Back to Live Dashboard</a>
+    </div>
+  </div>
+
+  <div class="video-wrapper">
+    <!-- Viewport -->
+    <div id="video-viewport" class="video-viewport">
+      <!-- Simulated Virtual Cursor -->
+      <div id="cursor" class="virtual-cursor" style="top: 100px; left: 100px;"></div>
+
+      <!-- Simulated Screen Content -->
+      <div class="screen">
+        <div class="sim-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-weight: 700; font-size: 18px; color: var(--cyan);">ROOTBOUND VAULT</span>
+            <span style="font-size: 11px; padding: 3px 8px; background: rgba(0, 192, 249, 0.15); border: 1px solid var(--blue); color: var(--blue); border-radius: 999px;">NEAR Testnet</span>
+          </div>
+          <div id="status-pill" style="font-size: 11px; padding: 4px 10px; background: rgba(0, 236, 151, 0.15); border: 1px solid var(--cyan); color: var(--cyan); border-radius: 999px; font-family: 'JetBrains Mono';">
+            INVARIANTS 100% CONSERVED
+          </div>
+        </div>
+
+        <!-- 3-Tier Hierarchy Simulation -->
+        <div class="sim-card">
+          <div style="font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 10px; display: flex; justify-content: space-between;">
+            <span>IMMUTABLE DELEGATION HIERARCHY (MAX DEPTH = 3)</span>
+            <span style="color: var(--cyan);">ESCROW: 1,000,000 yoctoNEAR</span>
+          </div>
+
+          <div class="tree-grid">
+            <!-- Node 1: Root -->
+            <div id="node-root" class="node-box">
+              <div style="font-size: 11px; color: var(--cyan); font-weight: 700;">DEPTH 1: ROOT VAULT</div>
+              <div style="font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono';">root_treasury</div>
+              <div class="chip-row"><span>Available:</span><span id="root-avail" style="color: var(--cyan);">500,000</span></div>
+              <div class="chip-row"><span>Delegated:</span><span id="root-del">500,000</span></div>
+              <div class="chip-row"><span>Spent:</span><span id="root-spent">0</span></div>
+            </div>
+
+            <!-- Node 2: PM -->
+            <div id="node-pm" class="node-box">
+              <div style="font-size: 11px; color: var(--blue); font-weight: 700;">DEPTH 2: PROJECT MANAGER</div>
+              <div style="font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono';">agent_pm</div>
+              <div class="chip-row"><span>Available:</span><span id="pm-avail" style="color: var(--cyan);">300,000</span></div>
+              <div class="chip-row"><span>Delegated:</span><span id="pm-del">200,000</span></div>
+              <div class="chip-row"><span>Spent:</span><span id="pm-spent">0</span></div>
+            </div>
+
+            <!-- Node 3: Researcher -->
+            <div id="node-res" class="node-box">
+              <div style="font-size: 11px; color: var(--yellow); font-weight: 700;">DEPTH 3: RESEARCH AGENT</div>
+              <div style="font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono';">agent_researcher</div>
+              <div class="chip-row"><span>Available:</span><span id="res-avail" style="color: var(--cyan);">200,000</span></div>
+              <div class="chip-row"><span>Delegated:</span><span>0 (MAX DEPTH)</span></div>
+              <div class="chip-row"><span>Spent:</span><span id="res-spent">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Interactive Buttons & Alerts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="sim-card">
+            <div style="font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px;">TRIGGER SCENARIO</div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <button id="btn-legit" style="background: rgba(0, 236, 151, 0.1); border: 1px solid var(--cyan); color: var(--cyan); padding: 8px; border-radius: 6px; font-size: 12px; text-align: left;">
+                ▶ Execute Legitimate Multi-Tier Purchase
+              </button>
+              <button id="btn-attack-overspend" style="background: rgba(255, 77, 77, 0.1); border: 1px solid var(--red); color: #ffa1a1; padding: 8px; border-radius: 6px; font-size: 12px; text-align: left;">
+                ▶ Attack: Budget Overspending (350k > Available)
+              </button>
+              <button id="btn-attack-recipient" style="background: rgba(255, 77, 77, 0.1); border: 1px solid var(--red); color: #ffa1a1; padding: 8px; border-radius: 6px; font-size: 12px; text-align: left;">
+                ▶ Attack: Prompt-Injected Payee Substitution
+              </button>
+              <button id="btn-attack-depth" style="background: rgba(255, 77, 77, 0.1); border: 1px solid var(--red); color: #ffa1a1; padding: 8px; border-radius: 6px; font-size: 12px; text-align: left;">
+                ▶ Attack: Depth 4 Hierarchy Breach
+              </button>
+              <button id="btn-attack-revocation" style="background: rgba(255, 77, 77, 0.1); border: 1px solid var(--red); color: #ffa1a1; padding: 8px; border-radius: 6px; font-size: 12px; text-align: left;">
+                ▶ Attack: Spend Through Revoked Ancestor
+              </button>
+            </div>
+          </div>
+
+          <div class="sim-card">
+            <div style="font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px;">ON-CHAIN CONTRACT VERDICT</div>
+            <div id="alert-box" class="alert-banner"></div>
+            <div id="sim-log" style="font-family: 'JetBrains Mono'; font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.6;">
+              • Smart contract ready on NEAR testnet.<br>
+              • Conservation Invariant: Allocated ≡ Available + Delegated + Reserved + Spent.<br>
+              • Awaiting trigger...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtitle Overlay -->
+      <div id="subtitles" class="subtitle-bar">
+        <strong>ROOTBOUND DEMO:</strong> Initializing autonomous AI agent governance and on-chain security demonstration...
+      </div>
+    </div>
+
+    <!-- Video Controls Bar -->
+    <div class="player-controls">
+      <div class="progress-bar-container" onclick="seek(event)">
+        <div id="progress" class="progress-bar-fill"></div>
+      </div>
+
+      <div class="controls-row">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button id="btn-play" class="btn-ctrl" onclick="togglePlay()">⏸ Pause</button>
+          <button class="btn-ctrl" onclick="restart()">↺ Replay</button>
+          <span id="timecode" style="font-family: 'JetBrains Mono'; font-size: 12px; color: var(--muted);">00:00 / 01:30</span>
+        </div>
+
+        <div class="scene-pills">
+          <span class="pill active" onclick="jumpTo(0)">1. Intro</span>
+          <span class="pill" onclick="jumpTo(15)">2. Hierarchy</span>
+          <span class="pill" onclick="jumpTo(30)">3. Purchase</span>
+          <span class="pill" onclick="jumpTo(48)">4. Overspend</span>
+          <span class="pill" onclick="jumpTo(62)">5. Payee Attack</span>
+          <span class="pill" onclick="jumpTo(76)">6. Revocation</span>
+        </div>
+
+        <div>
+          <button class="btn-ctrl btn-record" onclick="downloadWalkthroughScript()">
+            📥 Export Demo Script
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isPlaying = true;
+    let currentTime = 0;
+    const duration = 90; // 90 seconds demo
+
+    const cursor = document.getElementById('cursor');
+    const subtitles = document.getElementById('subtitles');
+    const progress = document.getElementById('progress');
+    const timecode = document.getElementById('timecode');
+    const alertBox = document.getElementById('alert-box');
+    const simLog = document.getElementById('sim-log');
+
+    // Node balance elements
+    const pmAvail = document.getElementById('pm-avail');
+    const pmSpent = document.getElementById('pm-spent');
+    const resAvail = document.getElementById('res-avail');
+    const resSpent = document.getElementById('res-spent');
+    const nodePm = document.getElementById('node-pm');
+    const nodeRes = document.getElementById('node-res');
+
+    function moveCursor(x, y, click = false) {
+      cursor.style.left = `${x}px`;
+      cursor.style.top = `${y}px`;
+      if (click) {
+        setTimeout(() => {
+          const pulse = document.createElement('div');
+          pulse.className = 'click-pulse';
+          cursor.appendChild(pulse);
+          setTimeout(() => pulse.remove(), 500);
+        }, 700);
+      }
+    }
+
+    const script = [
+      {
+        time: 0,
+        sub: "<strong>SCENE 1 (THE PROBLEM):</strong> Autonomous AI agents must purchase compute and APIs, but raw private keys lead to catastrophic wallet drains.",
+        action: () => {
+          moveCursor(150, 60);
+          resetUI();
+        }
+      },
+      {
+        time: 8,
+        sub: "<strong>SCENE 1 (SOLUTION):</strong> ROOTBOUND enforces on-chain hierarchical budget delegation directly in a NEAR smart contract.",
+        action: () => {
+          moveCursor(400, 60);
+        }
+      },
+      {
+        time: 15,
+        sub: "<strong>SCENE 2 (HIERARCHY):</strong> Notice our 3-tier tree: Root Vault (1M) delegates 500k to PM, which delegates 200k to Researcher.",
+        action: () => {
+          moveCursor(200, 180);
+          document.getElementById('node-root').classList.add('highlight');
+        }
+      },
+      {
+        time: 22,
+        sub: "<strong>SCENE 2 (5-STATE ACCOUNTING):</strong> Allocated ≡ Available + Delegated + Reserved + Spent. No double-counting sub-budgets.",
+        action: () => {
+          document.getElementById('node-root').classList.remove('highlight');
+          nodePm.classList.add('highlight');
+          moveCursor(500, 180);
+        }
+      },
+      {
+        time: 30,
+        sub: "<strong>SCENE 3 (HAPPY PATH):</strong> Executing legitimate purchases. PM procures Shade compute (15k) and Researcher procures LLM inference (8k).",
+        action: () => {
+          nodePm.classList.remove('highlight');
+          moveCursor(180, 320, true);
+        }
+      },
+      {
+        time: 35,
+        sub: "<strong>SCENE 3 (ON-CHAIN SETTLEMENT):</strong> Asynchronous NEAR transfers confirmed! Available decrements, Spent increments atomically.",
+        action: () => {
+          pmAvail.innerText = "285,000";
+          pmSpent.innerText = "15,000";
+          resAvail.innerText = "192,000";
+          resSpent.innerText = "8,000";
+          alertBox.className = "alert-banner success";
+          alertBox.style.display = "block";
+          alertBox.innerText = "✔ ON-CHAIN SUCCESS: Transferred 23,000 yoctoNEAR across 2 tiers.";
+          simLog.innerHTML = "• TX: tx_pm_compute_01 finalized on NEAR testnet.<br>• TX: tx_res_inference_01 finalized on NEAR testnet.<br>• Invariants 100% verified.";
+        }
+      },
+      {
+        time: 48,
+        sub: "<strong>SCENE 4 (ATTACK 1):</strong> Attacker attempts budget overspending (requesting 350,000 when only 285,000 available).",
+        action: () => {
+          moveCursor(180, 355, true);
+        }
+      },
+      {
+        time: 53,
+        sub: "<strong>SCENE 4 (REJECTED):</strong> Contract strictly blocks request with [ERR_INSUFFICIENT_AVAILABLE_BUDGET]. Zero funds lost.",
+        action: () => {
+          alertBox.className = "alert-banner danger";
+          alertBox.style.display = "block";
+          alertBox.innerText = "✖ ON-CHAIN REJECTION: [ERR_INSUFFICIENT_AVAILABLE_BUDGET] Requested 350k > Available 285k.";
+          simLog.innerHTML = "• Intercepted overspend attempt on agent_pm.<br>• Policy Engine rejected transaction prior to dispatch.";
+        }
+      },
+      {
+        time: 62,
+        sub: "<strong>SCENE 5 (ATTACK 2):</strong> Prompt injection attempt! Compromised agent tries diverting funds to 'unauthorized_hacker_drain.near'.",
+        action: () => {
+          moveCursor(180, 390, true);
+        }
+      },
+      {
+        time: 67,
+        sub: "<strong>SCENE 5 (REJECTED):</strong> Payee Whitelist Enforcement! Contract rejects transfer with [ERR_UNAUTHORIZED_RECIPIENT].",
+        action: () => {
+          alertBox.className = "alert-banner danger";
+          alertBox.style.display = "block";
+          alertBox.innerText = "✖ ON-CHAIN REJECTION: [ERR_UNAUTHORIZED_RECIPIENT] Hacker address not in whitelisted payee set.";
+        }
+      },
+      {
+        time: 76,
+        sub: "<strong>SCENE 6 (CASCADE REVOCATION):</strong> Human Admin revokes PM grant. Can the researcher still spend?",
+        action: () => {
+          moveCursor(180, 460, true);
+          nodePm.classList.add('danger-highlight');
+        }
+      },
+      {
+        time: 81,
+        sub: "<strong>SCENE 6 (DEFENDED):</strong> Instant Cascade Revocation! Ancestor traversal paralyzes all descendants with [ERR_ANCESTOR_REVOKED].",
+        action: () => {
+          alertBox.className = "alert-banner danger";
+          alertBox.style.display = "block";
+          alertBox.innerText = "✖ ON-CHAIN REJECTION: [ERR_ANCESTOR_REVOKED] Ancestor agent_pm is revoked. Descendant spend blocked.";
+        }
+      },
+      {
+        time: 86,
+        sub: "<strong>CONCLUSION:</strong> ROOTBOUND delivers mathematical safety for autonomous AI agents on NEAR. 54 automated tests passing!",
+        action: () => {
+          moveCursor(500, 60);
+        }
+      }
+    ];
+
+    function resetUI() {
+      pmAvail.innerText = "300,000";
+      pmSpent.innerText = "0";
+      resAvail.innerText = "200,000";
+      resSpent.innerText = "0";
+      alertBox.style.display = "none";
+      nodePm.classList.remove('highlight', 'danger-highlight');
+      nodeRes.classList.remove('highlight', 'danger-highlight');
+      simLog.innerHTML = "• Smart contract ready on NEAR testnet.<br>• Invariants 100% verified.";
+    }
+
+    // Main animation loop
+    setInterval(() => {
+      if (!isPlaying) return;
+      currentTime += 0.25;
+      if (currentTime > duration) currentTime = 0;
+
+      // Update progress
+      const pct = (currentTime / duration) * 100;
+      progress.style.width = `${pct}%`;
+
+      const mins = Math.floor(currentTime / 60);
+      const secs = Math.floor(currentTime % 60);
+      timecode.innerText = `0${mins}:${secs < 10 ? '0' : ''}${secs} / 01:30`;
+
+      // Check actions
+      for (let i = script.length - 1; i >= 0; i--) {
+        if (currentTime >= script[i].time) {
+          subtitles.innerHTML = script[i].sub;
+          if (Math.abs(currentTime - script[i].time) < 0.3) {
+            script[i].action();
+          }
+          break;
+        }
+      }
+
+      // Update active scene pill
+      const pills = document.querySelectorAll('.pill');
+      pills.forEach((p, idx) => {
+        const times = [0, 15, 30, 48, 62, 76];
+        if (currentTime >= times[idx] && (idx === times.length - 1 || currentTime < times[idx+1])) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+    }, 250);
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById('btn-play').innerText = isPlaying ? "⏸ Pause" : "▶ Play";
+    }
+
+    function restart() {
+      currentTime = 0;
+      resetUI();
+    }
+
+    function seek(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = clickX / rect.width;
+      currentTime = pct * duration;
+    }
+
+    function jumpTo(sec) {
+      currentTime = sec;
+    }
+
+    function downloadWalkthroughScript() {
+      window.location.href = '/docs/DEMO_WALKTHROUGH.md';
+    }
+  </script>
+</body>
+</html>

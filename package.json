@@ -1,0 +1,22 @@
+{
+  "name": "rootbound",
+  "version": "1.0.0",
+  "description": "Hierarchical Budget Delegation & On-Chain Security Guardrails for Autonomous AI Agents on NEAR Protocol",
+  "main": "index.html",
+  "scripts": {
+    "start": "python dashboard/server.py 8080",
+    "dev": "python dashboard/server.py 8080",
+    "test": "python -m unittest discover -s tests -p \"test_*.py\"",
+    "build": "echo 'Rootbound static production build ready'"
+  },
+  "keywords": [
+    "near",
+    "ai-agents",
+    "smart-contract",
+    "security",
+    "budget-delegation",
+    "web3"
+  ],
+  "author": "ROOTBOUND Team",
+  "license": "MIT"
+}

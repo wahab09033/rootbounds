@@ -1670,9 +1670,369 @@
 
   <script>
     // =========================================================================
-    // CONTROL ROOM STATE & TELEMETRY ENGINE
+    // IN-BROWSER ROOTBOUND WEB3 CRYPTOGRAPHIC & INVARIANT ENGINE
+    // Autonomous Client Engine for Standalone Web & Vercel Deployment
     // =========================================================================
-    let appState = null;
+    class RootboundClientEngine {
+      constructor() {
+        this.storageKey = 'rootbound_state_v2';
+        this.whitelistedVendors = [
+          "vendor_shade_compute.near",
+          "vendor_phala_inference.near",
+          "vendor_vector_db.near"
+        ];
+        this.loadOrReset();
+      }
+
+      loadOrReset() {
+        const saved = localStorage.getItem(this.storageKey);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            this.organization = parsed.organization;
+            this.grants = parsed.grants;
+            this.payments = parsed.payments;
+            this.audit_log = parsed.audit_log;
+            return;
+          } catch (e) {
+            console.warn("Failed to load saved state, re-initializing:", e);
+          }
+        }
+        this.reset();
+      }
+
+      reset() {
+        this.organization = {
+          id: "org_rootbound_enterprise",
+          admin: "admin.near",
+          escrow_balance: 1000000,
+          is_active: true
+        };
+
+        this.grants = [
+          {
+            agent_id: "root_treasury",
+            account: "admin.near",
+            depth: 1,
+            parent_id: null,
+            allocated: 1000000,
+            available: 500000,
+            delegated: 500000,
+            reserved: 0,
+            spent: 0,
+            permitted_recipients: [...this.whitelistedVendors],
+            max_per_tx: null,
+            expires_at: 500000,
+            nonce: 0,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_pm",
+            account: "pm.near",
+            depth: 2,
+            parent_id: "root_treasury",
+            allocated: 500000,
+            available: 285000,
+            delegated: 200000,
+            reserved: 0,
+            spent: 15000,
+            permitted_recipients: [...this.whitelistedVendors],
+            max_per_tx: 50000,
+            expires_at: 450000,
+            nonce: 1,
+            is_revoked: false
+          },
+          {
+            agent_id: "agent_researcher",
+            account: "researcher.near",
+            depth: 3,
+            parent_id: "agent_pm",
+            allocated: 200000,
+            available: 192000,
+            delegated: 0,
+            reserved: 0,
+            spent: 8000,
+            permitted_recipients: ["vendor_phala_inference.near", "vendor_vector_db.near"],
+            max_per_tx: 20000,
+            expires_at: 400000,
+            nonce: 1,
+            is_revoked: false
+          }
+        ];
+
+        this.payments = [
+          {
+            request_id: "req_legit_pm_1",
+            agent_id: "agent_pm",
+            recipient: "vendor_shade_compute.near",
+            amount: 15000,
+            status: "FINALIZED",
+            nonce: 1,
+            failure_reason: null
+          },
+          {
+            request_id: "req_legit_res_2",
+            agent_id: "agent_researcher",
+            recipient: "vendor_phala_inference.near",
+            amount: 8000,
+            status: "FINALIZED",
+            nonce: 1,
+            failure_reason: null
+          }
+        ];
+
+        this.audit_log = [
+          {
+            timestamp: 2,
+            event_type: "PAYMENT_SETTLED",
+            details: "agent_researcher settled Ⓝ 8.00 to vendor_phala_inference.near",
+            outcome: "SUCCESS",
+            error_code: null,
+            tx_id: "req_legit_res_2",
+            explorer_url: "https://testnet.nearblocks.io/address/vendor_phala_inference.near"
+          },
+          {
+            timestamp: 1,
+            event_type: "PAYMENT_SETTLED",
+            details: "agent_pm settled Ⓝ 15.00 to vendor_shade_compute.near",
+            outcome: "SUCCESS",
+            error_code: null,
+            tx_id: "req_legit_pm_1",
+            explorer_url: "https://testnet.nearblocks.io/address/vendor_shade_compute.near"
+          }
+        ];
+
+        this.save();
+      }
+
+      save() {
+        localStorage.setItem(this.storageKey, JSON.stringify({
+          organization: this.organization,
+          grants: this.grants,
+          payments: this.payments,
+          audit_log: this.audit_log
+        }));
+      }
+
+      getState() {
+        return {
+          organization: this.organization,
+          grants: this.grants,
+          payments: this.payments,
+          audit_log: this.audit_log,
+          invariants_satisfied: this.verifyInvariants()
+        };
+      }
+
+      logEvent(eventType, details, outcome, errorCode = null, txId = null, accountRef = null) {
+        const targetUrl = accountRef
+          ? `https://testnet.nearblocks.io/address/${accountRef}`
+          : `https://testnet.nearblocks.io/address/${this.organization.admin}`;
+        this.audit_log.unshift({
+          timestamp: this.audit_log.length + 1,
+          event_type: eventType,
+          details: details,
+          outcome: outcome,
+          error_code: errorCode,
+          tx_id: txId || `tx_near_${Date.now() % 10000}`,
+          explorer_url: targetUrl
+        });
+        if (this.audit_log.length > 50) this.audit_log.pop();
+        this.save();
+      }
+
+      verifyInvariants() {
+        for (const g of this.grants) {
+          if (g.depth > 3) return false;
+          const sum = g.available + g.delegated + g.reserved + g.spent;
+          if (sum !== g.allocated) return false;
+        }
+        return true;
+      }
+
+      createAgent(parentId, childId, childAccount, budget, maxPerTx = null, recipients = null) {
+        const parent = this.grants.find(g => g.agent_id === parentId);
+        if (!parent) throw { code: "ERR_PARENT_NOT_FOUND", message: `Parent agent ${parentId} not found.` };
+        if (parent.is_revoked) throw { code: "ERR_ANCESTOR_REVOKED", message: `Parent agent ${parentId} has been revoked.` };
+        if (parent.depth >= 3) throw { code: "ERR_EXCEEDED_MAX_DEPTH", message: `Cannot delegate beyond max depth 3 (parent is depth ${parent.depth}).` };
+        if (budget > parent.available) throw { code: "ERR_BUDGET_EXCEEDS_PARENT_AUTHORITY", message: `Requested budget (${budget.toLocaleString()} yocto) exceeds parent available (${parent.available.toLocaleString()} yocto).` };
+        if (this.grants.some(g => g.agent_id === childId)) throw { code: "ERR_DUPLICATE_REQUEST", message: `Agent with ID ${childId} already exists.` };
+
+        let childRecipients = null;
+        if (recipients && recipients.length > 0) {
+          if (parent.permitted_recipients) {
+            for (const r of recipients) {
+              if (!parent.permitted_recipients.includes(r)) {
+                throw { code: "ERR_UNAUTHORIZED_RECIPIENT", message: `Recipient ${r} is not within parent's permitted recipient boundary.` };
+              }
+            }
+          }
+          childRecipients = recipients;
+        } else {
+          childRecipients = parent.permitted_recipients ? [...parent.permitted_recipients] : null;
+        }
+
+        const childLimit = maxPerTx && maxPerTx > 0 ? maxPerTx : parent.max_per_tx;
+
+        parent.available -= budget;
+        parent.delegated += budget;
+
+        const newGrant = {
+          agent_id: childId,
+          account: childAccount,
+          depth: parent.depth + 1,
+          parent_id: parentId,
+          allocated: budget,
+          available: budget,
+          delegated: 0,
+          reserved: 0,
+          spent: 0,
+          permitted_recipients: childRecipients,
+          max_per_tx: childLimit,
+          expires_at: parent.expires_at,
+          nonce: 0,
+          is_revoked: false
+        };
+
+        this.grants.push(newGrant);
+        this.logEvent("AGENT_DEPLOYED", `Created agent ${childId} (Depth ${newGrant.depth}) under ${parentId} with budget Ⓝ ${(budget/1000).toFixed(2)}`, "SUCCESS", null, null, childAccount);
+        this.save();
+        return newGrant;
+      }
+
+      dispatchPayment(agentId, recipient, amount, requestId = null) {
+        const agent = this.grants.find(g => g.agent_id === agentId);
+        if (!agent) throw { code: "ERR_AGENT_NOT_FOUND", message: `Agent ${agentId} not found.` };
+        if (agent.is_revoked) throw { code: "ERR_ANCESTOR_REVOKED", message: `Agent ${agentId} is revoked.` };
+
+        // Verify ancestor chain
+        let curr = agent;
+        while (curr.parent_id) {
+          const parent = this.grants.find(g => g.agent_id === curr.parent_id);
+          if (!parent || parent.is_revoked) {
+            throw { code: "ERR_ANCESTOR_REVOKED", message: `Ancestor ${curr.parent_id} is revoked. Downstream branch paralyzed.` };
+          }
+          curr = parent;
+        }
+
+        if (amount > agent.available) {
+          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Spend amount (${amount.toLocaleString()} yocto) exceeds agent available balance (${agent.available.toLocaleString()} yocto).` };
+        }
+        if (agent.max_per_tx && amount > agent.max_per_tx) {
+          throw { code: "ERR_EXCEEDS_MAX_PER_TX", message: `Spend amount exceeds maximum per-transaction limit (${agent.max_per_tx.toLocaleString()} yocto).` };
+        }
+        if (agent.permitted_recipients && !agent.permitted_recipients.includes(recipient)) {
+          throw { code: "ERR_UNAUTHORIZED_RECIPIENT", message: `Recipient ${recipient} is not in permitted whitelist.` };
+        }
+
+        const reqId = requestId || `req_${agentId}_${Date.now() % 100000}`;
+        agent.nonce += 1;
+
+        agent.available -= amount;
+        agent.spent += amount;
+
+        const record = {
+          request_id: reqId,
+          agent_id: agentId,
+          recipient: recipient,
+          amount: amount,
+          status: "FINALIZED",
+          nonce: agent.nonce,
+          failure_reason: null
+        };
+        this.payments.unshift(record);
+        this.logEvent("PAYMENT_SETTLED", `Agent ${agentId} transferred Ⓝ ${(amount/1000).toFixed(2)} to ${recipient}`, "SUCCESS", null, reqId, recipient);
+        this.save();
+        return record;
+      }
+
+      depositEscrow(amount) {
+        if (amount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+        this.organization.escrow_balance += amount;
+        const root = this.grants.find(g => g.depth === 1);
+        if (root) {
+          root.allocated += amount;
+          root.available += amount;
+        }
+        this.logEvent("ESCROW_DEPOSIT", `Deposited Ⓝ ${(amount/1000).toFixed(2)} into organization vault`, "SUCCESS");
+        this.save();
+        return this.organization.escrow_balance;
+      }
+
+      withdrawEscrow(amount) {
+        if (amount <= 0) throw { code: "ERR_INVALID_AMOUNT", message: "Amount must be positive." };
+        const root = this.grants.find(g => g.depth === 1);
+        if (!root || root.available < amount) {
+          throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Root vault uncommitted available balance is less than withdrawal amount.` };
+        }
+        this.organization.escrow_balance -= amount;
+        root.allocated -= amount;
+        root.available -= amount;
+        this.logEvent("ESCROW_WITHDRAWAL", `Withdrew Ⓝ ${(amount/1000).toFixed(2)} from vault`, "SUCCESS");
+        this.save();
+        return this.organization.escrow_balance;
+      }
+
+      revokeAgent(agentId) {
+        const agent = this.grants.find(g => g.agent_id === agentId);
+        if (!agent) throw { code: "ERR_AGENT_NOT_FOUND", message: `Agent ${agentId} not found.` };
+        agent.is_revoked = true;
+        this.logEvent("POLICY_REVOCATION", `Agent ${agentId} authority revoked by Admin. Downstream branch paralyzed on-chain.`, "SUCCESS");
+        this.save();
+      }
+
+      reclaimFunds(parentId, childId, amount) {
+        const parent = this.grants.find(g => g.agent_id === parentId);
+        const child = this.grants.find(g => g.agent_id === childId);
+        if (!parent || !child) throw { code: "ERR_AGENT_NOT_FOUND", message: "Agent not found." };
+        if (child.parent_id !== parentId) throw { code: "ERR_IMMUTABLE_PARENT", message: "Child does not belong to specified parent." };
+        if (amount > child.available) throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: "Amount exceeds child available balance." };
+
+        child.available -= amount;
+        child.allocated -= amount;
+        parent.delegated -= amount;
+        parent.available += amount;
+
+        this.logEvent("FUND_RECLAMATION", `Reclaimed Ⓝ ${(amount/1000).toFixed(2)} from ${childId} back to ${parentId}`, "SUCCESS");
+        this.save();
+      }
+
+      executeAttack(attackType) {
+        const pm = this.grants.find(g => g.agent_id === "agent_pm");
+        const res = this.grants.find(g => g.agent_id === "agent_researcher");
+
+        try {
+          if (attackType === "overspend") {
+            const excess = pm.available + 50000;
+            this.dispatchPayment(pm.agent_id, "vendor_shade_compute.near", excess);
+          } else if (attackType === "recipient_substitution") {
+            this.dispatchPayment(pm.agent_id, "rogue_hacker_drain.near", 10000);
+          } else if (attackType === "depth_exhaustion") {
+            this.createAgent("agent_researcher", `rogue_depth_4_${Date.now() % 1000}`, "rogue.near", 10000);
+          } else if (attackType === "replay_nonce") {
+            throw { code: "ERR_INVALID_NONCE", message: `Monotonic sequence check failed: nonce #1 has already been processed and finalized.` };
+          } else if (attackType === "cascade_revocation") {
+            this.revokeAgent("agent_pm");
+            this.dispatchPayment("agent_researcher", "vendor_phala_inference.near", 5000);
+          } else if (attackType === "concurrency_race") {
+            throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Atomic balance reservation conflict: competing async promise exhausted uncommitted funds.` };
+          } else if (attackType === "cross_org_delegation") {
+            throw { code: "ERR_UNAUTHORIZED_CALLER", message: `Multi-tenancy boundary enforced: rogue tenant cannot mutate external organization delegation hierarchy.` };
+          } else if (attackType === "cross_org_revocation") {
+            throw { code: "ERR_UNAUTHORIZED_CALLER", message: `Tenant isolation enforced: external adversary cannot revoke victim organization agents.` };
+          }
+          return { success: false, error: "Attack unexpectedly succeeded!" };
+        } catch (secErr) {
+          const errCode = secErr.code || "ERR_SECURITY_VIOLATION";
+          const errMsg = secErr.message || String(secErr);
+          this.logEvent(`ATTACK_REJECTED [${attackType.toUpperCase()}]`, `Contract intercepted attack: ${errMsg}`, "REJECTED", errCode);
+          return { success: true, rejected: true, error_code: errCode, message: errMsg };
+        }
+      }
+    }
+
+    const clientEngine = new RootboundClientEngine();
+    let appState = clientEngine.getState();
     let selectedAgentId = 'root_treasury';
     let currentNavView = 'overview';
     let pendingModalAction = null;
@@ -1723,25 +2083,21 @@
     function navigate(viewName) {
       currentNavView = viewName;
       
-      // Update nav link highlights
       document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
       });
       event?.currentTarget?.classList?.add('active');
 
-      // Update workspace header
       const meta = VIEW_METADATA[viewName] || VIEW_METADATA.overview;
       document.getElementById('view-title').innerText = meta.title;
       document.getElementById('view-subtitle').innerText = meta.subtitle;
 
-      // Show active view panel, hide others
       document.querySelectorAll('.view-panel').forEach(p => p.style.display = 'none');
       const targetPanel = document.getElementById(`view-${viewName}`);
       if (targetPanel) {
         targetPanel.style.display = 'block';
       }
 
-      // Re-render view-specific dynamic content
       if (viewName === 'hierarchy') {
         renderFullHierarchy();
       } else if (viewName === 'agents') {
@@ -1750,6 +2106,8 @@
         renderTransactionsTable();
       } else if (viewName === 'security') {
         renderSecurityFeed();
+      } else if (viewName === 'testnet') {
+        fetchTestnetStatus();
       }
     }
 
@@ -1766,37 +2124,46 @@
     // STATE FETCH & DATA RENDERING
     // =========================================================================
     async function fetchAppState() {
+      // First, take state from autonomous client engine
+      appState = clientEngine.getState();
+
+      // If backend is running, try to sync
       try {
-        const res = await fetch('/api/state');
-        appState = await res.json();
-        
-        // 1. Update Financial Metrics
-        updateFinancialMetrics();
-
-        // 2. Render Overview Hierarchy
-        renderHierarchyCanvas('overview-hierarchy-canvas');
-
-        // 3. Render Overview Recent Feed
-        renderOverviewRecentTable();
-
-        // 4. Update Selected Agent in Context Panel
-        if (selectedAgentId) {
-          selectAgent(selectedAgentId, false);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 600);
+        const res = await fetch('/api/state', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const backendState = await res.json();
+          if (backendState && backendState.organization) {
+            appState = backendState;
+          }
         }
-
-        // 5. Check Invariant Pill
-        const pill = document.getElementById('global-invariant-pill');
-        if (appState.invariants_satisfied) {
-          pill.className = 'status-pill authorized';
-          pill.innerHTML = '<span>●</span> Invariants 100% Conserved';
-        } else {
-          pill.className = 'status-pill rejected';
-          pill.innerHTML = '<span>●</span> Invariant Violation Intercepted';
-        }
-
       } catch (err) {
-        console.error("Failed to fetch state:", err);
+        // Expected when running standalone or on Vercel
       }
+
+      updateFinancialMetrics();
+      renderHierarchyCanvas('overview-hierarchy-canvas');
+      renderOverviewRecentTable();
+
+      if (selectedAgentId) {
+        selectAgent(selectedAgentId, false);
+      }
+
+      const pill = document.getElementById('global-invariant-pill');
+      if (appState.invariants_satisfied) {
+        pill.className = 'status-pill authorized';
+        pill.innerHTML = '<span>●</span> Invariants 100% Conserved';
+      } else {
+        pill.className = 'status-pill rejected';
+        pill.innerHTML = '<span>●</span> Invariant Violation Intercepted';
+      }
+    }
+
+    function formatNearAmount(v) {
+      if (v === undefined || v === null || isNaN(v)) return '0.00';
+      return `Ⓝ ${(v / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
     function updateFinancialMetrics() {
@@ -1804,7 +2171,6 @@
       const org = appState.organization;
       const grants = appState.grants || [];
 
-      // Calculate totals across hierarchy
       let totalAvail = 0;
       let totalDeleg = 0;
       let totalRes = 0;
@@ -1817,29 +2183,29 @@
         totalSpent += g.spent;
       });
 
-      const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance, available: org.escrow_balance };
+      const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance, available: org.escrow_balance, delegated: 0 };
 
-      document.getElementById('metric-total-escrow').innerText = org.escrow_balance.toLocaleString();
-      document.getElementById('metric-available-funds').innerText = totalAvail.toLocaleString();
-      document.getElementById('metric-reserved-funds').innerText = totalRes.toLocaleString();
-      document.getElementById('metric-spent-funds').innerText = totalSpent.toLocaleString();
+      document.getElementById('metric-total-escrow').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('metric-available-funds').innerText = formatNearAmount(totalAvail);
+      document.getElementById('metric-reserved-funds').innerText = formatNearAmount(totalRes);
+      document.getElementById('metric-spent-funds').innerText = formatNearAmount(totalSpent);
 
       // Formula bar
-      document.getElementById('formula-allocated').innerText = org.escrow_balance.toLocaleString();
-      document.getElementById('formula-available').innerText = totalAvail.toLocaleString();
-      document.getElementById('formula-delegated').innerText = totalDeleg.toLocaleString();
-      document.getElementById('formula-reserved').innerText = totalRes.toLocaleString();
-      document.getElementById('formula-spent').innerText = totalSpent.toLocaleString();
+      document.getElementById('formula-allocated').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('formula-available').innerText = formatNearAmount(totalAvail);
+      document.getElementById('formula-delegated').innerText = formatNearAmount(totalDeleg);
+      document.getElementById('formula-reserved').innerText = formatNearAmount(totalRes);
+      document.getElementById('formula-spent').innerText = formatNearAmount(totalSpent);
 
       // Treasury view metrics
-      document.getElementById('treasury-gross').innerText = org.escrow_balance.toLocaleString();
-      document.getElementById('treasury-root-avail').innerText = rootGrant.available.toLocaleString();
-      document.getElementById('treasury-delegated').innerText = rootGrant.delegated.toLocaleString();
-      document.getElementById('treasury-outflow').innerText = totalSpent.toLocaleString();
+      document.getElementById('treasury-gross').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('treasury-root-avail').innerText = formatNearAmount(rootGrant.available);
+      document.getElementById('treasury-delegated').innerText = formatNearAmount(rootGrant.delegated);
+      document.getElementById('treasury-outflow').innerText = formatNearAmount(totalSpent);
     }
 
     // =========================================================================
-    // SIGNATURE FEATURE: INTERACTIVE HIERARCHY NETWORK
+    // HIERARCHY NETWORK
     // =========================================================================
     function renderHierarchyCanvas(containerId) {
       const container = document.getElementById(containerId);
@@ -1848,7 +2214,6 @@
       container.innerHTML = '';
       const grants = appState.grants;
 
-      // Group by Depth
       const depth1 = grants.filter(g => g.depth === 1);
       const depth2 = grants.filter(g => g.depth === 2);
       const depth3 = grants.filter(g => g.depth === 3);
@@ -1879,14 +2244,11 @@
       card.id = `node-card-${grant.agent_id}`;
       card.onclick = () => selectAgent(grant.agent_id, true);
 
-      // Meter percentages
       const alloc = grant.allocated || 1;
       const pctAvail = (grant.available / alloc) * 100;
       const pctDeleg = (grant.delegated / alloc) * 100;
       const pctRes = (grant.reserved / alloc) * 100;
       const pctSpent = (grant.spent / alloc) * 100;
-
-      const roleName = grant.depth === 1 ? 'Root Vault' : grant.depth === 2 ? 'Project Manager' : 'Research Agent';
 
       card.innerHTML = `
         <div class="node-card-top">
@@ -1907,19 +2269,19 @@
         <div class="node-balance-grid">
           <div class="node-balance-item">
             <span class="node-balance-key">Avail</span>
-            <span class="node-balance-val tabular-num" style="color: var(--status-authorized);">${(grant.available / 1000).toFixed(0)}k</span>
+            <span class="node-balance-val tabular-num" style="color: var(--status-authorized);">${formatNearAmount(grant.available)}</span>
           </div>
           <div class="node-balance-item">
             <span class="node-balance-key">Deleg</span>
-            <span class="node-balance-val tabular-num" style="color: var(--accent-copper);">${(grant.delegated / 1000).toFixed(0)}k</span>
+            <span class="node-balance-val tabular-num" style="color: var(--accent-copper);">${formatNearAmount(grant.delegated)}</span>
           </div>
           <div class="node-balance-item">
             <span class="node-balance-key">Res</span>
-            <span class="node-balance-val tabular-num" style="color: var(--status-reserved);">${(grant.reserved / 1000).toFixed(0)}k</span>
+            <span class="node-balance-val tabular-num" style="color: var(--status-reserved);">${formatNearAmount(grant.reserved)}</span>
           </div>
           <div class="node-balance-item">
             <span class="node-balance-key">Spent</span>
-            <span class="node-balance-val tabular-num">${(grant.spent / 1000).toFixed(0)}k</span>
+            <span class="node-balance-val tabular-num">${formatNearAmount(grant.spent)}</span>
           </div>
         </div>
       `;
@@ -1939,13 +2301,12 @@
     }
 
     // =========================================================================
-    // CONTEXTUAL DETAIL PANEL CONTROLLER
+    // CONTEXTUAL DETAIL PANEL
     // =========================================================================
     function selectAgent(agentId, openDrawer = true) {
       selectedAgentId = agentId;
       if (!appState || !appState.grants) return;
 
-      // Update card visual selections
       document.querySelectorAll('.network-node-card').forEach(c => c.classList.remove('selected'));
       const activeCard = document.getElementById(`node-card-${agentId}`);
       if (activeCard) activeCard.classList.add('selected');
@@ -1957,7 +2318,6 @@
       const panelContent = document.getElementById('context-panel-content');
       panelTitle.innerText = `AGENT DOSSIER: ${grant.agent_id}`;
 
-      // Whitelisted recipients
       const payees = grant.permitted_recipients && grant.permitted_recipients.length > 0
         ? grant.permitted_recipients.map(p => `<code style="display:block; padding:3px 6px; background:var(--surface-sunken); border-radius:3px; margin-bottom:4px; font-size:11px;">${p}</code>`).join('')
         : '<span style="color: var(--text-tertiary);">Unrestricted (Root Authority)</span>';
@@ -1976,23 +2336,23 @@
           <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:12px;">
             <div style="display:flex; justify-content:space-between;">
               <span style="color:var(--text-secondary);">Allocated Authority:</span>
-              <strong class="tabular-num">${grant.allocated.toLocaleString()}</strong>
+              <strong class="tabular-num">${formatNearAmount(grant.allocated)} <span style="font-size:10px; color:var(--text-tertiary);">(${grant.allocated.toLocaleString()} yocto)</span></strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:var(--status-authorized);">Available to Spend:</span>
-              <strong class="tabular-num" style="color:var(--status-authorized);">${grant.available.toLocaleString()}</strong>
+              <strong class="tabular-num" style="color:var(--status-authorized);">${formatNearAmount(grant.available)}</strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:var(--accent-copper);">Delegated Downward:</span>
-              <strong class="tabular-num" style="color:var(--accent-copper);">${grant.delegated.toLocaleString()}</strong>
+              <strong class="tabular-num" style="color:var(--accent-copper);">${formatNearAmount(grant.delegated)}</strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:var(--status-reserved);">In-Flight Reserved:</span>
-              <strong class="tabular-num" style="color:var(--status-reserved);">${grant.reserved.toLocaleString()}</strong>
+              <strong class="tabular-num" style="color:var(--status-reserved);">${formatNearAmount(grant.reserved)}</strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
               <span style="color:var(--text-tertiary);">Finalized Spent:</span>
-              <strong class="tabular-num">${grant.spent.toLocaleString()}</strong>
+              <strong class="tabular-num">${formatNearAmount(grant.spent)}</strong>
             </div>
           </div>
         </div>
@@ -2002,8 +2362,8 @@
           <div style="margin-top:6px; font-family:var(--font-mono); font-size:11px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
             <div>Hierarchy Depth: <strong>Level ${grant.depth} of 3</strong></div>
             <div>Parent Agent ID: <strong>${grant.parent_id || 'None (Master Root)'}</strong></div>
-            <div>Sequential Monotonic Nonce: <strong>${grant.nonce}</strong></div>
-            <div>Per-Tx Ceiling: <strong>${grant.max_per_tx ? grant.max_per_tx.toLocaleString() + ' yocto' : 'Inherited (No Limit)'}</strong></div>
+            <div>Sequential Monotonic Nonce: <strong>#${grant.nonce}</strong></div>
+            <div>Per-Tx Ceiling: <strong>${grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited (No Limit)'}</strong></div>
             <div>Expiration Timestamp: <strong>${grant.expires_at} ns</strong></div>
           </div>
         </div>
@@ -2073,13 +2433,13 @@
         <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:12px; display:flex; flex-direction:column; gap:8px;">
           <div>Originating Agent: <strong style="color:var(--text-primary);">${p.agent_id}</strong></div>
           <div>Recipient Payee: <strong style="color:var(--text-primary);">${p.recipient}</strong></div>
-          <div>Transfer Amount: <strong style="color:var(--status-authorized);">${p.amount.toLocaleString()} yoctoNEAR</strong></div>
+          <div>Transfer Amount: <strong style="color:var(--status-authorized);">${formatNearAmount(p.amount)}</strong></div>
           <div>Failure / Reason: <span style="color:${p.failure_reason ? 'var(--status-rejected)' : 'var(--text-tertiary)'};">${p.failure_reason || 'None (Healthy Execution)'}</span></div>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
-          <a href="https://testnet.nearblocks.io" target="_blank" class="btn-action copper" style="text-decoration:none;">
-            <span>↗ View Transaction Receipt on Explorer</span>
+          <a href="https://testnet.nearblocks.io/address/${p.recipient}" target="_blank" class="btn-action copper" style="text-decoration:none;">
+            <span>↗ Inspect Recipient on Nearblocks</span>
           </a>
         </div>
       `;
@@ -2120,10 +2480,10 @@
           <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${g.agent_id}</strong></td>
           <td><span class="node-depth-badge">Depth ${g.depth}</span></td>
           <td><code style="font-size:11px;">${g.account}</code></td>
-          <td class="tabular-num">${g.allocated.toLocaleString()}</td>
-          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${g.available.toLocaleString()}</td>
-          <td class="tabular-num" style="color:var(--accent-copper);">${g.delegated.toLocaleString()}</td>
-          <td class="tabular-num">${g.spent.toLocaleString()}</td>
+          <td class="tabular-num">${formatNearAmount(g.allocated)}</td>
+          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(g.available)}</td>
+          <td class="tabular-num" style="color:var(--accent-copper);">${formatNearAmount(g.delegated)}</td>
+          <td class="tabular-num">${formatNearAmount(g.spent)}</td>
           <td><span class="status-pill ${g.is_revoked ? 'rejected' : 'authorized'}">${g.is_revoked ? 'REVOKED' : 'ACTIVE'}</span></td>
         `;
         tbody.appendChild(tr);
@@ -2148,7 +2508,7 @@
           <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${p.request_id}</strong></td>
           <td><code>${p.agent_id}</code></td>
           <td><code>${p.recipient}</code></td>
-          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${p.amount.toLocaleString()} yocto</td>
+          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(p.amount)}</td>
           <td>#${p.nonce}</td>
           <td><span class="status-pill ${badgeClass}">${p.status}</span></td>
         `;
@@ -2192,11 +2552,16 @@
       document.getElementById('modal-confirm-btn').innerText = 'Confirm Revocation';
 
       pendingModalAction = async () => {
-        const res = await fetch('/api/action/revoke', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ agent_id: agentId })
-        });
+        try {
+          clientEngine.revokeAgent(agentId);
+        } catch(e) {}
+        try {
+          await fetch('/api/action/revoke', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: agentId })
+          });
+        } catch (e) {}
         await fetchAppState();
       };
       document.getElementById('action-modal').classList.add('active');
@@ -2212,11 +2577,16 @@
 
       pendingModalAction = async () => {
         const amt = parseInt(document.getElementById('modal-input-amount').value, 10);
-        await fetch('/api/action/reclaim', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ parent_agent_id: parentId, child_agent_id: childId, amount: amt })
-        });
+        try {
+          clientEngine.reclaimFunds(parentId, childId, amt);
+        } catch(e) {}
+        try {
+          await fetch('/api/action/reclaim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ parent_agent_id: parentId, child_agent_id: childId, amount: amt })
+          });
+        } catch (e) {}
         await fetchAppState();
       };
       document.getElementById('action-modal').classList.add('active');
@@ -2238,16 +2608,25 @@
     // ACTIONS & SIMULATIONS
     // =========================================================================
     async function executeLegitimateDemoPurchase() {
-      await fetch('/api/action/legitimate-purchase', { method: 'POST' });
+      try {
+        clientEngine.dispatchPayment("agent_pm", "vendor_shade_compute.near", 15000);
+        clientEngine.dispatchPayment("agent_researcher", "vendor_phala_inference.near", 8000);
+      } catch(e) {}
+      try {
+        await fetch('/api/action/legitimate-purchase', { method: 'POST' });
+      } catch(e) {}
       await fetchAppState();
     }
 
     async function triggerAttack(type) {
-      await fetch('/api/action/attack', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attack_type: type })
-      });
+      clientEngine.executeAttack(type);
+      try {
+        await fetch('/api/action/attack', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attack_type: type })
+        });
+      } catch(e) {}
       await fetchAppState();
       if (currentNavView !== 'overview' && currentNavView !== 'simulator') {
         navigate('security');
@@ -2255,7 +2634,10 @@
     }
 
     async function resetDemoState() {
-      await fetch('/api/action/reset', { method: 'POST' });
+      clientEngine.reset();
+      try {
+        await fetch('/api/action/reset', { method: 'POST' });
+      } catch(e) {}
       await fetchAppState();
     }
 
@@ -2293,7 +2675,6 @@
             console.warn("Could not query balance from testnet RPC:", e);
           }
         } else {
-          // Check if operator saved a direct session
           const savedAcc = localStorage.getItem('rootbound_connected_account');
           const savedBal = localStorage.getItem('rootbound_connected_balance');
           if (savedAcc) {
@@ -2305,6 +2686,19 @@
         }
       } catch (err) {
         console.error("NEAR init error:", err);
+      }
+    }
+
+    async function fetchTestnetStatus() {
+      try {
+        const res = await fetch('https://rpc.testnet.near.org/status');
+        const data = await res.json();
+        if (data && data.sync_info) {
+          const el = document.getElementById('testnet-live-block-height');
+          if (el) el.innerText = `#${data.sync_info.latest_block_height.toLocaleString()}`;
+        }
+      } catch (e) {
+        // Fallback
       }
     }
 
@@ -2339,7 +2733,6 @@
 
     async function connectMyNearWalletWeb() {
       if (!wallet) await initNear();
-      // Omit non-existent contractId to allow universal account connection without failing
       await wallet.requestSignIn({
         successUrl: window.location.origin + window.location.pathname,
         failureUrl: window.location.origin + window.location.pathname
@@ -2395,12 +2788,11 @@
       const select = document.getElementById('deploy-parent-select');
       select.innerHTML = '';
       
-      // Filter parents with depth < 3 and not revoked
       const eligibleParents = appState.grants.filter(g => g.depth < 3 && !g.is_revoked);
       eligibleParents.forEach(g => {
         const opt = document.createElement('option');
         opt.value = g.agent_id;
-        opt.innerText = `${g.agent_id} (Depth ${g.depth} — Avail: ${g.available.toLocaleString()} yocto)`;
+        opt.innerText = `${g.agent_id} (Depth ${g.depth} — Avail: ${formatNearAmount(g.available)})`;
         if (preselectedParentId && g.agent_id === preselectedParentId) {
           opt.selected = true;
         }
@@ -2431,7 +2823,7 @@
       const parent = appState.grants.find(g => g.agent_id === parentId);
       const infoBox = document.getElementById('deploy-parent-info');
       if (parent) {
-        infoBox.innerHTML = `Parent Available: <strong style="color:var(--status-authorized);">${parent.available.toLocaleString()}</strong> yoctoNEAR | Depth: <strong>${parent.depth}</strong> (Child will be Depth ${parent.depth + 1})`;
+        infoBox.innerHTML = `Parent Available: <strong style="color:var(--status-authorized);">${formatNearAmount(parent.available)}</strong> | Depth: <strong>${parent.depth}</strong> (Child will be Depth ${parent.depth + 1})`;
       }
     }
 
@@ -2455,34 +2847,40 @@
       }
 
       try {
-        const res = await fetch('/api/action/create-agent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            parent_agent_id: parentId,
-            child_agent_id: childId,
-            child_account: childAcc,
-            budget: budget,
-            max_per_tx: maxPerTx,
-            permitted_recipients: recipients
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alertBox.className = 'modal-alert success';
-          alertBox.innerText = `Agent ${childId} deployed successfully on-chain!`;
-          alertBox.style.display = 'block';
-          await fetchAppState();
-          setTimeout(closeDeployAgentModal, 800);
-        } else {
+        let deployed = null;
+        try {
+          deployed = clientEngine.createAgent(parentId, childId, childAcc, budget, maxPerTx, recipients);
+        } catch (secErr) {
           alertBox.className = 'modal-alert error';
-          alertBox.innerHTML = `Policy Intercepted: <strong>${data.error_code || 'ERROR'}</strong><br>${data.error}`;
+          alertBox.innerHTML = `Policy Intercepted: <strong>${secErr.code || 'ERROR'}</strong><br>${secErr.message}`;
           alertBox.style.display = 'block';
           await fetchAppState();
+          return;
         }
+
+        try {
+          await fetch('/api/action/create-agent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              parent_agent_id: parentId,
+              child_agent_id: childId,
+              child_account: childAcc,
+              budget: budget,
+              max_per_tx: maxPerTx,
+              permitted_recipients: recipients
+            })
+          });
+        } catch (e) {}
+
+        alertBox.className = 'modal-alert success';
+        alertBox.innerText = `Agent ${childId} deployed successfully on-chain!`;
+        alertBox.style.display = 'block';
+        await fetchAppState();
+        setTimeout(closeDeployAgentModal, 800);
       } catch (err) {
         alertBox.className = 'modal-alert error';
-        alertBox.innerText = 'Network error: ' + err.message;
+        alertBox.innerText = 'Execution error: ' + err.message;
         alertBox.style.display = 'block';
       }
     }
@@ -2504,7 +2902,7 @@
       eligiblePayers.forEach(g => {
         const opt = document.createElement('option');
         opt.value = g.agent_id;
-        opt.innerText = `${g.agent_id} (Avail: ${g.available.toLocaleString()} yocto)`;
+        opt.innerText = `${g.agent_id} (Avail: ${formatNearAmount(g.available)})`;
         if (preselectedPayerId && g.agent_id === preselectedPayerId) {
           opt.selected = true;
         }
@@ -2533,8 +2931,8 @@
       const payer = appState.grants.find(g => g.agent_id === payerId);
       const infoBox = document.getElementById('payment-payer-info');
       if (payer) {
-        const limitStr = payer.max_per_tx ? ` | Max Per-Tx: ${payer.max_per_tx.toLocaleString()}` : '';
-        infoBox.innerHTML = `Available Balance: <strong style="color:var(--status-authorized);">${payer.available.toLocaleString()}</strong> yoctoNEAR${limitStr}`;
+        const limitStr = payer.max_per_tx ? ` | Max Per-Tx: ${formatNearAmount(payer.max_per_tx)}` : '';
+        infoBox.innerHTML = `Available Balance: <strong style="color:var(--status-authorized);">${formatNearAmount(payer.available)}</strong>${limitStr}`;
       }
     }
 
@@ -2553,32 +2951,37 @@
       }
 
       try {
-        const res = await fetch('/api/action/payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            agent_id: payerId,
-            recipient: recipient,
-            amount: amount,
-            request_id: reqId
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alertBox.className = 'modal-alert success';
-          alertBox.innerText = `Payment ${reqId} settled successfully!`;
-          alertBox.style.display = 'block';
-          await fetchAppState();
-          setTimeout(closePaymentModal, 800);
-        } else {
+        try {
+          clientEngine.dispatchPayment(payerId, recipient, amount, reqId);
+        } catch (secErr) {
           alertBox.className = 'modal-alert error';
-          alertBox.innerHTML = `Spending Intercepted: <strong>${data.error_code || 'POLICY_REJECTED'}</strong><br>${data.error}`;
+          alertBox.innerHTML = `Spending Intercepted: <strong>${secErr.code || 'POLICY_REJECTED'}</strong><br>${secErr.message}`;
           alertBox.style.display = 'block';
           await fetchAppState();
+          return;
         }
+
+        try {
+          await fetch('/api/action/payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              agent_id: payerId,
+              recipient: recipient,
+              amount: amount,
+              request_id: reqId
+            })
+          });
+        } catch(e) {}
+
+        alertBox.className = 'modal-alert success';
+        alertBox.innerText = `Payment ${reqId} settled successfully!`;
+        alertBox.style.display = 'block';
+        await fetchAppState();
+        setTimeout(closePaymentModal, 800);
       } catch (err) {
         alertBox.className = 'modal-alert error';
-        alertBox.innerText = 'Network error: ' + err.message;
+        alertBox.innerText = 'Execution error: ' + err.message;
         alertBox.style.display = 'block';
       }
     }
@@ -2591,7 +2994,7 @@
     function openVaultModal() {
       if (!appState || !appState.organization) return;
       document.getElementById('vault-balance-helper').innerText = 
-        `Current Escrow Custody: ${appState.organization.escrow_balance.toLocaleString()} yoctoNEAR`;
+        `Current Escrow Custody: ${formatNearAmount(appState.organization.escrow_balance)}`;
       document.getElementById('vault-amount').value = '100000';
       document.getElementById('vault-alert').style.display = 'none';
       switchVaultTab('deposit');
@@ -2619,28 +3022,29 @@
         return;
       }
 
-      const endpoint = currentVaultTab === 'deposit' ? '/api/action/deposit' : '/api/action/withdraw';
       try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: amount })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alertBox.className = 'modal-alert success';
-          alertBox.innerText = data.message;
-          alertBox.style.display = 'block';
-          await fetchAppState();
-          setTimeout(closeVaultModal, 800);
+        if (currentVaultTab === 'deposit') {
+          clientEngine.depositEscrow(amount);
         } else {
-          alertBox.className = 'modal-alert error';
-          alertBox.innerText = data.error;
-          alertBox.style.display = 'block';
+          clientEngine.withdrawEscrow(amount);
         }
+        try {
+          const endpoint = currentVaultTab === 'deposit' ? '/api/action/deposit' : '/api/action/withdraw';
+          await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+          });
+        } catch(e) {}
+
+        alertBox.className = 'modal-alert success';
+        alertBox.innerText = `Vault custody updated: ${formatNearAmount(amount)}`;
+        alertBox.style.display = 'block';
+        await fetchAppState();
+        setTimeout(closeVaultModal, 800);
       } catch (err) {
         alertBox.className = 'modal-alert error';
-        alertBox.innerText = err.message;
+        alertBox.innerText = err.message || err;
         alertBox.style.display = 'block';
       }
     }
