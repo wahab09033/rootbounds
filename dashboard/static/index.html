@@ -321,7 +321,8 @@
     }
     .workspace-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .workspace-body {
@@ -766,6 +767,57 @@
       stroke: var(--status-rejected);
       stroke-dasharray: 4 4;
       opacity: 0.6;
+    }
+
+    /* Interactive Empty State Card for Canvas Rows */
+    .empty-level-card {
+      background: var(--surface-secondary);
+      border: 1px dashed var(--border-light);
+      border-radius: 8px;
+      padding: 20px 24px;
+      width: 310px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .empty-level-card:hover {
+      border-color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+      transform: translateY(-2px);
+    }
+    .empty-level-card .plus-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-copper);
+      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .empty-level-card:hover .plus-icon {
+      border-color: var(--accent-copper);
+      background: var(--accent-copper-glow);
+    }
+    .empty-level-card-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .empty-level-card-desc {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      line-height: 1.4;
     }
 
     /* =========================================================================
@@ -1421,8 +1473,8 @@
 
       <div class="nav-footer">
         <div class="nav-footer-meta">
-          <span>Organization: <strong>org_rootbound_enterprise</strong></span>
-          <span>Admin Key: <strong>admin.near</strong></span>
+          <span>Organization: <strong id="nav-org-id">org_rootbound_enterprise</strong></span>
+          <span>Admin Key: <strong id="nav-admin-key">admin.near</strong></span>
           <span>Consensus: <span style="color: var(--status-authorized);">NEAR Protocol (Testnet)</span></span>
         </div>
       </div>
@@ -1444,11 +1496,15 @@
             <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
             <span>Deploy Agent</span>
           </button>
+          <button class="btn-action" onclick="quickDeployHierarchy()" title="Quick-Deploy a standard 3-tier hierarchy for testing">
+            <svg class="lucide-icon sm"><use href="#icon-network"></use></svg>
+            <span>Quick 3-Tier Setup</span>
+          </button>
           <button class="btn-action" onclick="openVaultModal()" title="Deposit or withdraw treasury escrow funds">
             <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
             <span>Vault Escrow</span>
           </button>
-          <button class="btn-action" onclick="resetDemoState()" title="Reset to initial state">
+          <button class="btn-action" onclick="resetDemoState()" title="Reset to clean initial state">
             <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
             <span>Reset</span>
           </button>
@@ -1483,12 +1539,12 @@
               <div class="dist-stat-card available">
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Liquid Available</span>
-                  <span class="dist-stat-pct" id="metric-avail-pct">78.5%</span>
+                  <span class="dist-stat-pct" id="metric-avail-pct">100.0%</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="metric-available-funds">Ⓝ 785.00</div>
+                <div class="dist-stat-value tabular-num" id="metric-available-funds">Ⓝ 1,000.00</div>
                 <div class="dist-stat-desc">Uncommitted authority available for downward delegation or spending</div>
                 <div class="dist-progress-track">
-                  <div class="dist-progress-fill avail" id="bar-avail" style="width: 78.5%;"></div>
+                  <div class="dist-progress-fill avail" id="bar-avail" style="width: 100%;"></div>
                 </div>
               </div>
 
@@ -1509,12 +1565,12 @@
               <div class="dist-stat-card settled">
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Confirmed Settled</span>
-                  <span class="dist-stat-pct" id="metric-spent-pct">2.3%</span>
+                  <span class="dist-stat-pct" id="metric-spent-pct">0.0%</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="metric-spent-funds">Ⓝ 23.00</div>
+                <div class="dist-stat-value tabular-num" id="metric-spent-funds">Ⓝ 0.00</div>
                 <div class="dist-stat-desc">Permanently transferred to external whitelisted vendor payees</div>
                 <div class="dist-progress-track">
-                  <div class="dist-progress-fill spent" id="bar-spent" style="width: 2.3%;"></div>
+                  <div class="dist-progress-fill spent" id="bar-spent" style="width: 0%;"></div>
                 </div>
               </div>
             </div>
@@ -1544,12 +1600,12 @@
               <div class="eq-operator">≡</div>
               <div class="equation-box">
                 <span class="eq-label">Liquid Available</span>
-                <span class="eq-val tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 785.00</span>
+                <span class="eq-val tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 1,000.00</span>
               </div>
               <div class="eq-operator">+</div>
               <div class="equation-box">
                 <span class="eq-label">Delegated Downward</span>
-                <span class="eq-val tabular-num" style="color: var(--accent-copper);" id="formula-delegated">Ⓝ 200.00</span>
+                <span class="eq-val tabular-num" style="color: var(--accent-copper);" id="formula-delegated">Ⓝ 0.00</span>
               </div>
               <div class="eq-operator">+</div>
               <div class="equation-box">
@@ -1559,7 +1615,7 @@
               <div class="eq-operator">+</div>
               <div class="equation-box">
                 <span class="eq-label">Confirmed Settled</span>
-                <span class="eq-val tabular-num" id="formula-spent">Ⓝ 23.00</span>
+                <span class="eq-val tabular-num" id="formula-spent">Ⓝ 0.00</span>
               </div>
             </div>
           </div>
@@ -1618,7 +1674,7 @@
             <div class="network-toolbar">
               <div>
                 <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Full Interactive Authority Lattice</h3>
-                <p style="font-size: 12px; color: var(--text-secondary);">Inherited authority restrictions attenuate monotonically down the tree: Root Treasury → Project Manager → Researcher.</p>
+                <p style="font-size: 12px; color: var(--text-secondary);">Inherited authority restrictions attenuate monotonically down the tree: Root Treasury → Depth 2 Agents → Depth 3 Sub-Agents.</p>
               </div>
               <div style="display: flex; gap: 8px;">
                 <button class="btn-action" onclick="refreshHierarchyRails()">
@@ -1689,21 +1745,21 @@
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Root Available Balance</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="treasury-root-avail">Ⓝ 500.00</div>
+                <div class="dist-stat-value tabular-num" id="treasury-root-avail">Ⓝ 1,000.00</div>
                 <div class="dist-stat-desc">Un-delegated liquid capital directly held by organization admin</div>
               </div>
               <div class="dist-stat-card reserved">
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Downward Delegated</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="treasury-delegated" style="color: var(--accent-copper);">Ⓝ 500.00</div>
+                <div class="dist-stat-value tabular-num" id="treasury-delegated" style="color: var(--accent-copper);">Ⓝ 0.00</div>
                 <div class="dist-stat-desc">Issued downward into scoped child authority envelopes</div>
               </div>
               <div class="dist-stat-card settled">
                 <div class="dist-stat-top">
                   <span class="dist-stat-title">Confirmed Outflow</span>
                 </div>
-                <div class="dist-stat-value tabular-num" id="treasury-outflow">Ⓝ 23.00</div>
+                <div class="dist-stat-value tabular-num" id="treasury-outflow">Ⓝ 0.00</div>
                 <div class="dist-stat-desc">Transferred to external vendors across all active agents</div>
               </div>
             </div>
@@ -2062,7 +2118,6 @@
       </div>
 
       <div class="panel-body" id="context-panel-content">
-        <!-- Rendered contextually when an agent node or transaction is clicked -->
         <p style="color: var(--text-tertiary); font-size: 12px; line-height: 1.5;">Select any node from the hierarchy network or an entry from the transaction ledger to inspect full permissions, budget allocation, and operational controls.</p>
       </div>
     </aside>
@@ -2183,7 +2238,7 @@
           <span style="font-size:10px; color:var(--text-tertiary); line-height:22px; margin-right:4px;">Presets:</span>
           <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='wahab.testnet'">wahab.testnet</button>
           <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='admin.near'">admin.near</button>
-          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='agent_pm.testnet'">agent_pm.testnet</button>
+          <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='pm.near'">pm.near</button>
         </div>
         <button class="btn-action copper" style="width:100%; padding:10px;" onclick="activateDirectAccount()">
           <svg class="lucide-icon sm"><use href="#icon-check"></use></svg>
@@ -2215,18 +2270,18 @@
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
           <label class="form-label">Child Agent Identifier</label>
-          <input id="deploy-child-id" class="form-input" placeholder="agent_indexer" />
+          <input id="deploy-child-id" class="form-input" placeholder="agent_finance" />
         </div>
         <div class="form-group">
           <label class="form-label">Child NEAR Account</label>
-          <input id="deploy-child-account" class="form-input" placeholder="indexer.near" />
+          <input id="deploy-child-account" class="form-input" placeholder="finance.near" />
         </div>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="form-group">
           <label class="form-label">Delegated Budget (yoctoNEAR)</label>
-          <input id="deploy-budget" class="form-input" type="number" placeholder="50000" />
+          <input id="deploy-budget" class="form-input" type="number" placeholder="250000" />
         </div>
         <div class="form-group">
           <label class="form-label">Max Per-Tx Limit (yoctoNEAR)</label>
@@ -2337,16 +2392,16 @@
   </div>
 
   <!-- =========================================================================
-       APPLICATION CLIENT SCRIPT ENGINE & LOGIC
+       APPLICATION CLIENT SCRIPT ENGINE & LOGIC (ZERO MOCK DATA)
        ========================================================================= -->
   <script>
     // =========================================================================
     // IN-BROWSER ROOTBOUND WEB3 CRYPTOGRAPHIC & INVARIANT ENGINE
-    // Autonomous Client Engine for Standalone Web & Vercel Deployment
+    // Pure Live State Machine: Zero Mock Data, Complete Real-Time Interactivity
     // =========================================================================
     class RootboundClientEngine {
       constructor() {
-        this.storageKey = 'rootbound_state_v3';
+        this.storageKey = 'rootbound_live_v5_clean';
         this.whitelistedVendors = [
           "vendor_shade_compute.near",
           "vendor_phala_inference.near",
@@ -2362,8 +2417,8 @@
             const parsed = JSON.parse(saved);
             this.organization = parsed.organization;
             this.grants = parsed.grants;
-            this.payments = parsed.payments;
-            this.audit_log = parsed.audit_log;
+            this.payments = parsed.payments || [];
+            this.audit_log = parsed.audit_log || [];
             return;
           } catch (e) {
             console.warn("Failed to load saved state, re-initializing:", e);
@@ -2373,22 +2428,24 @@
       }
 
       reset() {
+        const savedAccount = localStorage.getItem('rootbound_connected_account') || 'admin.near';
         this.organization = {
-          id: "org_rootbound_enterprise",
-          admin: "admin.near",
+          id: localStorage.getItem('rootbound_org_id') || "org_rootbound_enterprise",
+          admin: savedAccount,
           escrow_balance: 1000000,
           is_active: true
         };
 
+        // ONLY Root Treasury exists initially. Zero mock child agents, zero mock spend!
         this.grants = [
           {
             agent_id: "root_treasury",
-            account: "admin.near",
+            account: savedAccount,
             depth: 1,
             parent_id: null,
             allocated: 1000000,
-            available: 500000,
-            delegated: 500000,
+            available: 1000000, // 100% available, zero spent, zero reserved, zero delegated!
+            delegated: 0,
             reserved: 0,
             spent: 0,
             permitted_recipients: [...this.whitelistedVendors],
@@ -2396,83 +2453,34 @@
             expires_at: 500000,
             nonce: 0,
             is_revoked: false
-          },
-          {
-            agent_id: "agent_pm",
-            account: "pm.near",
-            depth: 2,
-            parent_id: "root_treasury",
-            allocated: 500000,
-            available: 285000,
-            delegated: 200000,
-            reserved: 0,
-            spent: 15000,
-            permitted_recipients: [...this.whitelistedVendors],
-            max_per_tx: 50000,
-            expires_at: 450000,
-            nonce: 1,
-            is_revoked: false
-          },
-          {
-            agent_id: "agent_researcher",
-            account: "researcher.near",
-            depth: 3,
-            parent_id: "agent_pm",
-            allocated: 200000,
-            available: 192000,
-            delegated: 0,
-            reserved: 0,
-            spent: 8000,
-            permitted_recipients: ["vendor_phala_inference.near", "vendor_vector_db.near"],
-            max_per_tx: 20000,
-            expires_at: 400000,
-            nonce: 1,
-            is_revoked: false
           }
         ];
 
-        this.payments = [
-          {
-            request_id: "req_legit_pm_1",
-            agent_id: "agent_pm",
-            recipient: "vendor_shade_compute.near",
-            amount: 15000,
-            status: "FINALIZED",
-            nonce: 1,
-            failure_reason: null
-          },
-          {
-            request_id: "req_legit_res_2",
-            agent_id: "agent_researcher",
-            recipient: "vendor_phala_inference.near",
-            amount: 8000,
-            status: "FINALIZED",
-            nonce: 1,
-            failure_reason: null
-          }
-        ];
+        // Zero mock payments! Empty ledger until tester dispatches payments
+        this.payments = [];
 
+        // Clean audit stream
         this.audit_log = [
           {
-            timestamp: 2,
-            event_type: "PAYMENT_SETTLED",
-            details: "agent_researcher settled Ⓝ 8.00 to vendor_phala_inference.near",
-            outcome: "SUCCESS",
-            error_code: null,
-            tx_id: "req_legit_res_2",
-            explorer_url: "https://testnet.nearblocks.io/address/vendor_phala_inference.near"
-          },
-          {
             timestamp: 1,
-            event_type: "PAYMENT_SETTLED",
-            details: "agent_pm settled Ⓝ 15.00 to vendor_shade_compute.near",
+            event_type: "SYSTEM_INITIALIZED",
+            details: `Root Treasury initialized with Ⓝ 1,000.00 escrow custody. Admin: ${savedAccount}`,
             outcome: "SUCCESS",
             error_code: null,
-            tx_id: "req_legit_pm_1",
-            explorer_url: "https://testnet.nearblocks.io/address/vendor_shade_compute.near"
+            tx_id: "init_vault_01",
+            explorer_url: `https://testnet.nearblocks.io/address/${savedAccount}`
           }
         ];
 
+        this.save();
+      }
+
+      quickDeployStandardHierarchy() {
+        if (this.grants.some(g => g.agent_id === "agent_pm")) return;
+        const savedAccount = localStorage.getItem('rootbound_connected_account') || 'admin.near';
+        this.createAgent("root_treasury", "agent_pm", "pm.near", 500000, 50000, [...this.whitelistedVendors]);
+        this.createAgent("agent_pm", "agent_researcher", "researcher.near", 200000, 20000, ["vendor_phala_inference.near", "vendor_vector_db.near"]);
+        this.logEvent("QUICK_SETUP", "3-tier delegation hierarchy deployed (Depth 1 -> Depth 2 -> Depth 3). Zero pre-settled spend.", "SUCCESS", null, "tx_setup_3tier", savedAccount);
         this.save();
       }
 
@@ -2566,7 +2574,7 @@
         };
 
         this.grants.push(newGrant);
-        this.logEvent("AGENT_DEPLOYED", `Created agent ${childId} (Depth ${newGrant.depth}) under ${parentId} with budget Ⓝ ${(budget/1000).toFixed(2)}`, "SUCCESS", null, null, childAccount);
+        this.logEvent("AGENT_DEPLOYED", `Created agent ${childId} (Depth ${newGrant.depth}) under ${parentId} with budget Ⓝ ${(budget/1000).toFixed(2)}`, "SUCCESS", null, `deploy_${childId}`, childAccount);
         this.save();
         return newGrant;
       }
@@ -2669,22 +2677,36 @@
       }
 
       executeAttack(attackType) {
+        const root = this.grants.find(g => g.depth === 1);
         const pm = this.grants.find(g => g.agent_id === "agent_pm");
         const res = this.grants.find(g => g.agent_id === "agent_researcher");
 
         try {
           if (attackType === "overspend") {
-            const excess = pm.available + 50000;
-            this.dispatchPayment(pm.agent_id, "vendor_shade_compute.near", excess);
+            const target = pm || root;
+            const excess = target.available + 50000;
+            this.dispatchPayment(target.agent_id, "vendor_shade_compute.near", excess);
           } else if (attackType === "recipient_substitution") {
-            this.dispatchPayment(pm.agent_id, "rogue_hacker_drain.near", 10000);
+            const target = pm || root;
+            this.dispatchPayment(target.agent_id, "rogue_hacker_drain.near", 10000);
           } else if (attackType === "depth_exhaustion") {
-            this.createAgent("agent_researcher", `rogue_depth_4_${Date.now() % 1000}`, "rogue.near", 10000);
+            let d3 = res;
+            if (!d3) {
+              const d2 = pm || this.createAgent(root.agent_id, `temp_pm_${Date.now()%1000}`, "pm.near", 50000);
+              d3 = this.createAgent(d2.agent_id, `temp_res_${Date.now()%1000}`, "res.near", 20000);
+            }
+            this.createAgent(d3.agent_id, `rogue_depth_4_${Date.now() % 1000}`, "rogue.near", 10000);
           } else if (attackType === "replay_nonce") {
             throw { code: "ERR_INVALID_NONCE", message: `Monotonic sequence check failed: nonce #1 has already been processed and finalized.` };
           } else if (attackType === "cascade_revocation") {
-            this.revokeAgent("agent_pm");
-            this.dispatchPayment("agent_researcher", "vendor_phala_inference.near", 5000);
+            let targetPm = pm;
+            let targetRes = res;
+            if (!targetPm) {
+              targetPm = this.createAgent(root.agent_id, `temp_pm_${Date.now()%1000}`, "pm.near", 50000);
+              targetRes = this.createAgent(targetPm.agent_id, `temp_res_${Date.now()%1000}`, "res.near", 20000);
+            }
+            this.revokeAgent(targetPm.agent_id);
+            this.dispatchPayment(targetRes.agent_id, "vendor_phala_inference.near", 5000);
           } else if (attackType === "concurrency_race") {
             throw { code: "ERR_INSUFFICIENT_AVAILABLE_BUDGET", message: `Atomic balance reservation conflict: competing async promise exhausted uncommitted funds.` };
           } else if (attackType === "cross_org_delegation") {
@@ -2802,21 +2824,6 @@
     async function fetchAppState() {
       appState = clientEngine.getState();
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 600);
-        const res = await fetch('/api/state', { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const backendState = await res.json();
-          if (backendState && backendState.organization) {
-            appState = backendState;
-          }
-        }
-      } catch (err) {
-        // Expected in standalone mode
-      }
-
       updateFinancialMetrics();
       renderHierarchyCanvas('overview-hierarchy-canvas');
       if (currentNavView === 'hierarchy') {
@@ -2912,25 +2919,54 @@
       const depth2 = grants.filter(g => g.depth === 2);
       const depth3 = grants.filter(g => g.depth === 3);
 
-      const levels = [
-        { depth: 1, label: "Root Vault (Depth 1)", nodes: depth1 },
-        { depth: 2, label: "Project Manager (Depth 2)", nodes: depth2 },
-        { depth: 3, label: "Research & Sub-Agents (Depth 3)", nodes: depth3 }
-      ];
+      // Row 1: Depth 1 (Root Treasury)
+      if (depth1.length > 0) {
+        const row1 = document.createElement('div');
+        row1.className = 'hierarchy-level-row';
+        depth1.forEach(g => row1.appendChild(createNodeCardElement(g)));
+        container.appendChild(row1);
+      }
 
-      levels.forEach(lvl => {
-        if (lvl.nodes.length === 0) return;
-        const row = document.createElement('div');
-        row.className = 'hierarchy-level-row';
+      // Row 2: Depth 2
+      const row2 = document.createElement('div');
+      row2.className = 'hierarchy-level-row';
+      if (depth2.length > 0) {
+        depth2.forEach(g => row2.appendChild(createNodeCardElement(g)));
+      } else {
+        // Interactive invitation card when no Depth 2 agents exist
+        const emptyD2 = document.createElement('div');
+        emptyD2.className = 'empty-level-card';
+        emptyD2.onclick = () => openDeployAgentModal('root_treasury');
+        emptyD2.innerHTML = `
+          <div class="plus-icon">+</div>
+          <div class="empty-level-card-title">Deploy Child Agent (Depth 2)</div>
+          <div class="empty-level-card-desc">Root Vault has authority available. Click here or use '+ Deploy Agent' to delegate downward.</div>
+        `;
+        row2.appendChild(emptyD2);
+      }
+      container.appendChild(row2);
 
-        lvl.nodes.forEach(g => {
-          const card = createNodeCardElement(g);
-          row.appendChild(card);
-        });
-        container.appendChild(row);
-      });
+      // Row 3: Depth 3
+      if (depth2.length > 0) {
+        const row3 = document.createElement('div');
+        row3.className = 'hierarchy-level-row';
+        if (depth3.length > 0) {
+          depth3.forEach(g => row3.appendChild(createNodeCardElement(g)));
+        } else {
+          const emptyD3 = document.createElement('div');
+          emptyD3.className = 'empty-level-card';
+          emptyD3.onclick = () => openDeployAgentModal();
+          emptyD3.innerHTML = `
+            <div class="plus-icon">+</div>
+            <div class="empty-level-card-title">Deploy Sub-Agent (Depth 3)</div>
+            <div class="empty-level-card-desc">Delegate from a Depth 2 parent agent down to Depth 3 to test hierarchical attenuation.</div>
+          `;
+          row3.appendChild(emptyD3);
+        }
+        container.appendChild(row3);
+      }
 
-      // After DOM layout paints, render the dynamic SVG connection rails
+      // Render dynamic SVG rails
       requestAnimationFrame(() => {
         drawHierarchyRails(containerId);
       });
@@ -3036,7 +3072,6 @@
         path.setAttribute('class', `conn-rail-path ${isChildRevoked ? 'revoked' : ''} ${isSelectedLineage ? 'active-lineage' : ''}`);
         svg.appendChild(path);
 
-        // Direction of authority flow node dot
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         const midX = (x1 + x2) / 2;
         const midY = (y1 + y2) / 2;
@@ -3066,6 +3101,11 @@
       requestAnimationFrame(refreshHierarchyRails);
     }
 
+    function quickDeployHierarchy() {
+      clientEngine.quickDeployStandardHierarchy();
+      fetchAppState();
+    }
+
     // =========================================================================
     // CONTEXTUAL DETAIL PANEL (AGENT DOSSIER & TRANSACTIONS)
     // =========================================================================
@@ -3077,7 +3117,6 @@
       const activeCards = document.querySelectorAll(`[id="node-card-${agentId}"]`);
       activeCards.forEach(c => c.classList.add('selected'));
 
-      // Re-render connection rails with active lineage highlighted
       refreshHierarchyRails();
 
       const grant = appState.grants.find(g => g.agent_id === agentId);
@@ -3241,12 +3280,17 @@
     }
 
     // =========================================================================
-    // DATA TABLE RENDERERS
+    // DATA TABLE RENDERERS (CLEAN EMPTY STATES)
     // =========================================================================
     function renderOverviewRecentTable() {
       const tbody = document.getElementById('overview-recent-table-body');
       if (!tbody || !appState || !appState.audit_log) return;
       tbody.innerHTML = '';
+
+      if (appState.audit_log.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 24px; color: var(--text-tertiary);">No operations recorded yet. Connect a wallet, deploy an agent, or dispatch a payment to begin.</td></tr>';
+        return;
+      }
 
       appState.audit_log.slice(0, 7).forEach(log => {
         const tr = document.createElement('tr');
@@ -3308,7 +3352,21 @@
       }
 
       if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-tertiary); padding:24px;">No matching transactions found.</td></tr>';
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center; padding: 36px 20px; color: var(--text-tertiary);">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                <svg class="lucide-icon lg" style="opacity:0.4;"><use href="#icon-transactions"></use></svg>
+                <strong style="color:var(--text-secondary); font-size:13px;">No transactions recorded yet</strong>
+                <span style="font-size:12px;">Dispatch a payment to transfer funds between agents and external vendors in real time.</span>
+                <button class="btn-action copper" style="margin-top:8px;" onclick="openPaymentModal()">
+                  <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
+                  <span>Dispatch First Payment</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
         return;
       }
 
@@ -3348,6 +3406,17 @@
       const feed = document.getElementById('security-activity-feed');
       if (!feed || !appState || !appState.audit_log) return;
       feed.innerHTML = '';
+
+      if (appState.audit_log.length === 0) {
+        feed.innerHTML = `
+          <div style="text-align:center; padding: 36px 20px; color: var(--text-tertiary);">
+            <svg class="lucide-icon lg" style="opacity:0.4; margin-bottom:8px;"><use href="#icon-shield"></use></svg>
+            <div><strong style="color:var(--text-secondary); font-size:13px;">No security policy interceptions</strong></div>
+            <p style="font-size:12px; margin-top:4px;">Launch an exploit vector from the Attack Simulator to test smart contract defenses in real time.</p>
+          </div>
+        `;
+        return;
+      }
 
       appState.audit_log.forEach(item => {
         const div = document.createElement('div');
@@ -3524,15 +3593,19 @@
     function updateWalletUI(accId, balStr, walletType = null) {
       const btn = document.getElementById('btn-connect-near-wallet');
       const badge = document.getElementById('wallet-connected-display');
+      const adminNav = document.getElementById('nav-admin-key');
+      
       if (accId) {
         btn.style.display = 'none';
         badge.style.display = 'inline-flex';
         const typeBadge = walletType ? ` [${walletType}]` : '';
         document.getElementById('connected-wallet-account').innerText = accId + typeBadge;
         document.getElementById('connected-wallet-balance').innerText = balStr || 'Ⓝ 0.00';
+        if (adminNav) adminNav.innerText = accId;
       } else {
         btn.style.display = 'inline-flex';
         badge.style.display = 'none';
+        if (adminNav) adminNav.innerText = 'admin.near';
       }
     }
 
@@ -3693,7 +3766,17 @@
       localStorage.setItem('rootbound_connected_account', accId);
       localStorage.setItem('rootbound_connected_balance', balStr);
       localStorage.setItem('rootbound_connected_type', walletType);
+
+      // Automatically sync connected wallet as Admin & Root Treasury account
+      if (clientEngine && clientEngine.organization) {
+        clientEngine.organization.admin = accId;
+        const root = clientEngine.grants.find(g => g.depth === 1);
+        if (root) root.account = accId;
+        clientEngine.save();
+      }
+
       updateWalletUI(accId, balStr, walletType);
+      fetchAppState();
     }
 
     function disconnectNearWallet() {
@@ -3710,7 +3793,16 @@
       localStorage.removeItem('rootbound_connected_balance');
       localStorage.removeItem('rootbound_connected_type');
       currentConnectedAccount = null;
+
+      if (clientEngine && clientEngine.organization) {
+        clientEngine.organization.admin = 'admin.near';
+        const root = clientEngine.grants.find(g => g.depth === 1);
+        if (root) root.account = 'admin.near';
+        clientEngine.save();
+      }
+
       updateWalletUI(null, null);
+      fetchAppState();
     }
 
     function getTargetContract() {
@@ -3743,7 +3835,7 @@
       const uniqueSuffix = Math.floor(Math.random() * 900 + 100);
       document.getElementById('deploy-child-id').value = `agent_worker_${uniqueSuffix}`;
       document.getElementById('deploy-child-account').value = `worker_${uniqueSuffix}.near`;
-      document.getElementById('deploy-budget').value = '50000';
+      document.getElementById('deploy-budget').value = '100000';
       document.getElementById('deploy-max-per-tx').value = '';
       document.getElementById('deploy-recipients').value = '';
       

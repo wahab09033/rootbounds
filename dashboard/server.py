@@ -18,10 +18,10 @@ from core.async_payment_engine import AsyncPaymentEngine, TransferOutcome
 from agents.economy import AgentEconomyCoordinator
 
 class DashboardState:
-    def __init__(self):
-        self.reset()
+    def __init__(self, clean: bool = False):
+        self.reset(clean=clean)
 
-    def reset(self):
+    def reset(self, clean: bool = False):
         self.engine = RootboundEngine()
         self.async_engine = AsyncPaymentEngine(self.engine)
         self.org_id = "org_rootbound_enterprise"
@@ -36,7 +36,22 @@ class DashboardState:
         }
         self.audit_log: List[Dict[str, Any]] = []
 
-        # Bootstrap Economy
+        if clean:
+            # Pure clean state: only root treasury, zero mock child agents, zero mock payments, zero mock spend
+            self.engine.create_organization(
+                org_id=self.org_id,
+                admin=self.admin,
+                escrow_deposit=1_000_000,
+                root_agent_id="root_treasury",
+                expires_at=500_000,
+                timestamp=1000
+            )
+            self.pm = None
+            self.researcher = None
+            self.log_event("INITIALIZATION", "Organization and Root Treasury vault initialized with 1,000,000 yoctoNEAR.", "SUCCESS")
+            return
+
+        # Bootstrap Economy with standard 3-tier agents for tests
         self.coordinator.bootstrap_economy(
             root_agent_id="root_treasury",
             escrow_deposit=1_000_000,
@@ -127,8 +142,28 @@ class DashboardState:
             "audit_log": self.audit_log[:25]
         }
 
+    def ensure_test_agents(self):
+        if not hasattr(self, "pm") or self.pm is None or "agent_pm" not in self.engine.grants:
+            self.pm = self.coordinator.spawn_pm_agent(
+                root_agent_id="root_treasury",
+                pm_agent_id="agent_pm",
+                pm_account="pm.near",
+                budget=500_000,
+                whitelisted_vendors=self.whitelisted_vendors,
+                timestamp=1000
+            )
+            self.researcher = self.coordinator.spawn_researcher_agent(
+                pm=self.pm,
+                res_agent_id="agent_researcher",
+                res_account="researcher.near",
+                budget=200_000,
+                whitelisted_vendors={"vendor_phala_inference.near", "vendor_vector_db.near"},
+                timestamp=1000
+            )
+
     def execute_legitimate_purchase(self) -> Dict[str, Any]:
         try:
+            self.ensure_test_agents()
             req_id_1 = f"req_legit_pm_{len(self.engine.payments)+1}"
             self.pm.request_service_payment(
                 recipient="vendor_shade_compute.near",
@@ -154,6 +189,7 @@ class DashboardState:
     def execute_attack(self, attack_type: str) -> Dict[str, Any]:
         """Executes an attack against contract policies to demonstrate guaranteed onchain rejection."""
         try:
+            self.ensure_test_agents()
             if attack_type == "overspend":
                 # Attempt to spend more than available
                 pm_grant = self.pm.get_grant()
@@ -449,7 +485,7 @@ class DashboardState:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-STATE = DashboardState()
+STATE = DashboardState(clean=True)
 
 class DashboardRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -512,7 +548,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             res = STATE.execute_attack(attack_type)
             self._send_json(res)
         elif self.path == "/api/action/reset":
-            STATE.reset()
+            STATE.reset(clean=True)
             self._send_json({"success": True, "message": "State reset successfully"})
         elif self.path == "/api/action/revoke":
             agent_id = payload.get("agent_id")
