@@ -3,590 +3,1959 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ROOTBOUND — AI Agent Governance & On-Chain Security</title>
+  <title>ROOTBOUND — Control Room | Autonomous Agent Financial Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
   <!-- NEAR Protocol Official JavaScript SDK -->
   <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.4/dist/near-api-js.min.js"></script>
   <style>
     :root {
-      --bg-dark: #0a0d14;
-      --card-bg: #111726;
-      --card-inner: #0b101c;
-      --border-color: #1e293b;
-      --accent-cyan: #00ec97;
-      --accent-blue: #00c0f9;
-      --accent-red: #ff4d4d;
-      --accent-yellow: #f59e0b;
-      --accent-purple: #a855f7;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg-base: #171917;
+      --surface-secondary: #242823;
+      --surface-elevated: #2D322C;
+      --surface-sunken: #111311;
+      --surface-node: #1c201b;
+      --text-primary: #EAE5D9;
+      --text-secondary: #A5A79C;
+      --text-tertiary: #6E7268;
+      --border-subtle: #3A4038;
+      --border-light: #4A5247;
+      --border-focus: #B77B54;
+      
+      /* Intentional Semantics */
+      --accent-copper: #B77B54;
+      --accent-copper-glow: rgba(183, 123, 84, 0.18);
+      --accent-copper-subtle: rgba(183, 123, 84, 0.08);
+      --status-authorized: #91A58C;
+      --status-authorized-bg: rgba(145, 165, 140, 0.12);
+      --status-rejected: #C77C70;
+      --status-rejected-bg: rgba(199, 124, 112, 0.12);
+      --status-reserved: #D4A373;
+      --status-reserved-bg: rgba(212, 163, 115, 0.12);
+      
+      --font-display: 'Newsreader', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      padding: 20px 24px;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
       line-height: 1.5;
-    }
-    header {
+      height: 100vh;
+      overflow: hidden;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 16px;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
-    .brand {
+
+    /* Tabular numbers for financial precision */
+    .tabular-num {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Utility Bar */
+    header.control-header {
+      height: 52px;
+      background: var(--surface-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-mark {
       display: flex;
       align-items: center;
       gap: 12px;
+      text-decoration: none;
     }
-    .brand h1 {
-      font-size: 24px;
+    .brand-logo-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--accent-copper);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg-base);
+      font-family: var(--font-mono);
       font-weight: 700;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #00ec97 0%, #00c0f9 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 13px;
     }
-    .badge {
-      font-size: 12px;
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      color: var(--text-primary);
+    }
+    .brand-system-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-tertiary);
+      padding: 2px 6px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Pill Badges */
+    .status-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
       padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-family: 'JetBrains Mono', monospace;
+      border-radius: 4px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
     }
-    .badge-success { background: rgba(0, 236, 151, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-    .badge-danger { background: rgba(255, 77, 77, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
-    .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
-    .badge-info { background: rgba(0, 192, 249, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
-    .badge-purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+    .status-pill.authorized {
+      background: var(--status-authorized-bg);
+      color: var(--status-authorized);
+      border: 1px solid rgba(145, 165, 140, 0.3);
+    }
+    .status-pill.rejected {
+      background: var(--status-rejected-bg);
+      color: var(--status-rejected);
+      border: 1px solid rgba(199, 124, 112, 0.3);
+    }
+    .status-pill.copper {
+      background: var(--accent-copper-subtle);
+      color: var(--accent-copper);
+      border: 1px solid rgba(183, 123, 84, 0.3);
+    }
 
-    /* Top Controls */
-    .top-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .mode-switch {
-      display: flex;
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 4px;
-    }
-    .mode-btn {
+    /* Wallet Button & Connection */
+    .btn-wallet-connect {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
       padding: 6px 14px;
+      border-radius: 4px;
       font-size: 12px;
       font-weight: 600;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .mode-btn.active {
-      background: var(--card-bg);
-      color: var(--accent-cyan);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      border: 1px solid rgba(0, 236, 151, 0.3);
-    }
-
-    .btn-wallet {
-      background: linear-gradient(135deg, rgba(0, 236, 151, 0.2) 0%, rgba(0, 192, 249, 0.2) 100%);
-      border: 1px solid var(--accent-cyan);
-      color: var(--accent-cyan);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
     }
-    .btn-wallet:hover {
-      background: linear-gradient(135deg, rgba(0, 236, 151, 0.35) 0%, rgba(0, 192, 249, 0.35) 100%);
-      box-shadow: 0 0 12px rgba(0, 236, 151, 0.4);
+    .btn-wallet-connect:hover {
+      border-color: var(--accent-copper);
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
     }
-    .wallet-connected-pill {
+    .wallet-connected-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(0, 236, 151, 0.08);
-      border: 1px solid var(--accent-cyan);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-    }
-
-    /* Layout */
-    .grid-layout {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
-    @media(max-width: 1100px) {
-      .grid-layout { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 18px 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    .card-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--accent-cyan);
-    }
-
-    /* Tree */
-    .tree-container {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .agent-node {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 14px;
-      transition: all 0.2s ease;
-    }
-    .agent-node.depth-1 { border-left: 4px solid var(--accent-cyan); }
-    .agent-node.depth-2 { border-left: 4px solid var(--accent-blue); margin-left: 20px; }
-    .agent-node.depth-3 { border-left: 4px solid var(--accent-yellow); margin-left: 40px; }
-    .agent-node.revoked { border-color: var(--accent-red); background: rgba(255, 77, 77, 0.04); }
-
-    .node-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .node-id {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 14px;
-    }
-    .balance-chips {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .chip {
-      background: #0f1522;
-      border: 1px solid #1e293b;
-      padding: 6px 8px;
-      border-radius: 6px;
-      text-align: center;
-    }
-    .chip-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .chip-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
-    .chip-val.available { color: var(--accent-cyan); }
-    .chip-val.reserved { color: var(--accent-yellow); }
-    .chip-val.spent { color: var(--accent-blue); }
-
-    /* Interactive Form Controls */
-    .form-group {
-      margin-bottom: 12px;
-    }
-    .form-label {
-      display: block;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-bottom: 4px;
-      letter-spacing: 0.5px;
     }
-    .form-input {
-      width: 100%;
-      background: var(--card-inner);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 9px 12px;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .form-input:focus {
-      border-color: var(--accent-cyan);
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    .wallet-connected-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--status-authorized);
     }
 
-    button {
-      background: #1e293b;
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 10px 14px;
-      border-radius: 7px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 12px;
-      cursor: pointer;
+    /* Application Shell: Three-Part Composition */
+    .control-room-shell {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.2s ease;
+      flex: 1;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+      position: relative;
     }
-    button:hover { background: #27354f; border-color: #3b82f6; }
-    button.btn-primary {
-      background: linear-gradient(135deg, rgba(0, 236, 151, 0.2) 0%, rgba(0, 192, 249, 0.2) 100%);
-      border: 1px solid var(--accent-cyan);
-      color: var(--accent-cyan);
-    }
-    button.btn-primary:hover {
-      background: linear-gradient(135deg, rgba(0, 236, 151, 0.35) 0%, rgba(0, 192, 249, 0.35) 100%);
-    }
-    button.btn-danger {
-      border-color: rgba(255, 77, 77, 0.4);
-      color: #ffa1a1;
-    }
-    button.btn-danger:hover {
-      background: rgba(255, 77, 77, 0.15);
-      border-color: var(--accent-red);
-    }
-    .btn-group {
+
+    /* 1. Left: Navigation Rail */
+    nav.nav-rail {
+      width: 230px;
+      background: var(--surface-secondary);
+      border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-
-    /* Terminal */
-    .terminal {
-      background: #070a0f;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      max-height: 380px;
+      flex-shrink: 0;
       overflow-y: auto;
     }
-    .terminal-entry {
-      padding: 8px 0;
-      border-bottom: 1px solid #141b2b;
+    .nav-section {
+      padding: 16px 10px 8px 10px;
+    }
+    .nav-section-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-tertiary);
+      padding: 0 10px 8px 10px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      position: relative;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+    }
+    .nav-item.active {
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+      font-weight: 600;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      background: var(--accent-copper);
+      border-radius: 0 2px 2px 0;
+    }
+    .nav-item-icon {
+      width: 16px;
+      height: 16px;
+      opacity: 0.75;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-item.active .nav-item-icon {
+      opacity: 1;
+      color: var(--accent-copper);
+    }
+
+    .nav-footer {
+      margin-top: auto;
+      padding: 14px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-sunken);
+    }
+    .nav-footer-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-tertiary);
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
-    .entry-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .nav-footer-meta strong {
+      color: var(--text-secondary);
     }
-    .entry-type { font-weight: 700; }
-    .entry-desc { color: #cbd5e1; }
-    .entry-meta {
-      font-size: 11px;
-      color: var(--text-muted);
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    a { color: var(--accent-blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
 
-    /* Alert Banner */
-    .banner {
-      background: rgba(0, 192, 249, 0.08);
-      border: 1px solid rgba(0, 192, 249, 0.3);
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 18px;
+    /* 2. Centre: Main Workspace */
+    main.workspace-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-base);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+    .workspace-header {
+      padding: 24px 28px 18px 28px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      background: var(--bg-base);
+      flex-shrink: 0;
+    }
+    .workspace-title-group h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .workspace-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .workspace-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .workspace-body {
+      padding: 24px 28px;
+      flex: 1;
+    }
+
+    /* 3. Right: Contextual Detail Panel */
+    aside.context-panel {
+      width: 380px;
+      background: var(--surface-secondary);
+      border-left: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      transition: width 0.25s ease, opacity 0.25s ease;
+      z-index: 40;
+    }
+    aside.context-panel.collapsed {
+      width: 0;
+      border-left: none;
+      overflow: hidden;
+      opacity: 0;
+    }
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .panel-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .panel-close-btn:hover {
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+    }
+    .panel-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Financial Overview Metric Cards (Editorial Swiss Grid) */
+    .metrics-editorial-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .metric-cell {
+      background: var(--surface-secondary);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric-cell.highlight {
+      background: var(--surface-elevated);
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .metric-value.copper { color: var(--accent-copper); }
+    .metric-value.authorized { color: var(--status-authorized); }
+    .metric-value.reserved { color: var(--status-reserved); }
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    /* Conservation Formula Bar */
+    .conservation-bar {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .formula-expression {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .formula-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .formula-item strong {
+      color: var(--text-primary);
+    }
+
+    /* Interactive Delegation Network Canvas */
+    .network-container {
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 24px;
+      position: relative;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .network-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 20px;
+    }
+    .network-search-input {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      width: 220px;
+      outline: none;
+    }
+    .network-search-input:focus {
+      border-color: var(--accent-copper);
+    }
+
+    .hierarchy-canvas {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      position: relative;
+    }
+    .hierarchy-level-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Operational Agent Node Card */
+    .network-node-card {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px 16px;
+      width: 290px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      position: relative;
+    }
+    .network-node-card:hover {
+      border-color: var(--accent-copper);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .network-node-card.selected {
+      border-color: var(--accent-copper);
+      background: var(--surface-elevated);
+      box-shadow: 0 0 0 1px var(--accent-copper), 0 6px 20px var(--accent-copper-glow);
+    }
+    .network-node-card.revoked {
+      border-color: var(--status-rejected);
+      background: rgba(199, 124, 112, 0.05);
+    }
+    .node-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .node-title {
+      font-family: var(--font-mono);
       font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .node-depth-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .node-account {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+    }
+    
+    /* 5-State Balance Distribution Mini-Meter */
+    .meter-bar {
+      height: 4px;
+      background: var(--surface-sunken);
+      border-radius: 2px;
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .meter-segment.avail { background: var(--status-authorized); }
+    .meter-segment.deleg { background: var(--accent-copper); }
+    .meter-segment.res { background: var(--status-reserved); }
+    .meter-segment.spent { background: var(--text-tertiary); }
+
+    .node-balance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      text-align: center;
+      background: var(--surface-sunken);
+      border-radius: 4px;
+      padding: 6px 4px;
+    }
+    .node-balance-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .node-balance-key {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .node-balance-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Operational Data Table */
+    .data-table-container {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .data-table-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .data-table-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: var(--surface-sunken);
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
+    }
+    table.data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+    table.data-table tr:last-child td {
+      border-bottom: none;
+    }
+    table.data-table tr:hover td {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+    }
+    table.data-table tr {
+      cursor: pointer;
+    }
+
+    /* Security Incident Stream */
+    .security-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .security-incident-card {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .security-incident-card:hover {
+      border-color: var(--border-light);
+      background: var(--surface-elevated);
+    }
+    .incident-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .incident-type {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .incident-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .incident-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      display: flex;
+      gap: 14px;
+    }
+
+    /* Attack Simulator Control Grid */
+    .attack-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media(max-width: 1200px) {
+      .attack-grid { grid-template-columns: 1fr; }
+    }
+    .attack-card {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .attack-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .attack-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .attack-description {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .attack-spec-row {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+    }
+    .attack-spec-row code {
+      color: var(--status-rejected);
+    }
+
+    /* Buttons */
+    .btn-action {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-action:hover {
+      border-color: var(--border-light);
+      background: #353b34;
+    }
+    .btn-action.copper {
+      border-color: var(--accent-copper);
+      color: var(--accent-copper);
+      background: var(--accent-copper-subtle);
+    }
+    .btn-action.copper:hover {
+      background: rgba(183, 123, 84, 0.2);
+    }
+    .btn-action.danger {
+      border-color: rgba(199, 124, 112, 0.4);
+      color: var(--status-rejected);
+      background: var(--status-rejected-bg);
+    }
+    .btn-action.danger:hover {
+      background: rgba(199, 124, 112, 0.25);
+      border-color: var(--status-rejected);
+    }
+
+    /* Modal Dialog */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      width: 440px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    .modal-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Header -->
-  <header>
-    <div class="brand">
-      <h1>ROOTBOUND</h1>
-      <span class="badge badge-info">NEAR Protocol AI Security</span>
+  <!-- TOP UTILITY / CONTROL HEADER -->
+  <header class="control-header">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <a href="#" class="brand-mark">
+        <div class="brand-logo-icon">R</div>
+        <span class="brand-name">Rootbound</span>
+        <span class="brand-system-tag">Control Room</span>
+      </a>
+      <span class="status-pill authorized" id="global-invariant-pill">
+        <span>●</span> Invariants 100% Conserved
+      </span>
     </div>
 
-    <!-- Mode Switcher & Wallet Connector -->
-    <div class="top-controls">
-      <div class="mode-switch">
-        <button id="btn-mode-testnet" class="mode-btn active" onclick="switchMode('testnet')">
-          🌐 Live NEAR Testnet
-        </button>
-        <button id="btn-mode-sim" class="mode-btn" onclick="switchMode('simulation')">
-          ⚡ Engine Simulator
-        </button>
+    <div class="header-controls">
+      <!-- Live NEAR Testnet Wallet Connect -->
+      <button id="btn-connect-near-wallet" class="btn-wallet-connect" onclick="connectNearWallet()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v12M6 12h12"></path>
+        </svg>
+        Connect NEAR Wallet
+      </button>
+
+      <div id="wallet-connected-display" class="wallet-connected-badge" style="display: none;">
+        <span class="dot"></span>
+        <span id="connected-wallet-account" style="font-weight: 600; color: var(--text-primary);">user.testnet</span>
+        <span id="connected-wallet-balance" style="color: var(--accent-copper); font-weight: 600;">Ⓝ 0.00</span>
+        <button onclick="disconnectNearWallet()" style="background:transparent; border:none; color:var(--text-tertiary); cursor:pointer; font-size:10px; margin-left:4px;">Sign Out</button>
       </div>
 
-      <!-- Wallet Section -->
-      <div id="wallet-auth-section">
-        <button id="btn-connect-wallet" class="btn-wallet" onclick="connectNearWallet()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            <path d="M7 15h0M2 10h20"></path>
-          </svg>
-          Connect NEAR Testnet Wallet
-        </button>
-
-        <div id="wallet-connected-box" class="wallet-connected-pill" style="display: none;">
-          <span style="color: var(--accent-cyan);">●</span>
-          <span id="connected-account" style="font-weight: 700; color: #fff;">account.testnet</span>
-          <span id="connected-balance" style="color: var(--accent-blue); font-weight: 600;">Ⓝ 0.00</span>
-          <button onclick="disconnectNearWallet()" style="padding: 3px 8px; font-size: 10px; background: #1e293b; border-radius: 4px; margin-left: 6px;">Sign Out</button>
-        </div>
-      </div>
-
-      <a href="/demo_video.html" style="color: var(--accent-cyan); background: rgba(0, 236, 151, 0.1); border: 1px solid var(--accent-cyan); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">
-        🎬 Video Demo
+      <a href="/demo_video.html" class="btn-wallet-connect" style="text-decoration: none;">
+        <span>🎬 Video Demo</span>
       </a>
-      <span id="invariant-badge" class="badge badge-success">INVARIANTS 100% SATISFIED</span>
     </div>
   </header>
 
-  <!-- TESTNET MODE BANNER (When Testnet Mode Active) -->
-  <div id="testnet-config-banner" class="banner">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <span class="badge badge-success">NEAR TESTNET ACTIVE</span>
-      <span>RPC: <code>https://rpc.testnet.near.org</code> | Target Contract:</span>
-      <input id="input-target-contract" class="form-input" style="width: 220px; padding: 4px 8px; font-size: 12px;" value="rootbound.testnet" onchange="saveTargetContract(this.value)" />
-    </div>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <a href="https://testnet.mynearwallet.com" target="_blank" style="font-size: 12px; color: var(--accent-cyan);">
-        Get Free Testnet NEAR (Faucet) ↗
-      </a>
-    </div>
-  </div>
+  <!-- APPLICATION SHELL -->
+  <div class="control-room-shell">
 
-  <div class="grid-layout">
-    <!-- LEFT MAIN COLUMN -->
-    <main>
-      
-      <!-- VIEW A: LIVE TESTNET CONSOLE (Shown in Testnet Mode) -->
-      <div id="panel-testnet-console">
-        <div class="card">
-          <div class="card-title">
-            <span>Live NEAR Testnet Token & Treasury Console</span>
-            <span class="badge badge-info">Signed On-Chain</span>
-          </div>
+    <!-- 1. LEFT NAVIGATION RAIL -->
+    <nav class="nav-rail">
+      <div class="nav-section">
+        <div class="nav-section-title">Operations</div>
+        <a class="nav-item active" onclick="navigate('overview')">
+          <span class="nav-item-icon">▤</span>
+          <span>Overview</span>
+        </a>
+        <a class="nav-item" onclick="navigate('hierarchy')">
+          <span class="nav-item-icon">🌲</span>
+          <span>Hierarchy Network</span>
+        </a>
+        <a class="nav-item" onclick="navigate('agents')">
+          <span class="nav-item-icon">👥</span>
+          <span>Agent Directory</span>
+        </a>
+        <a class="nav-item" onclick="navigate('treasury')">
+          <span class="nav-item-icon">🏛</span>
+          <span>Treasury Operations</span>
+        </a>
+        <a class="nav-item" onclick="navigate('transactions')">
+          <span class="nav-item-icon">⇄</span>
+          <span>Transactions Ledger</span>
+        </a>
+      </div>
 
-          <!-- Escrow Deposit Form -->
-          <div style="background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
-            <h4 style="font-size: 13px; color: var(--accent-cyan); margin-bottom: 10px;">1. Deposit Testnet Tokens into Escrow Vault</h4>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Organization ID</label>
-                <input id="testnet-org-id" class="form-input" value="org_rootbound_enterprise" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Deposit Amount (NEAR)</label>
-                <input id="testnet-deposit-amount" class="form-input" type="number" step="0.1" value="1.0" />
-              </div>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn-primary" style="flex: 1;" onclick="executeTestnetDeposit()">
-                <span>📥 Deposit Ⓝ into ROOTBOUND Vault (Sign with Wallet)</span>
-              </button>
-              <button style="flex: 1;" onclick="executeTestnetWithdraw()">
-                <span>📤 Withdraw Uncommitted Available Balance</span>
-              </button>
-            </div>
-          </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Security & Defense</div>
+        <a class="nav-item" onclick="navigate('security')">
+          <span class="nav-item-icon">🛡</span>
+          <span>Security Activity</span>
+        </a>
+        <a class="nav-item" onclick="navigate('simulator')">
+          <span class="nav-item-icon">⚡</span>
+          <span>Attack Simulator</span>
+        </a>
+        <a class="nav-item" onclick="navigate('policies')">
+          <span class="nav-item-icon">📜</span>
+          <span>Invariant Policies</span>
+        </a>
+        <a class="nav-item" onclick="navigate('testnet')">
+          <span class="nav-item-icon">🌐</span>
+          <span>NEAR Testnet Console</span>
+        </a>
+      </div>
 
-          <!-- Create Delegation Grant Form -->
-          <div style="background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
-            <h4 style="font-size: 13px; color: var(--accent-blue); margin-bottom: 10px;">2. Issue On-Chain Delegation Grant to Agent</h4>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Parent Agent ID</label>
-                <input id="testnet-parent-agent" class="form-input" value="root_treasury" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Child Agent ID</label>
-                <input id="testnet-child-agent" class="form-input" value="agent_pm" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Child Account (NEAR)</label>
-                <input id="testnet-child-account" class="form-input" value="pm_agent.testnet" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Delegated Budget (NEAR)</label>
-                <input id="testnet-delegated-budget" class="form-input" type="number" step="0.1" value="0.5" />
-              </div>
-            </div>
-            <button class="btn-primary" style="width: 100%;" onclick="executeTestnetDelegation()">
-              <span>🌲 Sign & Deploy Delegation Grant On-Chain</span>
-            </button>
-          </div>
+      <div class="nav-footer">
+        <div class="nav-footer-meta">
+          <span>Organization: <strong>org_rootbound</strong></span>
+          <span>Admin Key: <strong>admin.near</strong></span>
+          <span>Consensus: <span style="color: var(--status-authorized);">NEAR Protocol (Testnet)</span></span>
+        </div>
+      </div>
+    </nav>
 
-          <!-- Payment Request Form -->
-          <div style="background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
-            <h4 style="font-size: 13px; color: var(--accent-yellow); margin-bottom: 10px;">3. Authorize & Execute Payment Request</h4>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Executing Agent ID</label>
-                <input id="testnet-pay-agent" class="form-input" value="agent_pm" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Vendor / Recipient Account</label>
-                <input id="testnet-pay-recipient" class="form-input" value="vendor_shade_compute.testnet" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Amount (NEAR)</label>
-                <input id="testnet-pay-amount" class="form-input" type="number" step="0.01" value="0.05" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Request ID</label>
-                <input id="testnet-pay-reqid" class="form-input" value="req_testnet_001" />
-              </div>
-            </div>
-            <button class="btn-primary" style="width: 100%;" onclick="executeTestnetPayment()">
-              <span>💸 Dispatch Cross-Contract Payment On Testnet</span>
-            </button>
-          </div>
+    <!-- 2. CENTRE MAIN WORKSPACE -->
+    <main class="workspace-main">
+      <div class="workspace-header">
+        <div class="workspace-title-group">
+          <h2 id="view-title">Financial Operations Overview</h2>
+          <p id="view-subtitle" class="workspace-subtitle">Real-time mathematical telemetry of multi-tier agent financial authority on NEAR.</p>
+        </div>
+        <div class="workspace-actions">
+          <button class="btn-action copper" onclick="executeLegitimateDemoPurchase()">
+            <span>✓ Execute Legitimate Spend</span>
+          </button>
+          <button class="btn-action" onclick="resetDemoState()">
+            <span>Reset State</span>
+          </button>
         </div>
       </div>
 
-      <!-- VIEW B: HIERARCHY TREE (Common visualizer) -->
-      <div class="card">
-        <div class="card-title">
-          <span>Active Hierarchy Tree & 5-State Conservation</span>
-          <span style="font-size: 12px; color: var(--text-muted);">Allocated ≡ Available + Delegated + Reserved + Spent</span>
-        </div>
-        <div id="tree-root" class="tree-container">
-          <p style="color: var(--text-muted);">Loading hierarchy...</p>
-        </div>
-      </div>
+      <div class="workspace-body">
 
-      <!-- On-Chain Audit Terminal -->
-      <div class="card">
-        <div class="card-title">
-          <span>Live Blockchain Audit & Explorer Receipts</span>
-          <span style="font-size: 12px; color: var(--text-muted);">Verified on NEAR Consensus</span>
-        </div>
-        <div id="audit-terminal" class="terminal">
-          <p style="color: var(--text-muted);">Awaiting transactions...</p>
-        </div>
+        <!-- VIEW 1: OVERVIEW -->
+        <section id="view-overview" class="view-panel">
+          <!-- Editorial Financial Metrics Strip -->
+          <div class="metrics-editorial-strip">
+            <div class="metric-cell highlight">
+              <span class="metric-label">Total Escrow Authority</span>
+              <span id="metric-total-escrow" class="metric-value tabular-num">1,000,000</span>
+              <span class="metric-sub">Vault deposit custody</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Uncommitted Available</span>
+              <span id="metric-available-funds" class="metric-value authorized tabular-num">785,000</span>
+              <span class="metric-sub">Free for delegation/spend</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Active In-Flight (Reserved)</span>
+              <span id="metric-reserved-funds" class="metric-value reserved tabular-num">0</span>
+              <span class="metric-sub">Committed to NEAR promises</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Confirmed Settled (Spent)</span>
+              <span id="metric-spent-funds" class="metric-value tabular-num">23,000</span>
+              <span class="metric-sub">Transferred upon callback</span>
+            </div>
+          </div>
+
+          <!-- Mathematical Conservation Invariant Formula -->
+          <div class="conservation-bar">
+            <span style="color: var(--text-tertiary); text-transform: uppercase; font-size: 10px; letter-spacing: 0.8px;">Mathematical Invariant</span>
+            <div class="formula-expression">
+              <span class="formula-item">Allocated: <strong id="formula-allocated" class="tabular-num">1,000,000</strong></span>
+              <span style="color: var(--accent-copper);">≡</span>
+              <span class="formula-item">Available: <strong id="formula-available" class="tabular-num">785,000</strong></span>
+              <span>+</span>
+              <span class="formula-item">Delegated: <strong id="formula-delegated" class="tabular-num">200,000</strong></span>
+              <span>+</span>
+              <span class="formula-item">Reserved: <strong id="formula-reserved" class="tabular-num">0</strong></span>
+              <span>+</span>
+              <span class="formula-item">Spent: <strong id="formula-spent" class="tabular-num">23,000</strong></span>
+            </div>
+            <span class="status-pill authorized">Zero Fund Leakage</span>
+          </div>
+
+          <!-- Interactive Delegation Network Snippet -->
+          <div class="network-container">
+            <div class="network-toolbar">
+              <div>
+                <span style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 600;">
+                  Delegation Authority Hierarchy (Max Depth 3)
+                </span>
+                <p style="font-size: 12px; color: var(--text-tertiary);">Select an agent node to inspect authority limits, parent-child links, and permissions in the right panel.</p>
+              </div>
+              <input type="text" class="network-search-input" placeholder="Search agent ID..." oninput="filterNetworkNodes(this.value)" />
+            </div>
+
+            <div id="overview-hierarchy-canvas" class="hierarchy-canvas">
+              <!-- Dynamically Populated Node Levels -->
+            </div>
+          </div>
+
+          <!-- Recent Operations & Security Interceptions -->
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>Recent Financial Authorizations & Policy Interceptions</h3>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">Live Consensus Feed</span>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event Type</th>
+                  <th>Outcome</th>
+                  <th>Details & Reason</th>
+                  <th>Transaction ID</th>
+                  <th>Block Explorer</th>
+                </tr>
+              </thead>
+              <tbody id="overview-recent-table-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 2: HIERARCHY NETWORK (Full Standalone) -->
+        <section id="view-hierarchy" class="view-panel" style="display: none;">
+          <div class="network-container" style="min-height: 550px;">
+            <div class="network-toolbar">
+              <div>
+                <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Full Interactive Authority Network</h3>
+                <p style="font-size: 12px; color: var(--text-secondary);">Inherited restrictions flow downward: Root Treasury → Project Manager → Researcher.</p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-action" onclick="resetNetworkView()">Reset Layout</button>
+              </div>
+            </div>
+            <div id="full-hierarchy-canvas" class="hierarchy-canvas"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: AGENTS DIRECTORY -->
+        <section id="view-agents" class="view-panel" style="display: none;">
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>Configured Delegation Grants</h3>
+              <span style="font-size: 11px; color: var(--text-tertiary);">Click any agent row to view permissions</span>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Agent ID</th>
+                  <th>Hierarchy Depth</th>
+                  <th>Account Address</th>
+                  <th>Allocated</th>
+                  <th>Available</th>
+                  <th>Delegated</th>
+                  <th>Spent</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="agents-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 4: TREASURY -->
+        <section id="view-treasury" class="view-panel" style="display: none;">
+          <div class="metrics-editorial-strip">
+            <div class="metric-cell highlight">
+              <span class="metric-label">Gross Escrow Deposits</span>
+              <span id="treasury-gross" class="metric-value tabular-num">1,000,000</span>
+              <span class="metric-sub">Lifetime deposited principal</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Root Available Balance</span>
+              <span id="treasury-root-avail" class="metric-value authorized tabular-num">500,000</span>
+              <span class="metric-sub">Un-delegated liquid capital</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Downward Delegated</span>
+              <span id="treasury-delegated" class="metric-value copper tabular-num">500,000</span>
+              <span class="metric-sub">Issued to child sub-agents</span>
+            </div>
+            <div class="metric-cell">
+              <span class="metric-label">Confirmed Outflow</span>
+              <span id="treasury-outflow" class="metric-value tabular-num">23,000</span>
+              <span class="metric-sub">Paid out to external vendors</span>
+            </div>
+          </div>
+
+          <div class="data-table-container" style="padding: 20px;">
+            <h3 style="font-size: 14px; margin-bottom: 12px;">Treasury Liquidity Reconciliation</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+              Treasury funds remain locked inside the immutable ROOTBOUND escrow smart contract on NEAR Protocol. Agents cannot withdraw or move funds without adhering to strict policy attenuation. Available funds can be withdrawn by the Organization Admin or delegated downward into scoped child authority envelopes.
+            </p>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn-action copper" onclick="navigate('testnet')">📥 Deposit Testnet NEAR via Wallet</button>
+              <button class="btn-action" onclick="navigate('testnet')">📤 Withdraw Available Escrow to Admin</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 5: TRANSACTIONS LEDGER -->
+        <section id="view-transactions" class="view-panel" style="display: none;">
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>On-Chain Payment Settlement Ledger</h3>
+              <div style="display: flex; gap: 8px;">
+                <span class="status-pill copper">Sequential Nonce Monotonicity</span>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Originating Agent</th>
+                  <th>Payee / Recipient</th>
+                  <th>Amount</th>
+                  <th>Nonce</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VIEW 6: SECURITY ACTIVITY -->
+        <section id="view-security" class="view-panel" style="display: none;">
+          <div class="data-table-container">
+            <div class="data-table-header">
+              <h3>Policy Interception Radar & Activity Stream</h3>
+              <span class="status-pill rejected">Structured Rejections</span>
+            </div>
+            <div id="security-activity-feed" class="security-feed" style="padding: 16px;"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 7: POLICIES -->
+        <section id="view-policies" class="view-panel" style="display: none;">
+          <div class="data-table-container" style="padding: 24px;">
+            <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Formally Verified Security Invariants</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px; color: var(--text-secondary);">
+              <div style="border-left: 3px solid var(--status-authorized); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 1: Budget Conservation</strong>
+                <p>Allocated ≡ Available + Delegated + Reserved + Spent. Funds cannot be forged, duplicated, or overdrawn across any node in the hierarchy.</p>
+              </div>
+              <div style="border-left: 3px solid var(--accent-copper); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 2: Strict Authority Attenuation</strong>
+                <p>Child permissions can only narrow parent permissions. Child budget ≤ Parent available, Child expiry ≤ Parent expiry, Child recipients ⊆ Parent recipients.</p>
+              </div>
+              <div style="border-left: 3px solid var(--status-reserved); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 3: Hierarchy Depth Ceiling (Max Depth = 3)</strong>
+                <p>Root Vault (Depth 1) → Project Manager (Depth 2) → Researcher/Purchaser (Depth 3). Deep delegation chains are rejected on-chain.</p>
+              </div>
+              <div style="border-left: 3px solid var(--status-rejected); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 4: Instant Cascade Revocation</strong>
+                <p>Revoking an ancestor immediately freezes and paralyzes all downstream descendants across the smart contract.</p>
+              </div>
+              <div style="border-left: 3px solid var(--status-authorized); padding-left: 14px;">
+                <strong style="color: var(--text-primary);">Invariant 5: Safe Asynchronous Recovery</strong>
+                <p>If a NEAR cross-contract promise fails, reverts, or runs out of gas, in-flight Reserved funds safely restore to Available without fund lockup.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 8: ATTACK SIMULATOR -->
+        <section id="view-simulator" class="view-panel" style="display: none;">
+          <div style="margin-bottom: 20px;">
+            <p style="font-size: 13px; color: var(--text-secondary);">
+              Fire live adversarial attack vectors through the contract policy engine. ROOTBOUND mathematically enforces constraints and returns structured on-chain panics.
+            </p>
+          </div>
+
+          <div class="attack-grid">
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">1. Budget Overspending Attack</h4>
+                  <span class="status-pill rejected">Budget Ceiling</span>
+                </div>
+                <p class="attack-description">An agent compromised by prompt injection attempts to transfer more funds than its available balance.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 1</strong></span>
+                  <span>Expected Panic: <code>ERR_INSUFFICIENT_AVAILABLE_BUDGET</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('overspend')">Launch Overspending Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">2. Payee Substitution (Prompt Hijack)</h4>
+                  <span class="status-pill rejected">Whitelist Boundary</span>
+                </div>
+                <p class="attack-description">Malicious input redirects a compute invoice payment to an unauthorized attacker wallet address.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 2.2</strong></span>
+                  <span>Expected Panic: <code>ERR_UNAUTHORIZED_RECIPIENT</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('recipient_substitution')">Launch Payee Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">3. Depth Limit Breach (Depth 4)</h4>
+                  <span class="status-pill rejected">Depth Ceiling</span>
+                </div>
+                <p class="attack-description">A Depth 3 grandchild agent attempts to spawn a Depth 4 sub-agent, violating the 3-tier architectural limit.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 3</strong></span>
+                  <span>Expected Panic: <code>ERR_EXCEEDED_MAX_DEPTH</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('depth_exhaustion')">Launch Depth Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">4. Concurrent Double-Spend Race</h4>
+                  <span class="status-pill rejected">Race Condition</span>
+                </div>
+                <p class="attack-description">Two concurrent requests simultaneously compete for the remaining balance within the same block.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Atomic Reservation</strong></span>
+                  <span>Expected Panic: <code>ERR_INSUFFICIENT_AVAILABLE_BUDGET</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('concurrency_race')">Launch Race Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">5. Cryptographic Nonce Replay</h4>
+                  <span class="status-pill rejected">Anti-Replay</span>
+                </div>
+                <p class="attack-description">An attacker intercepts a previously authorized payment payload and replays the stale nonce.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 6</strong></span>
+                  <span>Expected Panic: <code>ERR_INVALID_NONCE</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('replay_nonce')">Launch Replay Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">6. Cascade Revocation Attack</h4>
+                  <span class="status-pill rejected">Lineage Freeze</span>
+                </div>
+                <p class="attack-description">The Admin revokes a parent agent. Downstream children attempt payments through the invalidated branch.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Invariant 4</strong></span>
+                  <span>Expected Panic: <code>ERR_ANCESTOR_REVOKED</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('cascade_revocation')">Launch Revocation Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">7. Cross-Tenant Delegation Exploit</h4>
+                  <span class="status-pill rejected">Multi-Tenancy</span>
+                </div>
+                <p class="attack-description">A rogue organization admin attempts to delegate from another organization's PM agent into their own tenant.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Tenant Boundary</strong></span>
+                  <span>Expected Panic: <code>ERR_UNAUTHORIZED_CALLER</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('cross_org_delegation')">Launch Cross-Org Vector</button>
+            </div>
+
+            <div class="attack-card">
+              <div>
+                <div class="attack-card-header">
+                  <h4 class="attack-title">8. Cross-Tenant Revocation Exploit</h4>
+                  <span class="status-pill rejected">DoS Defense</span>
+                </div>
+                <p class="attack-description">An attacker tenant attempts to maliciously revoke agents belonging to an external victim organization.</p>
+                <div class="attack-spec-row">
+                  <span>Target Invariant: <strong>Tenant Isolation</strong></span>
+                  <span>Expected Panic: <code>ERR_UNAUTHORIZED_CALLER</code></span>
+                </div>
+              </div>
+              <button class="btn-action danger" onclick="triggerAttack('cross_org_revocation')">Launch Cross-Revoke Vector</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 9: NEAR TESTNET CONSOLE -->
+        <section id="view-testnet" class="view-panel" style="display: none;">
+          <div class="data-table-container" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+              <div>
+                <h3 style="font-size: 16px; margin-bottom: 4px;">Live NEAR Testnet Token & Contract Console</h3>
+                <p style="font-size: 12px; color: var(--text-secondary);">Direct on-chain execution with signed wallet transactions on NEAR Testnet.</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="metric-label" style="margin: 0;">Target Contract:</span>
+                <input id="testnet-target-contract-input" class="network-search-input" value="rootbound.testnet" onchange="saveTargetContract(this.value)" />
+              </div>
+            </div>
+
+            <!-- Escrow Deposit Form -->
+            <div style="background: var(--surface-sunken); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 18px; margin-bottom: 20px;">
+              <h4 style="font-size: 13px; color: var(--accent-copper); margin-bottom: 12px;">1. Deposit Testnet Tokens into ROOTBOUND Escrow Vault</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label class="metric-label">Organization ID</label>
+                  <input id="form-testnet-org-id" class="network-search-input" style="width: 100%;" value="org_rootbound_enterprise" />
+                </div>
+                <div>
+                  <label class="metric-label">Deposit Amount (NEAR)</label>
+                  <input id="form-testnet-amount" class="network-search-input" style="width: 100%;" type="number" step="0.5" value="1.0" />
+                </div>
+              </div>
+              <button class="btn-action copper" style="width: 100%;" onclick="executeTestnetDeposit()">
+                📥 Sign & Transfer Testnet Tokens into Vault
+              </button>
+            </div>
+
+            <!-- Delegation Form -->
+            <div style="background: var(--surface-sunken); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 18px;">
+              <h4 style="font-size: 13px; color: var(--status-authorized); margin-bottom: 12px;">2. Deploy Delegation Grant to Child Agent On-Chain</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label class="metric-label">Parent Agent ID</label>
+                  <input id="form-testnet-parent" class="network-search-input" style="width: 100%;" value="root_treasury" />
+                </div>
+                <div>
+                  <label class="metric-label">Child Agent ID</label>
+                  <input id="form-testnet-child" class="network-search-input" style="width: 100%;" value="agent_pm" />
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+                <div>
+                  <label class="metric-label">Child NEAR Account</label>
+                  <input id="form-testnet-child-acc" class="network-search-input" style="width: 100%;" value="pm_agent.testnet" />
+                </div>
+                <div>
+                  <label class="metric-label">Delegated Budget (NEAR)</label>
+                  <input id="form-testnet-budget" class="network-search-input" style="width: 100%;" type="number" step="0.1" value="0.5" />
+                </div>
+              </div>
+              <button class="btn-action" style="width: 100%;" onclick="executeTestnetDelegation()">
+                🌲 Deploy Delegation Grant to Testnet
+              </button>
+            </div>
+          </div>
+        </section>
+
       </div>
     </main>
 
-    <!-- RIGHT ASIDE COLUMN -->
-    <aside>
-      <!-- Attack Simulator Panel -->
-      <div class="card">
-        <div class="card-title">
-          <span>Adversarial Attack Simulator</span>
-          <span class="badge badge-danger">Live Injection</span>
-        </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
-          Trigger malicious attacks against the contract. ROOTBOUND mathematically enforces policy rules and guarantees structured on-chain rejection.
-        </p>
-
-        <div class="btn-group">
-          <button class="btn-primary" onclick="triggerLegitimatePurchase()">
-            <span>✅ Legitimate Agent Purchase</span>
-            <span style="font-size: 11px;">Happy Path</span>
-          </button>
-          
-          <button class="btn-danger" onclick="triggerAttack('overspend')">
-            <span>💥 Budget Overspending Attack</span>
-            <span class="badge badge-danger">Exceeds Budget</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('recipient_substitution')">
-            <span>🎯 Recipient Substitution</span>
-            <span class="badge badge-danger">Prompt Injection</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('depth_exhaustion')">
-            <span>🌲 Depth Limit Breach (Depth 4)</span>
-            <span class="badge badge-danger">Max Depth = 3</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('concurrency_race')">
-            <span>⚡ Concurrent Double-Spend Race</span>
-            <span class="badge badge-danger">Race Condition</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('replay_nonce')">
-            <span>🔁 Nonce Replay Attack</span>
-            <span class="badge badge-danger">Anti-Replay</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('cascade_revocation')">
-            <span>⛓️ Cascade Revocation Attack</span>
-            <span class="badge badge-danger">Paralyze Branch</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('cross_org_delegation')">
-            <span>🛡️ Cross-Tenant Delegation Attack</span>
-            <span class="badge badge-danger">Isolated</span>
-          </button>
-
-          <button class="btn-danger" onclick="triggerAttack('cross_org_revocation')">
-            <span>🛡️ Cross-Tenant Revocation Attack</span>
-            <span class="badge badge-danger">Isolated</span>
-          </button>
-        </div>
+    <!-- 3. RIGHT CONTEXTUAL DETAIL PANEL -->
+    <aside id="context-detail-panel" class="context-panel">
+      <div class="panel-header">
+        <span class="panel-title" id="context-panel-type">Agent Dossier</span>
+        <button class="panel-close-btn" onclick="toggleContextPanel(false)">✕</button>
       </div>
 
-      <!-- Contract Info & Wallet Instructions -->
-      <div class="card">
-        <div class="card-title">
-          <span>NEAR Testnet Testing Guide</span>
-        </div>
-        <div style="font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px;">
-          <p><strong>1. Connect Wallet:</strong> Click <em>Connect NEAR Testnet Wallet</em> to sign in via MyNearWallet or Meteor.</p>
-          <p><strong>2. Free Testnet Tokens:</strong> Get tokens at <a href="https://testnet.mynearwallet.com" target="_blank">testnet.mynearwallet.com</a>.</p>
-          <p><strong>3. Fund Escrow Vault:</strong> Deposit real testnet NEAR to establish the root vault.</p>
-          <p><strong>4. Verify Invariants:</strong> Inspect live balance conservation after each transaction.</p>
-        </div>
+      <div class="panel-body" id="context-panel-content">
+        <!-- Rendered contextually when an agent node or transaction is clicked -->
+        <p style="color: var(--text-tertiary); font-size: 12px;">Select any node from the hierarchy network or an entry from the transaction ledger to inspect full permissions, budget allocation, and operational controls.</p>
       </div>
     </aside>
+
+  </div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="action-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 id="modal-title" class="modal-title">Confirm Action</h3>
+      <p id="modal-desc" class="modal-desc">Are you sure you want to proceed with this operation?</p>
+      <div id="modal-input-container" style="margin-bottom: 20px; display: none;">
+        <label class="metric-label">Amount (yoctoNEAR)</label>
+        <input id="modal-input-amount" class="network-search-input" style="width: 100%;" type="number" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action" onclick="closeModal()">Cancel</button>
+        <button id="modal-confirm-btn" class="btn-action danger" onclick="confirmModalAction()">Confirm</button>
+      </div>
+    </div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. NEAR API & Wallet Integration
+    // CONTROL ROOM STATE & TELEMETRY ENGINE
+    // =========================================================================
+    let appState = null;
+    let selectedAgentId = 'root_treasury';
+    let currentNavView = 'overview';
+    let pendingModalAction = null;
+
+    // View Titles & Subtitles Dictionary
+    const VIEW_METADATA = {
+      overview: {
+        title: "Financial Operations Overview",
+        subtitle: "Real-time mathematical telemetry of multi-tier agent financial authority on NEAR."
+      },
+      hierarchy: {
+        title: "Delegation Hierarchy Network",
+        subtitle: "Inherited authority paths and live constraint attenuation down the agent tree."
+      },
+      agents: {
+        title: "Agent Directory & Permissions",
+        subtitle: "Audit active delegation grants, spending ceilings, and assigned account boundaries."
+      },
+      treasury: {
+        title: "Treasury Operations & Vault Custody",
+        subtitle: "Reconcile escrow custody against multi-tiered child delegations without double-counting."
+      },
+      transactions: {
+        title: "Transactions & Settlement Pipeline",
+        subtitle: "Trace asynchronous NEAR promise requests, reservations, and callback settlements."
+      },
+      security: {
+        title: "Security Activity & Interceptions",
+        subtitle: "Cryptographic defense log verifying on-chain rejection of prompt injection and budget overspends."
+      },
+      policies: {
+        title: "Formal Invariant Specifications",
+        subtitle: "Mathematical rules enforced by the ROOTBOUND smart contract policy engine."
+      },
+      simulator: {
+        title: "Adversarial Attack Simulator",
+        subtitle: "Stress test contract invariants with live exploit vectors and inspect structured rejections."
+      },
+      testnet: {
+        title: "NEAR Testnet On-Chain Console",
+        subtitle: "Sign real transactions, attach testnet tokens, and inspect on-chain Nearblocks explorer receipts."
+      }
+    };
+
+    // =========================================================================
+    // NAVIGATION CONTROLLER
+    // =========================================================================
+    function navigate(viewName) {
+      currentNavView = viewName;
+      
+      // Update nav link highlights
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event?.currentTarget?.classList?.add('active');
+
+      // Update workspace header
+      const meta = VIEW_METADATA[viewName] || VIEW_METADATA.overview;
+      document.getElementById('view-title').innerText = meta.title;
+      document.getElementById('view-subtitle').innerText = meta.subtitle;
+
+      // Show active view panel, hide others
+      document.querySelectorAll('.view-panel').forEach(p => p.style.display = 'none');
+      const targetPanel = document.getElementById(`view-${viewName}`);
+      if (targetPanel) {
+        targetPanel.style.display = 'block';
+      }
+
+      // Re-render view-specific dynamic content
+      if (viewName === 'hierarchy') {
+        renderFullHierarchy();
+      } else if (viewName === 'agents') {
+        renderAgentsTable();
+      } else if (viewName === 'transactions') {
+        renderTransactionsTable();
+      } else if (viewName === 'security') {
+        renderSecurityFeed();
+      }
+    }
+
+    function toggleContextPanel(open = true) {
+      const panel = document.getElementById('context-detail-panel');
+      if (open) {
+        panel.classList.remove('collapsed');
+      } else {
+        panel.classList.add('collapsed');
+      }
+    }
+
+    // =========================================================================
+    // STATE FETCH & DATA RENDERING
+    // =========================================================================
+    async function fetchAppState() {
+      try {
+        const res = await fetch('/api/state');
+        appState = await res.json();
+        
+        // 1. Update Financial Metrics
+        updateFinancialMetrics();
+
+        // 2. Render Overview Hierarchy
+        renderHierarchyCanvas('overview-hierarchy-canvas');
+
+        // 3. Render Overview Recent Feed
+        renderOverviewRecentTable();
+
+        // 4. Update Selected Agent in Context Panel
+        if (selectedAgentId) {
+          selectAgent(selectedAgentId, false);
+        }
+
+        // 5. Check Invariant Pill
+        const pill = document.getElementById('global-invariant-pill');
+        if (appState.invariants_satisfied) {
+          pill.className = 'status-pill authorized';
+          pill.innerHTML = '<span>●</span> Invariants 100% Conserved';
+        } else {
+          pill.className = 'status-pill rejected';
+          pill.innerHTML = '<span>●</span> Invariant Violation Intercepted';
+        }
+
+      } catch (err) {
+        console.error("Failed to fetch state:", err);
+      }
+    }
+
+    function updateFinancialMetrics() {
+      if (!appState || !appState.organization) return;
+      const org = appState.organization;
+      const grants = appState.grants || [];
+
+      // Calculate totals across hierarchy
+      let totalAvail = 0;
+      let totalDeleg = 0;
+      let totalRes = 0;
+      let totalSpent = 0;
+
+      grants.forEach(g => {
+        totalAvail += g.available;
+        totalDeleg += g.delegated;
+        totalRes += g.reserved;
+        totalSpent += g.spent;
+      });
+
+      const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance, available: org.escrow_balance };
+
+      document.getElementById('metric-total-escrow').innerText = org.escrow_balance.toLocaleString();
+      document.getElementById('metric-available-funds').innerText = totalAvail.toLocaleString();
+      document.getElementById('metric-reserved-funds').innerText = totalRes.toLocaleString();
+      document.getElementById('metric-spent-funds').innerText = totalSpent.toLocaleString();
+
+      // Formula bar
+      document.getElementById('formula-allocated').innerText = org.escrow_balance.toLocaleString();
+      document.getElementById('formula-available').innerText = totalAvail.toLocaleString();
+      document.getElementById('formula-delegated').innerText = totalDeleg.toLocaleString();
+      document.getElementById('formula-reserved').innerText = totalRes.toLocaleString();
+      document.getElementById('formula-spent').innerText = totalSpent.toLocaleString();
+
+      // Treasury view metrics
+      document.getElementById('treasury-gross').innerText = org.escrow_balance.toLocaleString();
+      document.getElementById('treasury-root-avail').innerText = rootGrant.available.toLocaleString();
+      document.getElementById('treasury-delegated').innerText = rootGrant.delegated.toLocaleString();
+      document.getElementById('treasury-outflow').innerText = totalSpent.toLocaleString();
+    }
+
+    // =========================================================================
+    // SIGNATURE FEATURE: INTERACTIVE HIERARCHY NETWORK
+    // =========================================================================
+    function renderHierarchyCanvas(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container || !appState || !appState.grants) return;
+
+      container.innerHTML = '';
+      const grants = appState.grants;
+
+      // Group by Depth
+      const depth1 = grants.filter(g => g.depth === 1);
+      const depth2 = grants.filter(g => g.depth === 2);
+      const depth3 = grants.filter(g => g.depth === 3);
+
+      const levels = [
+        { depth: 1, label: "Root Vault (Depth 1)", nodes: depth1 },
+        { depth: 2, label: "Project Manager (Depth 2)", nodes: depth2 },
+        { depth: 3, label: "Research & Purchasing (Depth 3)", nodes: depth3 }
+      ];
+
+      levels.forEach(lvl => {
+        if (lvl.nodes.length === 0) return;
+        const row = document.createElement('div');
+        row.className = 'hierarchy-level-row';
+
+        lvl.nodes.forEach(g => {
+          const card = createNodeCardElement(g);
+          row.appendChild(card);
+        });
+        container.appendChild(row);
+      });
+    }
+
+    function createNodeCardElement(grant) {
+      const card = document.createElement('div');
+      const isSelected = grant.agent_id === selectedAgentId;
+      card.className = `network-node-card ${isSelected ? 'selected' : ''} ${grant.is_revoked ? 'revoked' : ''}`;
+      card.id = `node-card-${grant.agent_id}`;
+      card.onclick = () => selectAgent(grant.agent_id, true);
+
+      // Meter percentages
+      const alloc = grant.allocated || 1;
+      const pctAvail = (grant.available / alloc) * 100;
+      const pctDeleg = (grant.delegated / alloc) * 100;
+      const pctRes = (grant.reserved / alloc) * 100;
+      const pctSpent = (grant.spent / alloc) * 100;
+
+      const roleName = grant.depth === 1 ? 'Root Vault' : grant.depth === 2 ? 'Project Manager' : 'Research Agent';
+
+      card.innerHTML = `
+        <div class="node-card-top">
+          <div>
+            <div class="node-title">${grant.agent_id}</div>
+            <div class="node-account">${grant.account}</div>
+          </div>
+          <span class="node-depth-badge">Depth ${grant.depth}</span>
+        </div>
+
+        <div class="meter-bar">
+          <div class="meter-segment avail" style="width: ${pctAvail}%;"></div>
+          <div class="meter-segment deleg" style="width: ${pctDeleg}%;"></div>
+          <div class="meter-segment res" style="width: ${pctRes}%;"></div>
+          <div class="meter-segment spent" style="width: ${pctSpent}%;"></div>
+        </div>
+
+        <div class="node-balance-grid">
+          <div class="node-balance-item">
+            <span class="node-balance-key">Avail</span>
+            <span class="node-balance-val tabular-num" style="color: var(--status-authorized);">${(grant.available / 1000).toFixed(0)}k</span>
+          </div>
+          <div class="node-balance-item">
+            <span class="node-balance-key">Deleg</span>
+            <span class="node-balance-val tabular-num" style="color: var(--accent-copper);">${(grant.delegated / 1000).toFixed(0)}k</span>
+          </div>
+          <div class="node-balance-item">
+            <span class="node-balance-key">Res</span>
+            <span class="node-balance-val tabular-num" style="color: var(--status-reserved);">${(grant.reserved / 1000).toFixed(0)}k</span>
+          </div>
+          <div class="node-balance-item">
+            <span class="node-balance-key">Spent</span>
+            <span class="node-balance-val tabular-num">${(grant.spent / 1000).toFixed(0)}k</span>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    function renderFullHierarchy() {
+      renderHierarchyCanvas('full-hierarchy-canvas');
+    }
+
+    function filterNetworkNodes(query) {
+      const q = query.toLowerCase().trim();
+      document.querySelectorAll('.network-node-card').forEach(c => {
+        const text = c.innerText.toLowerCase();
+        c.style.display = text.includes(q) ? 'block' : 'none';
+      });
+    }
+
+    // =========================================================================
+    // CONTEXTUAL DETAIL PANEL CONTROLLER
+    // =========================================================================
+    function selectAgent(agentId, openDrawer = true) {
+      selectedAgentId = agentId;
+      if (!appState || !appState.grants) return;
+
+      // Update card visual selections
+      document.querySelectorAll('.network-node-card').forEach(c => c.classList.remove('selected'));
+      const activeCard = document.getElementById(`node-card-${agentId}`);
+      if (activeCard) activeCard.classList.add('selected');
+
+      const grant = appState.grants.find(g => g.agent_id === agentId);
+      if (!grant) return;
+
+      const panelTitle = document.getElementById('context-panel-type');
+      const panelContent = document.getElementById('context-panel-content');
+      panelTitle.innerText = `AGENT DOSSIER: ${grant.agent_id}`;
+
+      // Whitelisted recipients
+      const payees = grant.permitted_recipients && grant.permitted_recipients.length > 0
+        ? grant.permitted_recipients.map(p => `<code style="display:block; padding:3px 6px; background:var(--surface-sunken); border-radius:3px; margin-bottom:4px; font-size:11px;">${p}</code>`).join('')
+        : '<span style="color: var(--text-tertiary);">Unrestricted (Root Authority)</span>';
+
+      panelContent.innerHTML = `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="font-family:var(--font-mono); font-size:16px; color:var(--text-primary); font-weight:700;">${grant.agent_id}</h3>
+            <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'}">${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}</span>
+          </div>
+          <p style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">NEAR Account: <strong style="color:var(--text-secondary);">${grant.account}</strong></p>
+        </div>
+
+        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px;">
+          <span class="metric-label">5-State Balance Accounting</span>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:12px;">
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-secondary);">Allocated Authority:</span>
+              <strong class="tabular-num">${grant.allocated.toLocaleString()}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--status-authorized);">Available to Spend:</span>
+              <strong class="tabular-num" style="color:var(--status-authorized);">${grant.available.toLocaleString()}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--accent-copper);">Delegated Downward:</span>
+              <strong class="tabular-num" style="color:var(--accent-copper);">${grant.delegated.toLocaleString()}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--status-reserved);">In-Flight Reserved:</span>
+              <strong class="tabular-num" style="color:var(--status-reserved);">${grant.reserved.toLocaleString()}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--text-tertiary);">Finalized Spent:</span>
+              <strong class="tabular-num">${grant.spent.toLocaleString()}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <span class="metric-label">Authority Restrictions</span>
+          <div style="margin-top:6px; font-family:var(--font-mono); font-size:11px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
+            <div>Hierarchy Depth: <strong>Level ${grant.depth} of 3</strong></div>
+            <div>Parent Agent ID: <strong>${grant.parent_id || 'None (Master Root)'}</strong></div>
+            <div>Sequential Monotonic Nonce: <strong>${grant.nonce}</strong></div>
+            <div>Per-Tx Ceiling: <strong>${grant.max_per_tx ? grant.max_per_tx.toLocaleString() + ' yocto' : 'Inherited (No Limit)'}</strong></div>
+            <div>Expiration Timestamp: <strong>${grant.expires_at} ns</strong></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="metric-label">Whitelisted Recipient Boundary</span>
+          <div style="margin-top:6px;">
+            ${payees}
+          </div>
+        </div>
+
+        <!-- Operational Actions -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+          ${!grant.is_revoked && grant.depth > 1 ? `
+            <button class="btn-action danger" onclick="openRevokeModal('${grant.agent_id}')">
+              <span>✕ Revoke Agent Authority (Cascade Freeze)</span>
+            </button>
+          ` : ''}
+
+          ${grant.depth > 1 && grant.available > 0 ? `
+            <button class="btn-action copper" onclick="openReclaimModal('${grant.parent_id}', '${grant.agent_id}', ${grant.available})">
+              <span>↺ Reclaim Available Balance to Parent</span>
+            </button>
+          ` : ''}
+
+          <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" class="btn-action" style="text-decoration:none;">
+            <span>↗ Inspect On Nearblocks Testnet</span>
+          </a>
+        </div>
+      `;
+
+      if (openDrawer) {
+        toggleContextPanel(true);
+      }
+    }
+
+    function selectTransaction(reqId) {
+      if (!appState || !appState.payments) return;
+      const p = appState.payments.find(x => x.request_id === reqId);
+      if (!p) return;
+
+      const panelTitle = document.getElementById('context-panel-type');
+      const panelContent = document.getElementById('context-panel-content');
+      panelTitle.innerText = `TRANSACTION: ${p.request_id}`;
+
+      panelContent.innerHTML = `
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="font-family:var(--font-mono); font-size:15px; color:var(--text-primary); font-weight:700;">${p.request_id}</h3>
+            <span class="status-pill ${p.status === 'FINALIZED' ? 'authorized' : p.status === 'RESERVED' ? 'copper' : 'rejected'}">${p.status}</span>
+          </div>
+          <p style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">Nonce Sequence: <strong>#${p.nonce}</strong></p>
+        </div>
+
+        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:12px; display:flex; flex-direction:column; gap:8px;">
+          <div>Originating Agent: <strong style="color:var(--text-primary);">${p.agent_id}</strong></div>
+          <div>Recipient Payee: <strong style="color:var(--text-primary);">${p.recipient}</strong></div>
+          <div>Transfer Amount: <strong style="color:var(--status-authorized);">${p.amount.toLocaleString()} yoctoNEAR</strong></div>
+          <div>Failure / Reason: <span style="color:${p.failure_reason ? 'var(--status-rejected)' : 'var(--text-tertiary)'};">${p.failure_reason || 'None (Healthy Execution)'}</span></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+          <a href="https://testnet.nearblocks.io" target="_blank" class="btn-action copper" style="text-decoration:none;">
+            <span>↗ View Transaction Receipt on Explorer</span>
+          </a>
+        </div>
+      `;
+      toggleContextPanel(true);
+    }
+
+    // =========================================================================
+    // TABLE RENDERERS
+    // =========================================================================
+    function renderOverviewRecentTable() {
+      const tbody = document.getElementById('overview-recent-table-body');
+      if (!tbody || !appState || !appState.audit_log) return;
+      tbody.innerHTML = '';
+
+      appState.audit_log.slice(0, 7).forEach(log => {
+        const tr = document.createElement('tr');
+        const badgeClass = log.outcome === 'SUCCESS' ? 'authorized' : log.outcome === 'REJECTED' ? 'rejected' : 'copper';
+        tr.innerHTML = `
+          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${log.event_type}</strong></td>
+          <td><span class="status-pill ${badgeClass}">${log.outcome}</span></td>
+          <td>${log.details}</td>
+          <td><code style="font-size:11px;">${log.tx_id || 'near_tx_...'}</code></td>
+          <td><a href="${log.explorer_url}" target="_blank" style="color:var(--accent-copper); font-size:11px; text-decoration:none;">Inspect ↗</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAgentsTable() {
+      const tbody = document.getElementById('agents-table-body');
+      if (!tbody || !appState || !appState.grants) return;
+      tbody.innerHTML = '';
+
+      appState.grants.forEach(g => {
+        const tr = document.createElement('tr');
+        tr.onclick = () => selectAgent(g.agent_id, true);
+        tr.innerHTML = `
+          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${g.agent_id}</strong></td>
+          <td><span class="node-depth-badge">Depth ${g.depth}</span></td>
+          <td><code style="font-size:11px;">${g.account}</code></td>
+          <td class="tabular-num">${g.allocated.toLocaleString()}</td>
+          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${g.available.toLocaleString()}</td>
+          <td class="tabular-num" style="color:var(--accent-copper);">${g.delegated.toLocaleString()}</td>
+          <td class="tabular-num">${g.spent.toLocaleString()}</td>
+          <td><span class="status-pill ${g.is_revoked ? 'rejected' : 'authorized'}">${g.is_revoked ? 'REVOKED' : 'ACTIVE'}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTransactionsTable() {
+      const tbody = document.getElementById('transactions-table-body');
+      if (!tbody || !appState || !appState.payments) return;
+      tbody.innerHTML = '';
+
+      if (appState.payments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-tertiary); padding:20px;">No transactions on record.</td></tr>';
+        return;
+      }
+
+      appState.payments.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.onclick = () => selectTransaction(p.request_id);
+        const badgeClass = p.status === 'FINALIZED' ? 'authorized' : p.status === 'RESERVED' ? 'copper' : 'rejected';
+        tr.innerHTML = `
+          <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${p.request_id}</strong></td>
+          <td><code>${p.agent_id}</code></td>
+          <td><code>${p.recipient}</code></td>
+          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${p.amount.toLocaleString()} yocto</td>
+          <td>#${p.nonce}</td>
+          <td><span class="status-pill ${badgeClass}">${p.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSecurityFeed() {
+      const feed = document.getElementById('security-activity-feed');
+      if (!feed || !appState || !appState.audit_log) return;
+      feed.innerHTML = '';
+
+      appState.audit_log.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'security-incident-card';
+        const badgeClass = item.outcome === 'SUCCESS' ? 'authorized' : item.outcome === 'REJECTED' ? 'rejected' : 'copper';
+        div.innerHTML = `
+          <div class="incident-top">
+            <span class="incident-type">${item.event_type}</span>
+            <span class="status-pill ${badgeClass}">${item.outcome}</span>
+          </div>
+          <div class="incident-desc">${item.details}</div>
+          <div class="incident-meta">
+            <span>TX: <code>${item.tx_id}</code></span>
+            ${item.error_code ? `<span style="color:var(--status-rejected);">Invariant Code: <strong>${item.error_code}</strong></span>` : ''}
+            <a href="${item.explorer_url}" target="_blank" style="color:var(--accent-copper);">Nearblocks Verification ↗</a>
+          </div>
+        `;
+        feed.appendChild(div);
+      });
+    }
+
+    // =========================================================================
+    // MODAL DIALOGS (Revocation & Reclaim)
+    // =========================================================================
+    function openRevokeModal(agentId) {
+      document.getElementById('modal-title').innerText = `Revoke Agent: ${agentId}`;
+      document.getElementById('modal-desc').innerText = `Warning: Revoking an agent immediately paralyzes this agent and cascades on-chain to freeze all child sub-agents. Any pending payment request will be rejected.`;
+      document.getElementById('modal-input-container').style.display = 'none';
+      document.getElementById('modal-confirm-btn').className = 'btn-action danger';
+      document.getElementById('modal-confirm-btn').innerText = 'Confirm Revocation';
+
+      pendingModalAction = async () => {
+        const res = await fetch('/api/action/revoke', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent_id: agentId })
+        });
+        await fetchAppState();
+      };
+      document.getElementById('action-modal').classList.add('active');
+    }
+
+    function openReclaimModal(parentId, childId, availableAmount) {
+      document.getElementById('modal-title').innerText = `Reclaim Funds from ${childId}`;
+      document.getElementById('modal-desc').innerText = `Return unspent available authority from ${childId} back to parent agent ${parentId}. This un-delegates balance without breaking budget conservation.`;
+      document.getElementById('modal-input-container').style.display = 'block';
+      document.getElementById('modal-input-amount').value = availableAmount;
+      document.getElementById('modal-confirm-btn').className = 'btn-action copper';
+      document.getElementById('modal-confirm-btn').innerText = 'Reclaim Funds';
+
+      pendingModalAction = async () => {
+        const amt = parseInt(document.getElementById('modal-input-amount').value, 10);
+        await fetch('/api/action/reclaim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ parent_agent_id: parentId, child_agent_id: childId, amount: amt })
+        });
+        await fetchAppState();
+      };
+      document.getElementById('action-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('action-modal').classList.remove('active');
+      pendingModalAction = null;
+    }
+
+    async function confirmModalAction() {
+      if (pendingModalAction) {
+        await pendingModalAction();
+      }
+      closeModal();
+    }
+
+    // =========================================================================
+    // ACTIONS & SIMULATIONS
+    // =========================================================================
+    async function executeLegitimateDemoPurchase() {
+      await fetch('/api/action/legitimate-purchase', { method: 'POST' });
+      await fetchAppState();
+    }
+
+    async function triggerAttack(type) {
+      await fetch('/api/action/attack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attack_type: type })
+      });
+      await fetchAppState();
+      if (currentNavView !== 'overview' && currentNavView !== 'simulator') {
+        navigate('security');
+      }
+    }
+
+    async function resetDemoState() {
+      await fetch('/api/action/reset', { method: 'POST' });
+      await fetchAppState();
+    }
+
+    // =========================================================================
+    // LIVE NEAR TESTNET CONSOLE
     // =========================================================================
     let near = null;
     let wallet = null;
     let accountId = null;
-    let currentMode = 'testnet'; // 'testnet' | 'simulation'
 
     const NEAR_CONFIG = {
       networkId: 'testnet',
@@ -597,49 +1966,40 @@
       explorerUrl: 'https://testnet.nearblocks.io'
     };
 
-    async function initNearWallet() {
+    async function initNear() {
       try {
         near = await nearApi.connect(NEAR_CONFIG);
-        wallet = new nearApi.WalletConnection(near, 'rootbound_app');
+        wallet = new nearApi.WalletConnection(near, 'rootbound_control_room');
 
         if (wallet.isSignedIn()) {
           accountId = wallet.getAccountId();
-          document.getElementById('btn-connect-wallet').style.display = 'none';
-          document.getElementById('wallet-connected-box').style.display = 'inline-flex';
-          document.getElementById('connected-account').innerText = accountId;
+          document.getElementById('btn-connect-near-wallet').style.display = 'none';
+          document.getElementById('wallet-connected-display').style.display = 'inline-flex';
+          document.getElementById('connected-wallet-account').innerText = accountId;
 
-          // Fetch real testnet balance
           try {
             const acc = await near.account(accountId);
             const bal = await acc.getAccountBalance();
-            const nearBal = nearApi.utils.format.formatNearAmount(bal.available, 2);
-            document.getElementById('connected-balance').innerText = `Ⓝ ${nearBal}`;
+            const nearFormatted = nearApi.utils.format.formatNearAmount(bal.available, 2);
+            document.getElementById('connected-wallet-balance').innerText = `Ⓝ ${nearFormatted}`;
           } catch (e) {
-            console.warn("Could not fetch testnet balance:", e);
+            console.warn(e);
           }
         } else {
-          document.getElementById('btn-connect-wallet').style.display = 'inline-flex';
-          document.getElementById('wallet-connected-box').style.display = 'none';
+          document.getElementById('btn-connect-near-wallet').style.display = 'inline-flex';
+          document.getElementById('wallet-connected-display').style.display = 'none';
         }
       } catch (err) {
-        console.error("NEAR Initialization Error:", err);
+        console.error("NEAR init error:", err);
       }
     }
 
     async function connectNearWallet() {
-      if (!wallet) await initNearWallet();
+      if (!wallet) await initNear();
       const targetContract = getTargetContract();
       await wallet.requestSignIn({
         contractId: targetContract,
-        methodNames: [
-          'create_organization',
-          'deposit_escrow',
-          'withdraw_escrow',
-          'create_delegation_grant',
-          'request_payment',
-          'revoke_grant',
-          'reclaim_delegated_funds'
-        ]
+        methodNames: ['deposit_escrow', 'withdraw_escrow', 'create_delegation_grant', 'request_payment', 'revoke_grant', 'reclaim_delegated_funds']
       });
     }
 
@@ -651,303 +2011,78 @@
     }
 
     function getTargetContract() {
-      return localStorage.getItem('rootbound_contract_id') || document.getElementById('input-target-contract').value || 'rootbound.testnet';
+      return localStorage.getItem('rootbound_contract_id') || document.getElementById('testnet-target-contract-input')?.value || 'rootbound.testnet';
     }
 
     function saveTargetContract(val) {
       localStorage.setItem('rootbound_contract_id', val);
     }
 
-    // =========================================================================
-    // 2. Real Testnet Contract Calls
-    // =========================================================================
     async function executeTestnetDeposit() {
       if (!wallet || !wallet.isSignedIn()) {
-        alert("Please connect your NEAR Testnet wallet first!");
+        alert("Please connect your NEAR Testnet wallet first.");
         return;
       }
-      const orgId = document.getElementById('testnet-org-id').value;
-      const amountNear = document.getElementById('testnet-deposit-amount').value;
-      const yoctoAmount = nearApi.utils.format.parseNearAmount(amountNear);
-      const targetContract = getTargetContract();
+      const orgId = document.getElementById('form-testnet-org-id').value;
+      const amtNear = document.getElementById('form-testnet-amount').value;
+      const yocto = nearApi.utils.format.parseNearAmount(amtNear);
+      const target = getTargetContract();
 
       try {
-        logTestnetAction("INIT_DEPOSIT", `Initiating ${amountNear} NEAR deposit into vault on contract ${targetContract}...`, "PENDING");
         const account = wallet.account();
-        const res = await account.functionCall({
-          contractId: targetContract,
+        await account.functionCall({
+          contractId: target,
           methodName: 'deposit_escrow',
           args: { org_id: orgId },
-          gas: '30000000000000', // 30 TGas
-          attachedDeposit: yoctoAmount
+          gas: '30000000000000',
+          attachedDeposit: yocto
         });
-        const txHash = res.transaction.hash;
-        logTestnetAction("ESCROW_DEPOSIT", `Deposited ${amountNear} NEAR into ${orgId} vault!`, "SUCCESS", txHash);
       } catch (err) {
-        console.error("Deposit error:", err);
-        logTestnetAction("ESCROW_DEPOSIT_ATTEMPT", `Testnet call to ${targetContract}: ${err.message}`, "REJECTED");
-      }
-    }
-
-    async function executeTestnetWithdraw() {
-      if (!wallet || !wallet.isSignedIn()) {
-        alert("Please connect your NEAR Testnet wallet first!");
-        return;
-      }
-      const orgId = document.getElementById('testnet-org-id').value;
-      const amountNear = document.getElementById('testnet-deposit-amount').value;
-      const yoctoAmount = nearApi.utils.format.parseNearAmount(amountNear);
-      const targetContract = getTargetContract();
-
-      try {
-        logTestnetAction("INIT_WITHDRAW", `Requesting ${amountNear} NEAR withdrawal from ${targetContract}...`, "PENDING");
-        const account = wallet.account();
-        const res = await account.functionCall({
-          contractId: targetContract,
-          methodName: 'withdraw_escrow',
-          args: { org_id: orgId, amount: yoctoAmount },
-          gas: '40000000000000',
-          attachedDeposit: '0'
-        });
-        logTestnetAction("ESCROW_WITHDRAW", `Withdrawn ${amountNear} NEAR back to admin!`, "SUCCESS", res.transaction.hash);
-      } catch (err) {
-        logTestnetAction("ESCROW_WITHDRAW_ATTEMPT", `Withdrawal error: ${err.message}`, "REJECTED");
+        alert("Testnet transaction error: " + err.message);
       }
     }
 
     async function executeTestnetDelegation() {
       if (!wallet || !wallet.isSignedIn()) {
-        alert("Please connect your NEAR Testnet wallet first!");
+        alert("Please connect your NEAR Testnet wallet first.");
         return;
       }
-      const targetContract = getTargetContract();
-      const orgId = document.getElementById('testnet-org-id').value;
-      const parentAgent = document.getElementById('testnet-parent-agent').value;
-      const childAgent = document.getElementById('testnet-child-agent').value;
-      const childAccount = document.getElementById('testnet-child-account').value;
-      const budgetNear = document.getElementById('testnet-delegated-budget').value;
-      const yoctoBudget = nearApi.utils.format.parseNearAmount(budgetNear);
-      const expiresAt = Math.floor(Date.now() * 1000000) + (86400 * 7 * 1000000000); // 7 days in ns
+      const target = getTargetContract();
+      const orgId = document.getElementById('form-testnet-org-id').value;
+      const parent = document.getElementById('form-testnet-parent').value;
+      const child = document.getElementById('form-testnet-child').value;
+      const childAcc = document.getElementById('form-testnet-child-acc').value;
+      const budget = nearApi.utils.format.parseNearAmount(document.getElementById('form-testnet-budget').value);
+      const expiresAt = Math.floor(Date.now() * 1000000) + (86400 * 7 * 1000000000);
 
       try {
-        logTestnetAction("INIT_DELEGATION", `Signing delegation grant for ${childAgent} (${budgetNear} NEAR)...`, "PENDING");
         const account = wallet.account();
-        const res = await account.functionCall({
-          contractId: targetContract,
+        await account.functionCall({
+          contractId: target,
           methodName: 'create_delegation_grant',
           args: {
             org_id: orgId,
-            parent_agent_id: parentAgent,
-            child_agent_id: childAgent,
-            child_account: childAccount,
-            budget: yoctoBudget,
+            parent_agent_id: parent,
+            child_agent_id: child,
+            child_account: childAcc,
+            budget: budget,
             expires_at: expiresAt,
             permitted_recipients: null,
             max_per_tx: null
           },
           gas: '30000000000000'
         });
-        logTestnetAction("GRANT_ISSUED", `Delegated ${budgetNear} NEAR to ${childAgent}!`, "SUCCESS", res.transaction.hash);
       } catch (err) {
-        logTestnetAction("GRANT_ATTEMPT", `Delegation call: ${err.message}`, "REJECTED");
+        alert("Testnet transaction error: " + err.message);
       }
-    }
-
-    async function executeTestnetPayment() {
-      if (!wallet || !wallet.isSignedIn()) {
-        alert("Please connect your NEAR Testnet wallet first!");
-        return;
-      }
-      const targetContract = getTargetContract();
-      const orgId = document.getElementById('testnet-org-id').value;
-      const agentId = document.getElementById('testnet-pay-agent').value;
-      const recipient = document.getElementById('testnet-pay-recipient').value;
-      const amountNear = document.getElementById('testnet-pay-amount').value;
-      const yoctoAmount = nearApi.utils.format.parseNearAmount(amountNear);
-      const reqId = document.getElementById('testnet-pay-reqid').value + "_" + Math.floor(Math.random() * 1000);
-
-      try {
-        logTestnetAction("INIT_PAYMENT", `Executing ${amountNear} NEAR payment to ${recipient}...`, "PENDING");
-        const account = wallet.account();
-        const res = await account.functionCall({
-          contractId: targetContract,
-          methodName: 'request_payment',
-          args: {
-            org_id: orgId,
-            agent_id: agentId,
-            recipient: recipient,
-            amount: yoctoAmount,
-            request_id: reqId,
-            nonce: 1
-          },
-          gas: '50000000000000'
-        });
-        logTestnetAction("PAYMENT_SETTLED", `Payment ${reqId} confirmed on testnet!`, "SUCCESS", res.transaction.hash);
-      } catch (err) {
-        logTestnetAction("PAYMENT_ATTEMPT", `Payment call: ${err.message}`, "REJECTED");
-      }
-    }
-
-    function logTestnetAction(type, desc, outcome, txHash = null) {
-      const term = document.getElementById('audit-terminal');
-      const item = document.createElement('div');
-      item.className = 'terminal-entry';
-      const badgeClass = outcome === 'SUCCESS' ? 'badge-success' : outcome === 'REJECTED' ? 'badge-danger' : 'badge-warning';
-      const hashDisplay = txHash ? txHash.substring(0, 16) + '...' : 'pending_tx';
-      const explorerLink = txHash ? `https://testnet.nearblocks.io/txns/${txHash}` : `https://testnet.nearblocks.io/address/${getTargetContract()}`;
-      
-      item.innerHTML = `
-        <div class="entry-header">
-          <span class="entry-type">[TESTNET] ${type}</span>
-          <span class="badge ${badgeClass}">${outcome}</span>
-        </div>
-        <div class="entry-desc">${desc}</div>
-        <div class="entry-meta">
-          <span>Target: <code>${getTargetContract()}</code></span>
-          <span>TX: <code>${hashDisplay}</code></span>
-          <a href="${explorerLink}" target="_blank">Verify On Nearblocks ↗</a>
-        </div>
-      `;
-      term.insertBefore(item, term.firstChild);
     }
 
     // =========================================================================
-    // 3. UI Mode Switching & State Synchronization
+    // INITIALIZATION
     // =========================================================================
-    function switchMode(mode) {
-      currentMode = mode;
-      document.getElementById('btn-mode-testnet').className = `mode-btn ${mode === 'testnet' ? 'active' : ''}`;
-      document.getElementById('btn-mode-sim').className = `mode-btn ${mode === 'simulation' ? 'active' : ''}`;
-      
-      document.getElementById('panel-testnet-console').style.display = mode === 'testnet' ? 'block' : 'none';
-      document.getElementById('testnet-config-banner').style.display = mode === 'testnet' ? 'flex' : 'none';
-    }
-
-    async function fetchState() {
-      try {
-        const res = await fetch('/api/state');
-        const data = await res.json();
-        renderTree(data.grants);
-        if (currentMode === 'simulation') {
-          renderAudit(data.audit_log);
-        }
-        
-        const badge = document.getElementById('invariant-badge');
-        if (data.invariants_satisfied) {
-          badge.className = 'badge badge-success';
-          badge.innerText = 'INVARIANTS 100% SATISFIED';
-        } else {
-          badge.className = 'badge badge-danger';
-          badge.innerText = 'INVARIANT VIOLATION DETECTED';
-        }
-      } catch (err) {
-        console.error("Failed to fetch state:", err);
-      }
-    }
-
-    function renderTree(grants) {
-      const root = document.getElementById('tree-root');
-      root.innerHTML = '';
-      if (!grants) return;
-      grants.forEach(g => {
-        const div = document.createElement('div');
-        div.className = `agent-node depth-${g.depth} ${g.is_revoked ? 'revoked' : ''}`;
-        const roleLabel = g.depth === 1 ? 'Root Vault (Depth 1)' : g.depth === 2 ? 'Project Manager (Depth 2)' : 'Research Agent (Depth 3)';
-        const statusBadge = g.is_revoked ? '<span class="badge badge-danger">REVOKED</span>' : '<span class="badge badge-success">ACTIVE</span>';
-
-        div.innerHTML = `
-          <div class="node-header">
-            <div>
-              <span class="node-id">${g.agent_id}</span>
-              <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">(${g.account})</span>
-            </div>
-            <div>
-              <span class="badge badge-info">${roleLabel}</span>
-              ${statusBadge}
-            </div>
-          </div>
-          <div class="balance-chips">
-            <div class="chip">
-              <div class="chip-label">Allocated</div>
-              <div class="chip-val">${g.allocated.toLocaleString()}</div>
-            </div>
-            <div class="chip">
-              <div class="chip-label">Available</div>
-              <div class="chip-val available">${g.available.toLocaleString()}</div>
-            </div>
-            <div class="chip">
-              <div class="chip-label">Delegated</div>
-              <div class="chip-val">${g.delegated.toLocaleString()}</div>
-            </div>
-            <div class="chip">
-              <div class="chip-label">Reserved</div>
-              <div class="chip-val reserved">${g.reserved.toLocaleString()}</div>
-            </div>
-            <div class="chip">
-              <div class="chip-label">Spent</div>
-              <div class="chip-val spent">${g.spent.toLocaleString()}</div>
-            </div>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; display: flex; justify-content: space-between;">
-            <span>Nonce: <code>${g.nonce}</code> | Expiry: <code>${g.expires_at}</code></span>
-            <span>Permitted Payees: <code>${g.permitted_recipients ? g.permitted_recipients.length : 'Unrestricted'}</code></span>
-          </div>
-        `;
-        root.appendChild(div);
-      });
-    }
-
-    function renderAudit(logs) {
-      const term = document.getElementById('audit-terminal');
-      term.innerHTML = '';
-      if (!logs || logs.length === 0) {
-        term.innerHTML = '<p style="color: var(--text-muted);">No entries yet.</p>';
-        return;
-      }
-      logs.forEach(l => {
-        const item = document.createElement('div');
-        item.className = 'terminal-entry';
-        const badgeClass = l.outcome === 'SUCCESS' ? 'badge-success' : l.outcome === 'REJECTED' ? 'badge-danger' : 'badge-warning';
-        item.innerHTML = `
-          <div class="entry-header">
-            <span class="entry-type">${l.event_type}</span>
-            <span class="badge ${badgeClass}">${l.outcome}</span>
-          </div>
-          <div class="entry-desc">${l.details}</div>
-          <div class="entry-meta">
-            <span>TX: <code>${l.tx_id}</code></span>
-            ${l.error_code ? `<span style="color: var(--accent-red);">Error: <strong>${l.error_code}</strong></span>` : ''}
-            <a href="${l.explorer_url}" target="_blank">Inspect On NEAR ↗</a>
-          </div>
-        `;
-        term.appendChild(item);
-      });
-    }
-
-    async function triggerLegitimatePurchase() {
-      await fetch('/api/action/legitimate-purchase', { method: 'POST' });
-      await fetchState();
-    }
-
-    async function triggerAttack(type) {
-      await fetch('/api/action/attack', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attack_type: type })
-      });
-      await fetchState();
-    }
-
-    // Initialize Target Contract from LocalStorage if present
-    const savedContract = localStorage.getItem('rootbound_contract_id');
-    if (savedContract) {
-      document.getElementById('input-target-contract').value = savedContract;
-    }
-
-    // Initialize
-    initNearWallet();
-    fetchState();
-    setInterval(fetchState, 3000);
+    initNear();
+    fetchAppState();
+    setInterval(fetchAppState, 3000);
   </script>
 </body>
 </html>

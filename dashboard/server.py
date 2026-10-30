@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 
 # Ensure repository root is on sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -334,6 +335,22 @@ class DashboardState:
                 "message": sec_err.message
             }
 
+    def execute_revocation(self, agent_id: str) -> Dict[str, Any]:
+        try:
+            self.engine.revoke_grant(self.admin, self.org_id, agent_id, timestamp=int(time.time()))
+            self.log_event("POLICY_REVOCATION", f"Agent {agent_id} grant revoked by Admin.", "SUCCESS")
+            return {"success": True, "message": f"Agent {agent_id} successfully revoked."}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def execute_reclaim(self, parent_agent_id: str, child_agent_id: str, amount: int) -> Dict[str, Any]:
+        try:
+            self.engine.reclaim_delegated_funds(self.admin, self.org_id, parent_agent_id, child_agent_id, amount, timestamp=int(time.time()))
+            self.log_event("FUND_RECLAMATION", f"Reclaimed {amount:,} yoctoNEAR from {child_agent_id} back to {parent_agent_id}.", "SUCCESS")
+            return {"success": True, "message": f"Successfully reclaimed {amount:,} to {parent_agent_id}."}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
 STATE = DashboardState()
 
 class DashboardRequestHandler(BaseHTTPRequestHandler):
@@ -399,6 +416,16 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         elif self.path == "/api/action/reset":
             STATE.reset()
             self._send_json({"success": True, "message": "State reset successfully"})
+        elif self.path == "/api/action/revoke":
+            agent_id = payload.get("agent_id")
+            res = STATE.execute_revocation(agent_id)
+            self._send_json(res)
+        elif self.path == "/api/action/reclaim":
+            parent_id = payload.get("parent_agent_id")
+            child_id = payload.get("child_agent_id")
+            amount = int(payload.get("amount", 0))
+            res = STATE.execute_reclaim(parent_id, child_id, amount)
+            self._send_json(res)
         else:
             self.send_response(404)
             self.end_headers()
