@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ROOTBOUND — AI Agent Governance & Attack Simulator</title>
+  <title>ROOTBOUND — AI Agent Governance & On-Chain Security</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- NEAR Protocol Official JavaScript SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.4/dist/near-api-js.min.js"></script>
   <style>
     :root {
       --bg-dark: #0a0d14;
       --card-bg: #111726;
+      --card-inner: #0b101c;
       --border-color: #1e293b;
       --accent-cyan: #00ec97;
       --accent-blue: #00c0f9;
       --accent-red: #ff4d4d;
       --accent-yellow: #f59e0b;
+      --accent-purple: #a855f7;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -23,16 +27,18 @@
       background-color: var(--bg-dark);
       color: var(--text-main);
       font-family: 'Inter', sans-serif;
-      padding: 24px;
+      padding: 20px 24px;
       line-height: 1.5;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 20px;
+      padding-bottom: 18px;
       border-bottom: 1px solid var(--border-color);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .brand {
       display: flex;
@@ -53,18 +59,86 @@
       border-radius: 999px;
       font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
     .badge-success { background: rgba(0, 236, 151, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
     .badge-danger { background: rgba(255, 77, 77, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
     .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
     .badge-info { background: rgba(0, 192, 249, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
 
+    /* Top Controls */
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .mode-switch {
+      display: flex;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .mode-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .mode-btn.active {
+      background: var(--card-bg);
+      color: var(--accent-cyan);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      border: 1px solid rgba(0, 236, 151, 0.3);
+    }
+
+    .btn-wallet {
+      background: linear-gradient(135deg, rgba(0, 236, 151, 0.2) 0%, rgba(0, 192, 249, 0.2) 100%);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-wallet:hover {
+      background: linear-gradient(135deg, rgba(0, 236, 151, 0.35) 0%, rgba(0, 192, 249, 0.35) 100%);
+      box-shadow: 0 0 12px rgba(0, 236, 151, 0.4);
+    }
+    .wallet-connected-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 236, 151, 0.08);
+      border: 1px solid var(--accent-cyan);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    /* Layout */
     .grid-layout {
       display: grid;
       grid-template-columns: 2fr 1fr;
-      gap: 24px;
+      gap: 20px;
     }
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
       .grid-layout { grid-template-columns: 1fr; }
     }
 
@@ -72,53 +146,48 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 24px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .card-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       color: var(--accent-cyan);
     }
 
-    /* Hierarchy Tree */
+    /* Tree */
     .tree-container {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      position: relative;
+      gap: 14px;
     }
     .agent-node {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 16px;
-      position: relative;
+      padding: 14px;
       transition: all 0.2s ease;
     }
     .agent-node.depth-1 { border-left: 4px solid var(--accent-cyan); }
-    .agent-node.depth-2 { border-left: 4px solid var(--accent-blue); margin-left: 24px; }
-    .agent-node.depth-3 { border-left: 4px solid var(--accent-yellow); margin-left: 48px; }
+    .agent-node.depth-2 { border-left: 4px solid var(--accent-blue); margin-left: 20px; }
+    .agent-node.depth-3 { border-left: 4px solid var(--accent-yellow); margin-left: 40px; }
     .agent-node.revoked { border-color: var(--accent-red); background: rgba(255, 77, 77, 0.04); }
 
     .node-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .node-id {
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
-      font-size: 15px;
-    }
-    .balance-bar-container {
-      margin: 12px 0;
+      font-size: 14px;
     }
     .balance-chips {
       display: grid;
@@ -133,37 +202,62 @@
       border-radius: 6px;
       text-align: center;
     }
-    .chip-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+    .chip-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .chip-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
     .chip-val.available { color: var(--accent-cyan); }
     .chip-val.reserved { color: var(--accent-yellow); }
     .chip-val.spent { color: var(--accent-blue); }
 
-    /* Simulator Panel */
-    .btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    /* Interactive Form Controls */
+    .form-group {
+      margin-bottom: 12px;
     }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--card-inner);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--accent-cyan);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     button {
       background: #1e293b;
       color: var(--text-main);
       border: 1px solid var(--border-color);
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 7px;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: space-between;
       transition: all 0.2s ease;
     }
-    button:hover {
-      background: #27354f;
-      border-color: #3b82f6;
-    }
+    button:hover { background: #27354f; border-color: #3b82f6; }
     button.btn-primary {
       background: linear-gradient(135deg, rgba(0, 236, 151, 0.2) 0%, rgba(0, 192, 249, 0.2) 100%);
       border: 1px solid var(--accent-cyan);
@@ -180,8 +274,13 @@
       background: rgba(255, 77, 77, 0.15);
       border-color: var(--accent-red);
     }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-    /* Audit Terminal */
+    /* Terminal */
     .terminal {
       background: #070a0f;
       border: 1px solid var(--border-color);
@@ -189,7 +288,7 @@
       padding: 12px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      max-height: 400px;
+      max-height: 380px;
       overflow-y: auto;
     }
     .terminal-entry {
@@ -211,44 +310,193 @@
       color: var(--text-muted);
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
     }
     a { color: var(--accent-blue); text-decoration: none; }
     a:hover { text-decoration: underline; }
+
+    /* Alert Banner */
+    .banner {
+      background: rgba(0, 192, 249, 0.08);
+      border: 1px solid rgba(0, 192, 249, 0.3);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Top Navigation Header -->
   <header>
     <div class="brand">
       <h1>ROOTBOUND</h1>
       <span class="badge badge-info">NEAR Protocol AI Security</span>
     </div>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <a href="/demo_video.html" style="color: var(--cyan); background: rgba(0, 236, 151, 0.1); border: 1px solid var(--cyan); text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-        🎬 Watch Interactive Video Demo
+
+    <!-- Mode Switcher & Wallet Connector -->
+    <div class="top-controls">
+      <div class="mode-switch">
+        <button id="btn-mode-testnet" class="mode-btn active" onclick="switchMode('testnet')">
+          🌐 Live NEAR Testnet
+        </button>
+        <button id="btn-mode-sim" class="mode-btn" onclick="switchMode('simulation')">
+          ⚡ Engine Simulator
+        </button>
+      </div>
+
+      <!-- Wallet Section -->
+      <div id="wallet-auth-section">
+        <button id="btn-connect-wallet" class="btn-wallet" onclick="connectNearWallet()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <path d="M7 15h0M2 10h20"></path>
+          </svg>
+          Connect NEAR Testnet Wallet
+        </button>
+
+        <div id="wallet-connected-box" class="wallet-connected-pill" style="display: none;">
+          <span style="color: var(--accent-cyan);">●</span>
+          <span id="connected-account" style="font-weight: 700; color: #fff;">account.testnet</span>
+          <span id="connected-balance" style="color: var(--accent-blue); font-weight: 600;">Ⓝ 0.00</span>
+          <button onclick="disconnectNearWallet()" style="padding: 3px 8px; font-size: 10px; background: #1e293b; border-radius: 4px; margin-left: 6px;">Sign Out</button>
+        </div>
+      </div>
+
+      <a href="/demo_video.html" style="color: var(--accent-cyan); background: rgba(0, 236, 151, 0.1); border: 1px solid var(--accent-cyan); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">
+        🎬 Video Demo
       </a>
       <span id="invariant-badge" class="badge badge-success">INVARIANTS 100% SATISFIED</span>
-      <button onclick="resetState()" style="padding: 6px 12px; font-size: 12px;">Reset Demo</button>
     </div>
   </header>
 
+  <!-- TESTNET MODE BANNER (When Testnet Mode Active) -->
+  <div id="testnet-config-banner" class="banner">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="badge badge-success">NEAR TESTNET ACTIVE</span>
+      <span>RPC: <code>https://rpc.testnet.near.org</code> | Target Contract:</span>
+      <input id="input-target-contract" class="form-input" style="width: 220px; padding: 4px 8px; font-size: 12px;" value="rootbound.testnet" onchange="saveTargetContract(this.value)" />
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="https://testnet.mynearwallet.com" target="_blank" style="font-size: 12px; color: var(--accent-cyan);">
+        Get Free Testnet NEAR (Faucet) ↗
+      </a>
+    </div>
+  </div>
+
   <div class="grid-layout">
-    <!-- Left Column: Delegation Tree & Live Balances -->
+    <!-- LEFT MAIN COLUMN -->
     <main>
+      
+      <!-- VIEW A: LIVE TESTNET CONSOLE (Shown in Testnet Mode) -->
+      <div id="panel-testnet-console">
+        <div class="card">
+          <div class="card-title">
+            <span>Live NEAR Testnet Token & Treasury Console</span>
+            <span class="badge badge-info">Signed On-Chain</span>
+          </div>
+
+          <!-- Escrow Deposit Form -->
+          <div style="background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+            <h4 style="font-size: 13px; color: var(--accent-cyan); margin-bottom: 10px;">1. Deposit Testnet Tokens into Escrow Vault</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Organization ID</label>
+                <input id="testnet-org-id" class="form-input" value="org_rootbound_enterprise" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Deposit Amount (NEAR)</label>
+                <input id="testnet-deposit-amount" class="form-input" type="number" step="0.1" value="1.0" />
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-primary" style="flex: 1;" onclick="executeTestnetDeposit()">
+                <span>📥 Deposit Ⓝ into ROOTBOUND Vault (Sign with Wallet)</span>
+              </button>
+              <button style="flex: 1;" onclick="executeTestnetWithdraw()">
+                <span>📤 Withdraw Uncommitted Available Balance</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Create Delegation Grant Form -->
+          <div style="background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+            <h4 style="font-size: 13px; color: var(--accent-blue); margin-bottom: 10px;">2. Issue On-Chain Delegation Grant to Agent</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Parent Agent ID</label>
+                <input id="testnet-parent-agent" class="form-input" value="root_treasury" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Child Agent ID</label>
+                <input id="testnet-child-agent" class="form-input" value="agent_pm" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Child Account (NEAR)</label>
+                <input id="testnet-child-account" class="form-input" value="pm_agent.testnet" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Delegated Budget (NEAR)</label>
+                <input id="testnet-delegated-budget" class="form-input" type="number" step="0.1" value="0.5" />
+              </div>
+            </div>
+            <button class="btn-primary" style="width: 100%;" onclick="executeTestnetDelegation()">
+              <span>🌲 Sign & Deploy Delegation Grant On-Chain</span>
+            </button>
+          </div>
+
+          <!-- Payment Request Form -->
+          <div style="background: var(--card-inner); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+            <h4 style="font-size: 13px; color: var(--accent-yellow); margin-bottom: 10px;">3. Authorize & Execute Payment Request</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Executing Agent ID</label>
+                <input id="testnet-pay-agent" class="form-input" value="agent_pm" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Vendor / Recipient Account</label>
+                <input id="testnet-pay-recipient" class="form-input" value="vendor_shade_compute.testnet" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Amount (NEAR)</label>
+                <input id="testnet-pay-amount" class="form-input" type="number" step="0.01" value="0.05" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Request ID</label>
+                <input id="testnet-pay-reqid" class="form-input" value="req_testnet_001" />
+              </div>
+            </div>
+            <button class="btn-primary" style="width: 100%;" onclick="executeTestnetPayment()">
+              <span>💸 Dispatch Cross-Contract Payment On Testnet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW B: HIERARCHY TREE (Common visualizer) -->
       <div class="card">
         <div class="card-title">
-          <span>Root-Bound Hierarchy & 5-State Accounting Tree</span>
-          <span style="font-size: 12px; color: var(--text-muted);">Max Depth: 3 Levels</span>
+          <span>Active Hierarchy Tree & 5-State Conservation</span>
+          <span style="font-size: 12px; color: var(--text-muted);">Allocated ≡ Available + Delegated + Reserved + Spent</span>
         </div>
         <div id="tree-root" class="tree-container">
           <p style="color: var(--text-muted);">Loading hierarchy...</p>
         </div>
       </div>
 
+      <!-- On-Chain Audit Terminal -->
       <div class="card">
         <div class="card-title">
-          <span>Live On-Chain Policy & Audit Ledger</span>
-          <span style="font-size: 12px; color: var(--text-muted);">NEAR Consensus Verification</span>
+          <span>Live Blockchain Audit & Explorer Receipts</span>
+          <span style="font-size: 12px; color: var(--text-muted);">Verified on NEAR Consensus</span>
         </div>
         <div id="audit-terminal" class="terminal">
           <p style="color: var(--text-muted);">Awaiting transactions...</p>
@@ -256,20 +504,21 @@
       </div>
     </main>
 
-    <!-- Right Column: Interactive Attack Simulator -->
+    <!-- RIGHT ASIDE COLUMN -->
     <aside>
+      <!-- Attack Simulator Panel -->
       <div class="card">
         <div class="card-title">
           <span>Adversarial Attack Simulator</span>
           <span class="badge badge-danger">Live Injection</span>
         </div>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
           Trigger malicious attacks against the contract. ROOTBOUND mathematically enforces policy rules and guarantees structured on-chain rejection.
         </p>
 
         <div class="btn-group">
           <button class="btn-primary" onclick="triggerLegitimatePurchase()">
-            <span>✅ Legitimate Multi-Tier Purchase</span>
+            <span>✅ Legitimate Agent Purchase</span>
             <span style="font-size: 11px;">Happy Path</span>
           </button>
           
@@ -279,8 +528,8 @@
           </button>
 
           <button class="btn-danger" onclick="triggerAttack('recipient_substitution')">
-            <span>🎯 Recipient Substitution (Prompt Injection)</span>
-            <span class="badge badge-danger">Unauthorized Payee</span>
+            <span>🎯 Recipient Substitution</span>
+            <span class="badge badge-danger">Prompt Injection</span>
           </button>
 
           <button class="btn-danger" onclick="triggerAttack('depth_exhaustion')">
@@ -302,30 +551,286 @@
             <span>⛓️ Cascade Revocation Attack</span>
             <span class="badge badge-danger">Paralyze Branch</span>
           </button>
+
+          <button class="btn-danger" onclick="triggerAttack('cross_org_delegation')">
+            <span>🛡️ Cross-Tenant Delegation Attack</span>
+            <span class="badge badge-danger">Isolated</span>
+          </button>
+
+          <button class="btn-danger" onclick="triggerAttack('cross_org_revocation')">
+            <span>🛡️ Cross-Tenant Revocation Attack</span>
+            <span class="badge badge-danger">Isolated</span>
+          </button>
         </div>
       </div>
 
+      <!-- Contract Info & Wallet Instructions -->
       <div class="card">
         <div class="card-title">
-          <span>Security Invariant Guarantees</span>
+          <span>NEAR Testnet Testing Guide</span>
         </div>
-        <ul style="font-size: 12px; color: var(--text-muted); list-style: square; padding-left: 18px; display: flex; flex-direction: column; gap: 8px;">
-          <li><strong>Budget Conservation:</strong> Allocated ≡ Available + Delegated + Reserved + Spent</li>
-          <li><strong>Strict Attenuation:</strong> Child constraints strictly narrow parent bounds.</li>
-          <li><strong>Instant Revocation:</strong> Revoked ancestors instantly paralyze descendants.</li>
-          <li><strong>Zero Lock Leakage:</strong> Failed transfers safely restore reservations to Available.</li>
-        </ul>
+        <div style="font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px;">
+          <p><strong>1. Connect Wallet:</strong> Click <em>Connect NEAR Testnet Wallet</em> to sign in via MyNearWallet or Meteor.</p>
+          <p><strong>2. Free Testnet Tokens:</strong> Get tokens at <a href="https://testnet.mynearwallet.com" target="_blank">testnet.mynearwallet.com</a>.</p>
+          <p><strong>3. Fund Escrow Vault:</strong> Deposit real testnet NEAR to establish the root vault.</p>
+          <p><strong>4. Verify Invariants:</strong> Inspect live balance conservation after each transaction.</p>
+        </div>
       </div>
     </aside>
   </div>
 
   <script>
+    // =========================================================================
+    // 1. NEAR API & Wallet Integration
+    // =========================================================================
+    let near = null;
+    let wallet = null;
+    let accountId = null;
+    let currentMode = 'testnet'; // 'testnet' | 'simulation'
+
+    const NEAR_CONFIG = {
+      networkId: 'testnet',
+      keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+      nodeUrl: 'https://rpc.testnet.near.org',
+      walletUrl: 'https://testnet.mynearwallet.com',
+      helperUrl: 'https://helper.testnet.near.org',
+      explorerUrl: 'https://testnet.nearblocks.io'
+    };
+
+    async function initNearWallet() {
+      try {
+        near = await nearApi.connect(NEAR_CONFIG);
+        wallet = new nearApi.WalletConnection(near, 'rootbound_app');
+
+        if (wallet.isSignedIn()) {
+          accountId = wallet.getAccountId();
+          document.getElementById('btn-connect-wallet').style.display = 'none';
+          document.getElementById('wallet-connected-box').style.display = 'inline-flex';
+          document.getElementById('connected-account').innerText = accountId;
+
+          // Fetch real testnet balance
+          try {
+            const acc = await near.account(accountId);
+            const bal = await acc.getAccountBalance();
+            const nearBal = nearApi.utils.format.formatNearAmount(bal.available, 2);
+            document.getElementById('connected-balance').innerText = `Ⓝ ${nearBal}`;
+          } catch (e) {
+            console.warn("Could not fetch testnet balance:", e);
+          }
+        } else {
+          document.getElementById('btn-connect-wallet').style.display = 'inline-flex';
+          document.getElementById('wallet-connected-box').style.display = 'none';
+        }
+      } catch (err) {
+        console.error("NEAR Initialization Error:", err);
+      }
+    }
+
+    async function connectNearWallet() {
+      if (!wallet) await initNearWallet();
+      const targetContract = getTargetContract();
+      await wallet.requestSignIn({
+        contractId: targetContract,
+        methodNames: [
+          'create_organization',
+          'deposit_escrow',
+          'withdraw_escrow',
+          'create_delegation_grant',
+          'request_payment',
+          'revoke_grant',
+          'reclaim_delegated_funds'
+        ]
+      });
+    }
+
+    function disconnectNearWallet() {
+      if (wallet) {
+        wallet.signOut();
+        window.location.reload();
+      }
+    }
+
+    function getTargetContract() {
+      return localStorage.getItem('rootbound_contract_id') || document.getElementById('input-target-contract').value || 'rootbound.testnet';
+    }
+
+    function saveTargetContract(val) {
+      localStorage.setItem('rootbound_contract_id', val);
+    }
+
+    // =========================================================================
+    // 2. Real Testnet Contract Calls
+    // =========================================================================
+    async function executeTestnetDeposit() {
+      if (!wallet || !wallet.isSignedIn()) {
+        alert("Please connect your NEAR Testnet wallet first!");
+        return;
+      }
+      const orgId = document.getElementById('testnet-org-id').value;
+      const amountNear = document.getElementById('testnet-deposit-amount').value;
+      const yoctoAmount = nearApi.utils.format.parseNearAmount(amountNear);
+      const targetContract = getTargetContract();
+
+      try {
+        logTestnetAction("INIT_DEPOSIT", `Initiating ${amountNear} NEAR deposit into vault on contract ${targetContract}...`, "PENDING");
+        const account = wallet.account();
+        const res = await account.functionCall({
+          contractId: targetContract,
+          methodName: 'deposit_escrow',
+          args: { org_id: orgId },
+          gas: '30000000000000', // 30 TGas
+          attachedDeposit: yoctoAmount
+        });
+        const txHash = res.transaction.hash;
+        logTestnetAction("ESCROW_DEPOSIT", `Deposited ${amountNear} NEAR into ${orgId} vault!`, "SUCCESS", txHash);
+      } catch (err) {
+        console.error("Deposit error:", err);
+        logTestnetAction("ESCROW_DEPOSIT_ATTEMPT", `Testnet call to ${targetContract}: ${err.message}`, "REJECTED");
+      }
+    }
+
+    async function executeTestnetWithdraw() {
+      if (!wallet || !wallet.isSignedIn()) {
+        alert("Please connect your NEAR Testnet wallet first!");
+        return;
+      }
+      const orgId = document.getElementById('testnet-org-id').value;
+      const amountNear = document.getElementById('testnet-deposit-amount').value;
+      const yoctoAmount = nearApi.utils.format.parseNearAmount(amountNear);
+      const targetContract = getTargetContract();
+
+      try {
+        logTestnetAction("INIT_WITHDRAW", `Requesting ${amountNear} NEAR withdrawal from ${targetContract}...`, "PENDING");
+        const account = wallet.account();
+        const res = await account.functionCall({
+          contractId: targetContract,
+          methodName: 'withdraw_escrow',
+          args: { org_id: orgId, amount: yoctoAmount },
+          gas: '40000000000000',
+          attachedDeposit: '0'
+        });
+        logTestnetAction("ESCROW_WITHDRAW", `Withdrawn ${amountNear} NEAR back to admin!`, "SUCCESS", res.transaction.hash);
+      } catch (err) {
+        logTestnetAction("ESCROW_WITHDRAW_ATTEMPT", `Withdrawal error: ${err.message}`, "REJECTED");
+      }
+    }
+
+    async function executeTestnetDelegation() {
+      if (!wallet || !wallet.isSignedIn()) {
+        alert("Please connect your NEAR Testnet wallet first!");
+        return;
+      }
+      const targetContract = getTargetContract();
+      const orgId = document.getElementById('testnet-org-id').value;
+      const parentAgent = document.getElementById('testnet-parent-agent').value;
+      const childAgent = document.getElementById('testnet-child-agent').value;
+      const childAccount = document.getElementById('testnet-child-account').value;
+      const budgetNear = document.getElementById('testnet-delegated-budget').value;
+      const yoctoBudget = nearApi.utils.format.parseNearAmount(budgetNear);
+      const expiresAt = Math.floor(Date.now() * 1000000) + (86400 * 7 * 1000000000); // 7 days in ns
+
+      try {
+        logTestnetAction("INIT_DELEGATION", `Signing delegation grant for ${childAgent} (${budgetNear} NEAR)...`, "PENDING");
+        const account = wallet.account();
+        const res = await account.functionCall({
+          contractId: targetContract,
+          methodName: 'create_delegation_grant',
+          args: {
+            org_id: orgId,
+            parent_agent_id: parentAgent,
+            child_agent_id: childAgent,
+            child_account: childAccount,
+            budget: yoctoBudget,
+            expires_at: expiresAt,
+            permitted_recipients: null,
+            max_per_tx: null
+          },
+          gas: '30000000000000'
+        });
+        logTestnetAction("GRANT_ISSUED", `Delegated ${budgetNear} NEAR to ${childAgent}!`, "SUCCESS", res.transaction.hash);
+      } catch (err) {
+        logTestnetAction("GRANT_ATTEMPT", `Delegation call: ${err.message}`, "REJECTED");
+      }
+    }
+
+    async function executeTestnetPayment() {
+      if (!wallet || !wallet.isSignedIn()) {
+        alert("Please connect your NEAR Testnet wallet first!");
+        return;
+      }
+      const targetContract = getTargetContract();
+      const orgId = document.getElementById('testnet-org-id').value;
+      const agentId = document.getElementById('testnet-pay-agent').value;
+      const recipient = document.getElementById('testnet-pay-recipient').value;
+      const amountNear = document.getElementById('testnet-pay-amount').value;
+      const yoctoAmount = nearApi.utils.format.parseNearAmount(amountNear);
+      const reqId = document.getElementById('testnet-pay-reqid').value + "_" + Math.floor(Math.random() * 1000);
+
+      try {
+        logTestnetAction("INIT_PAYMENT", `Executing ${amountNear} NEAR payment to ${recipient}...`, "PENDING");
+        const account = wallet.account();
+        const res = await account.functionCall({
+          contractId: targetContract,
+          methodName: 'request_payment',
+          args: {
+            org_id: orgId,
+            agent_id: agentId,
+            recipient: recipient,
+            amount: yoctoAmount,
+            request_id: reqId,
+            nonce: 1
+          },
+          gas: '50000000000000'
+        });
+        logTestnetAction("PAYMENT_SETTLED", `Payment ${reqId} confirmed on testnet!`, "SUCCESS", res.transaction.hash);
+      } catch (err) {
+        logTestnetAction("PAYMENT_ATTEMPT", `Payment call: ${err.message}`, "REJECTED");
+      }
+    }
+
+    function logTestnetAction(type, desc, outcome, txHash = null) {
+      const term = document.getElementById('audit-terminal');
+      const item = document.createElement('div');
+      item.className = 'terminal-entry';
+      const badgeClass = outcome === 'SUCCESS' ? 'badge-success' : outcome === 'REJECTED' ? 'badge-danger' : 'badge-warning';
+      const hashDisplay = txHash ? txHash.substring(0, 16) + '...' : 'pending_tx';
+      const explorerLink = txHash ? `https://testnet.nearblocks.io/txns/${txHash}` : `https://testnet.nearblocks.io/address/${getTargetContract()}`;
+      
+      item.innerHTML = `
+        <div class="entry-header">
+          <span class="entry-type">[TESTNET] ${type}</span>
+          <span class="badge ${badgeClass}">${outcome}</span>
+        </div>
+        <div class="entry-desc">${desc}</div>
+        <div class="entry-meta">
+          <span>Target: <code>${getTargetContract()}</code></span>
+          <span>TX: <code>${hashDisplay}</code></span>
+          <a href="${explorerLink}" target="_blank">Verify On Nearblocks ↗</a>
+        </div>
+      `;
+      term.insertBefore(item, term.firstChild);
+    }
+
+    // =========================================================================
+    // 3. UI Mode Switching & State Synchronization
+    // =========================================================================
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('btn-mode-testnet').className = `mode-btn ${mode === 'testnet' ? 'active' : ''}`;
+      document.getElementById('btn-mode-sim').className = `mode-btn ${mode === 'simulation' ? 'active' : ''}`;
+      
+      document.getElementById('panel-testnet-console').style.display = mode === 'testnet' ? 'block' : 'none';
+      document.getElementById('testnet-config-banner').style.display = mode === 'testnet' ? 'flex' : 'none';
+    }
+
     async function fetchState() {
       try {
         const res = await fetch('/api/state');
         const data = await res.json();
         renderTree(data.grants);
-        renderAudit(data.audit_log);
+        if (currentMode === 'simulation') {
+          renderAudit(data.audit_log);
+        }
         
         const badge = document.getElementById('invariant-badge');
         if (data.invariants_satisfied) {
@@ -343,12 +848,10 @@
     function renderTree(grants) {
       const root = document.getElementById('tree-root');
       root.innerHTML = '';
+      if (!grants) return;
       grants.forEach(g => {
         const div = document.createElement('div');
-        const depthClass = `depth-${g.depth}`;
-        const revokedClass = g.is_revoked ? 'revoked' : '';
-        div.className = `agent-node ${depthClass} ${revokedClass}`;
-
+        div.className = `agent-node depth-${g.depth} ${g.is_revoked ? 'revoked' : ''}`;
         const roleLabel = g.depth === 1 ? 'Root Vault (Depth 1)' : g.depth === 2 ? 'Project Manager (Depth 2)' : 'Research Agent (Depth 3)';
         const statusBadge = g.is_revoked ? '<span class="badge badge-danger">REVOKED</span>' : '<span class="badge badge-success">ACTIVE</span>';
 
@@ -435,12 +938,14 @@
       await fetchState();
     }
 
-    async function resetState() {
-      await fetch('/api/action/reset', { method: 'POST' });
-      await fetchState();
+    // Initialize Target Contract from LocalStorage if present
+    const savedContract = localStorage.getItem('rootbound_contract_id');
+    if (savedContract) {
+      document.getElementById('input-target-contract').value = savedContract;
     }
 
-    // Initial state fetch
+    // Initialize
+    initNearWallet();
     fetchState();
     setInterval(fetchState, 3000);
   </script>
