@@ -11,29 +11,31 @@
   <script src="https://cdn.jsdelivr.net/npm/near-api-js@2.1.4/dist/near-api-js.min.js"></script>
   <style>
     :root {
-      --bg-base: #171917;
-      --surface-secondary: #242823;
-      --surface-elevated: #2D322C;
-      --surface-sunken: #111311;
-      --surface-node: #1c201b;
-      --text-primary: #EAE5D9;
-      --text-secondary: #A5A79C;
-      --text-tertiary: #6E7268;
-      --border-subtle: #3A4038;
-      --border-light: #4A5247;
-      --border-focus: #B77B54;
+      /* Approved Control Room Strict 8-Color Palette */
+      --bg-base: #171917;             /* Obsidian */
+      --surface-secondary: #242823;   /* Graphite */
+      --surface-elevated: #2D322C;    /* Elevated Graphite */
+      --surface-sunken: #111311;      /* Deep Sunken Black */
+      --surface-node: #1c201b;        /* Node Surface */
+      --text-primary: #EAE5D9;        /* Parchment */
+      --text-secondary: #A5A79C;      /* Muted Grey */
+      --text-tertiary: #6E7268;       /* Subtle Grey */
+      --border-subtle: #3A4038;       /* Structural Border */
+      --border-light: #4A5247;        /* Border Hover / Highlight */
+      --border-focus: #B77B54;        /* Copper Focus */
       
-      /* Intentional Semantics */
-      --accent-copper: #B77B54;
-      --accent-copper-glow: rgba(183, 123, 84, 0.18);
-      --accent-copper-subtle: rgba(183, 123, 84, 0.08);
-      --status-authorized: #91A58C;
+      /* Semantic States */
+      --accent-copper: #B77B54;       /* Burnished Copper */
+      --accent-copper-glow: rgba(183, 123, 84, 0.22);
+      --accent-copper-subtle: rgba(183, 123, 84, 0.09);
+      --status-authorized: #91A58C;   /* Sage */
       --status-authorized-bg: rgba(145, 165, 140, 0.12);
-      --status-rejected: #C77C70;
+      --status-rejected: #C77C70;     /* Terracotta */
       --status-rejected-bg: rgba(199, 124, 112, 0.12);
-      --status-reserved: #D4A373;
+      --status-reserved: #D4A373;     /* Ochre */
       --status-reserved-bg: rgba(212, 163, 115, 0.12);
       
+      /* Typographic Tokens */
       --font-display: 'Newsreader', Georgia, serif;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
@@ -60,15 +62,28 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Top Utility Bar */
+    /* Professional Icon System (Lucide SVG Integration) */
+    .lucide-icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .lucide-icon.sm { width: 14px; height: 14px; }
+    .lucide-icon.md { width: 18px; height: 18px; }
+    .lucide-icon.lg { width: 22px; height: 22px; }
+
+    /* Top Institutional Header */
     header.control-header {
-      height: 52px;
+      height: 54px;
       background: var(--surface-secondary);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 24px;
       flex-shrink: 0;
       z-index: 50;
     }
@@ -80,29 +95,29 @@
       text-decoration: none;
     }
     .brand-emblem-svg {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       flex-shrink: 0;
-      filter: drop-shadow(0 2px 6px rgba(183, 123, 84, 0.25));
+      filter: drop-shadow(0 2px 8px rgba(183, 123, 84, 0.28));
       transition: transform 0.2s ease;
     }
     .brand-mark:hover .brand-emblem-svg {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
     .brand-name {
       font-family: var(--font-display);
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 500;
-      letter-spacing: -0.2px;
+      letter-spacing: -0.3px;
       color: var(--text-primary);
     }
     .brand-system-tag {
       font-family: var(--font-mono);
       font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.4px;
       color: var(--text-tertiary);
-      padding: 2px 6px;
+      padding: 2px 7px;
       border: 1px solid var(--border-subtle);
       border-radius: 3px;
     }
@@ -110,10 +125,10 @@
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
-    /* Pill Badges */
+    /* Status Pills */
     .status-pill {
       font-family: var(--font-mono);
       font-size: 11px;
@@ -149,12 +164,13 @@
       padding: 6px 14px;
       border-radius: 4px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.18s ease;
+      transition: all 0.16s ease;
+      text-decoration: none;
     }
     .btn-wallet-connect:hover {
       border-color: var(--accent-copper);
@@ -167,7 +183,7 @@
       gap: 8px;
       background: var(--surface-elevated);
       border: 1px solid var(--border-subtle);
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 4px;
       font-family: var(--font-mono);
       font-size: 11px;
@@ -179,18 +195,18 @@
       background: var(--status-authorized);
     }
 
-    /* Application Shell: Three-Part Composition */
+    /* Three-Part Application Shell */
     .control-room-shell {
       display: flex;
       flex: 1;
-      height: calc(100vh - 52px);
+      height: calc(100vh - 54px);
       overflow: hidden;
       position: relative;
     }
 
-    /* 1. Left: Navigation Rail */
+    /* 1. Left: Navigation Rail (240px) */
     nav.nav-rail {
-      width: 230px;
+      width: 240px;
       background: var(--surface-secondary);
       border-right: 1px solid var(--border-subtle);
       display: flex;
@@ -199,28 +215,29 @@
       overflow-y: auto;
     }
     .nav-section {
-      padding: 16px 10px 8px 10px;
+      padding: 16px 12px 6px 12px;
     }
     .nav-section-title {
       font-family: var(--font-mono);
       font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       color: var(--text-tertiary);
       padding: 0 10px 8px 10px;
+      font-weight: 600;
     }
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
+      gap: 12px;
+      padding: 9px 12px;
       border-radius: 4px;
       color: var(--text-secondary);
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.15s ease;
+      transition: all 0.14s ease;
       position: relative;
       margin-bottom: 2px;
     }
@@ -243,22 +260,18 @@
       background: var(--accent-copper);
       border-radius: 0 2px 2px 0;
     }
-    .nav-item-icon {
-      width: 16px;
-      height: 16px;
-      opacity: 0.75;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .nav-item .lucide-icon {
+      color: var(--text-secondary);
+      transition: color 0.14s ease;
     }
-    .nav-item.active .nav-item-icon {
-      opacity: 1;
+    .nav-item:hover .lucide-icon,
+    .nav-item.active .lucide-icon {
       color: var(--accent-copper);
     }
 
     .nav-footer {
       margin-top: auto;
-      padding: 14px;
+      padding: 16px;
       border-top: 1px solid var(--border-subtle);
       background: var(--surface-sunken);
     }
@@ -268,7 +281,7 @@
       color: var(--text-tertiary);
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
     }
     .nav-footer-meta strong {
       color: var(--text-secondary);
@@ -285,7 +298,7 @@
       position: relative;
     }
     .workspace-header {
-      padding: 24px 28px 18px 28px;
+      padding: 24px 32px 18px 32px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-between;
@@ -295,15 +308,16 @@
     }
     .workspace-title-group h2 {
       font-family: var(--font-display);
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 500;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.4px;
       color: var(--text-primary);
       margin-bottom: 4px;
     }
     .workspace-subtitle {
       font-size: 13px;
       color: var(--text-secondary);
+      line-height: 1.4;
     }
     .workspace-actions {
       display: flex;
@@ -311,20 +325,20 @@
     }
 
     .workspace-body {
-      padding: 24px 28px;
+      padding: 28px 32px;
       flex: 1;
     }
 
-    /* 3. Right: Contextual Detail Panel */
+    /* 3. Right: Contextual Detail Panel (Inspector) */
     aside.context-panel {
-      width: 380px;
+      width: 390px;
       background: var(--surface-secondary);
       border-left: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
       overflow-y: auto;
-      transition: width 0.25s ease, opacity 0.25s ease;
+      transition: width 0.22s ease, opacity 0.22s ease;
       z-index: 40;
     }
     aside.context-panel.collapsed {
@@ -334,17 +348,21 @@
       opacity: 0;
     }
     .panel-header {
-      padding: 18px 20px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: var(--surface-secondary);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     .panel-title {
       font-family: var(--font-mono);
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       color: var(--text-secondary);
       font-weight: 600;
     }
@@ -353,9 +371,12 @@
       border: none;
       color: var(--text-tertiary);
       cursor: pointer;
-      font-size: 16px;
-      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
       border-radius: 4px;
+      transition: all 0.14s ease;
     }
     .panel-close-btn:hover {
       color: var(--text-primary);
@@ -368,83 +389,206 @@
       gap: 20px;
     }
 
-    /* Financial Overview Metric Cards (Editorial Swiss Grid) */
-    .metrics-editorial-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--border-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
-    .metric-cell {
+    /* =========================================================================
+       INSTITUTIONAL FINANCIAL POSITION STATEMENT
+       ========================================================================= */
+    .financial-position-hero {
       background: var(--surface-secondary);
-      padding: 16px 20px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 24px 26px;
+      margin-bottom: 24px;
+    }
+    .hero-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 18px;
+    }
+    .hero-title-area {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 4px;
     }
-    .metric-cell.highlight {
-      background: var(--surface-elevated);
-    }
-    .metric-label {
+    .hero-caption {
       font-family: var(--font-mono);
       font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 1.2px;
       color: var(--text-tertiary);
-      margin-bottom: 6px;
+      font-weight: 600;
     }
-    .metric-value {
+    .hero-amount-display {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .hero-currency {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      color: var(--accent-copper);
+      font-weight: 600;
+    }
+    .hero-amount {
+      font-family: var(--font-mono);
+      font-size: 34px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -1px;
+    }
+    .hero-subtext {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-left: 6px;
+    }
+
+    .hero-distribution-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .dist-stat-card {
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.15s ease;
+    }
+    .dist-stat-card:hover {
+      border-color: var(--border-light);
+    }
+    .dist-stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .dist-stat-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+    .dist-stat-pct {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .dist-stat-value {
       font-family: var(--font-mono);
       font-size: 22px;
       font-weight: 600;
       color: var(--text-primary);
+      margin-bottom: 6px;
       letter-spacing: -0.5px;
     }
-    .metric-value.copper { color: var(--accent-copper); }
-    .metric-value.authorized { color: var(--status-authorized); }
-    .metric-value.reserved { color: var(--status-reserved); }
-    .metric-sub {
+    .dist-stat-card.available .dist-stat-value { color: var(--status-authorized); }
+    .dist-stat-card.reserved .dist-stat-value { color: var(--status-reserved); }
+    .dist-stat-desc {
       font-size: 11px;
       color: var(--text-tertiary);
-      margin-top: 4px;
+      line-height: 1.4;
+      margin-bottom: 12px;
     }
+    .dist-progress-track {
+      height: 4px;
+      background: var(--surface-secondary);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .dist-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .dist-progress-fill.avail { background: var(--status-authorized); }
+    .dist-progress-fill.res { background: var(--status-reserved); }
+    .dist-progress-fill.spent { background: var(--text-secondary); }
 
-    /* Conservation Formula Bar */
-    .conservation-bar {
+    /* Authority Conservation & Reconciliation Statement */
+    .reconciliation-statement {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 12px 18px;
+      border-radius: 8px;
+      padding: 16px 20px;
       margin-bottom: 24px;
+    }
+    .recon-header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 12px;
+      align-items: center;
+      margin-bottom: 14px;
     }
-    .formula-expression {
+    .recon-title-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
-    .formula-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .formula-item strong {
+    .recon-heading {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       color: var(--text-primary);
+      font-weight: 600;
     }
-
-    /* Interactive Delegation Network Canvas */
-    .network-container {
+    .recon-sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .recon-equation-grid {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       background: var(--surface-sunken);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
+      padding: 12px 18px;
+      overflow-x: auto;
+    }
+    .equation-box {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 110px;
+    }
+    .eq-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-tertiary);
+      margin-bottom: 3px;
+    }
+    .eq-val {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .eq-operator {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--accent-copper);
+      font-weight: 600;
+      user-select: none;
+    }
+
+    /* =========================================================================
+       SIGNATURE FEATURE: INTERACTIVE HIERARCHY NETWORK WITH SVG RAILS
+       ========================================================================= */
+    .network-container {
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
       padding: 24px;
       position: relative;
       margin-bottom: 24px;
@@ -454,7 +598,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .network-search-input {
       background: var(--surface-secondary);
@@ -462,59 +606,81 @@
       color: var(--text-primary);
       font-family: var(--font-mono);
       font-size: 12px;
-      padding: 6px 12px;
+      padding: 7px 12px;
       border-radius: 4px;
-      width: 220px;
+      width: 240px;
       outline: none;
+      transition: border-color 0.15s ease;
     }
     .network-search-input:focus {
       border-color: var(--accent-copper);
     }
 
+    .hierarchy-canvas-wrapper {
+      position: relative;
+      min-height: 380px;
+      width: 100%;
+    }
+    .hierarchy-svg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
     .hierarchy-canvas {
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      gap: 40px;
       position: relative;
+      z-index: 2;
     }
     .hierarchy-level-row {
       display: flex;
       justify-content: center;
-      gap: 24px;
+      gap: 28px;
       position: relative;
-      z-index: 10;
+      flex-wrap: wrap;
     }
 
     /* Operational Agent Node Card */
     .network-node-card {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 14px 16px;
-      width: 290px;
+      border-radius: 8px;
+      padding: 16px 18px;
+      width: 310px;
       cursor: pointer;
-      transition: all 0.18s ease;
+      transition: all 0.16s ease;
       position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .network-node-card:hover {
       border-color: var(--accent-copper);
       transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
     }
     .network-node-card.selected {
       border-color: var(--accent-copper);
       background: var(--surface-elevated);
-      box-shadow: 0 0 0 1px var(--accent-copper), 0 6px 20px var(--accent-copper-glow);
+      box-shadow: 0 0 0 1px var(--accent-copper), 0 8px 24px var(--accent-copper-glow);
     }
     .network-node-card.revoked {
       border-color: var(--status-rejected);
-      background: rgba(199, 124, 112, 0.05);
+      background: rgba(199, 124, 112, 0.06);
     }
     .node-card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+    .node-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .node-title {
       font-family: var(--font-mono);
@@ -527,14 +693,19 @@
       font-size: 10px;
       color: var(--accent-copper);
       background: var(--accent-copper-subtle);
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 3px;
+      font-weight: 600;
+      border: 1px solid rgba(183, 123, 84, 0.25);
     }
     .node-account {
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-tertiary);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
     
     /* 5-State Balance Distribution Mini-Meter */
@@ -544,7 +715,7 @@
       border-radius: 2px;
       display: flex;
       overflow: hidden;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .meter-segment.avail { background: var(--status-authorized); }
     .meter-segment.deleg { background: var(--accent-copper); }
@@ -557,8 +728,9 @@
       gap: 4px;
       text-align: center;
       background: var(--surface-sunken);
-      border-radius: 4px;
-      padding: 6px 4px;
+      border-radius: 6px;
+      padding: 8px 6px;
+      border: 1px solid var(--border-subtle);
     }
     .node-balance-item {
       display: flex;
@@ -569,6 +741,7 @@
       font-size: 9px;
       text-transform: uppercase;
       color: var(--text-tertiary);
+      margin-bottom: 2px;
     }
     .node-balance-val {
       font-family: var(--font-mono);
@@ -577,16 +750,36 @@
       color: var(--text-primary);
     }
 
-    /* Operational Data Table */
+    /* SVG Connection Rail Styles */
+    .conn-rail-path {
+      fill: none;
+      stroke: var(--border-subtle);
+      stroke-width: 1.75;
+      transition: stroke 0.2s ease, stroke-width 0.2s ease;
+    }
+    .conn-rail-path.active-lineage {
+      stroke: var(--accent-copper);
+      stroke-width: 2.25;
+      filter: drop-shadow(0 0 6px var(--accent-copper-glow));
+    }
+    .conn-rail-path.revoked {
+      stroke: var(--status-rejected);
+      stroke-dasharray: 4 4;
+      opacity: 0.6;
+    }
+
+    /* =========================================================================
+       DATA TABLES & LISTS
+       ========================================================================= */
     .data-table-container {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
       margin-bottom: 24px;
     }
     .data-table-header {
-      padding: 14px 18px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-between;
@@ -596,7 +789,45 @@
       font-size: 14px;
       font-weight: 600;
       color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+    .table-filter-bar {
+      padding: 10px 20px;
+      background: var(--surface-sunken);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .filter-chips {
+      display: flex;
+      gap: 6px;
+    }
+    .filter-chip {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .filter-chip:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+    }
+    .filter-chip.active {
+      background: var(--surface-elevated);
+      border-color: var(--accent-copper);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
     table.data-table {
       width: 100%;
       border-collapse: collapse;
@@ -605,7 +836,7 @@
     }
     table.data-table th {
       background: var(--surface-sunken);
-      padding: 10px 16px;
+      padding: 11px 18px;
       font-family: var(--font-mono);
       font-size: 10px;
       text-transform: uppercase;
@@ -614,8 +845,11 @@
       border-bottom: 1px solid var(--border-subtle);
       font-weight: 600;
     }
+    table.data-table th.num-col, table.data-table td.num-col {
+      text-align: right;
+    }
     table.data-table td {
-      padding: 12px 16px;
+      padding: 13px 18px;
       border-bottom: 1px solid var(--border-subtle);
       color: var(--text-secondary);
     }
@@ -630,17 +864,17 @@
       cursor: pointer;
     }
 
-    /* Security Incident Stream */
+    /* Security Radar Stream */
     .security-feed {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
     .security-incident-card {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
-      padding: 14px 16px;
+      padding: 16px 18px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -659,18 +893,23 @@
       font-size: 12px;
       font-weight: 600;
       color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .incident-desc {
       font-size: 12px;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      line-height: 1.4;
     }
     .incident-meta {
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-tertiary);
       display: flex;
-      gap: 14px;
+      align-items: center;
+      gap: 16px;
     }
 
     /* Attack Simulator Control Grid */
@@ -686,23 +925,26 @@
     .attack-card {
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      padding: 16px;
+      border-radius: 8px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: border-color 0.15s ease;
+    }
+    .attack-card:hover {
+      border-color: var(--border-light);
     }
     .attack-card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .attack-title {
       font-size: 14px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 4px;
     }
     .attack-description {
       font-size: 12px;
@@ -714,7 +956,7 @@
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-tertiary);
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       padding-top: 10px;
       border-top: 1px solid var(--border-subtle);
       display: flex;
@@ -724,7 +966,7 @@
       color: var(--status-rejected);
     }
 
-    /* Buttons */
+    /* Action Buttons */
     .btn-action {
       background: var(--surface-elevated);
       color: var(--text-primary);
@@ -732,17 +974,18 @@
       padding: 8px 14px;
       border-radius: 4px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 7px;
       transition: all 0.15s ease;
+      text-decoration: none;
     }
     .btn-action:hover {
       border-color: var(--border-light);
-      background: #353b34;
+      background: #363c35;
     }
     .btn-action.copper {
       border-color: var(--accent-copper);
@@ -762,12 +1005,12 @@
       border-color: var(--status-rejected);
     }
 
-    /* Modal Dialog */
+    /* Modal Dialogs */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(2px);
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(3px);
       z-index: 100;
       display: none;
       align-items: center;
@@ -775,33 +1018,36 @@
     }
     .modal-overlay.active { display: flex; }
     .modal-box {
-      width: 440px;
+      width: 460px;
       background: var(--surface-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 8px;
       padding: 24px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    }
+    .modal-box.wide {
+      width: 530px;
+      max-width: 92vw;
     }
     .modal-title {
       font-family: var(--font-display);
-      font-size: 20px;
-      margin-bottom: 8px;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
       color: var(--text-primary);
     }
     .modal-desc {
       font-size: 13px;
       color: var(--text-secondary);
       margin-bottom: 20px;
+      line-height: 1.4;
     }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-      margin-top: 20px;
-    }
-    .modal-box.wide {
-      width: 520px;
-      max-width: 92vw;
+      margin-top: 22px;
     }
     .form-group {
       margin-bottom: 14px;
@@ -888,7 +1134,7 @@
       padding: 10px 14px;
       border-radius: 4px;
       font-size: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       display: none;
       line-height: 1.4;
     }
@@ -903,7 +1149,7 @@
       color: var(--status-authorized);
     }
 
-    /* Multi-Wallet Connector Styles */
+    /* Multi-Wallet Modal Cards */
     .wallet-list {
       display: flex;
       flex-direction: column;
@@ -914,13 +1160,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 14px;
+      padding: 12px 16px;
       background: var(--surface-sunken);
       border: 1px solid var(--border-subtle);
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
-      text-decoration: none;
     }
     .wallet-option-card:hover {
       border-color: var(--accent-copper);
@@ -934,11 +1179,11 @@
     .wallet-card-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .wallet-icon-box {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 6px;
       display: flex;
       align-items: center;
@@ -971,13 +1216,117 @@
 </head>
 <body>
 
-  <!-- TOP UTILITY / CONTROL HEADER -->
+  <!-- =========================================================================
+       GLOBAL LUCIDE SVG ICON SPRITE
+       ========================================================================= -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="7" height="9" x="3" y="3" rx="1"/>
+      <rect width="7" height="5" x="14" y="3" rx="1"/>
+      <rect width="7" height="9" x="14" y="12" rx="1"/>
+      <rect width="7" height="5" x="3" y="16" rx="1"/>
+    </symbol>
+    <symbol id="icon-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="18" r="3"/>
+      <circle cx="6" cy="6" r="3"/>
+      <circle cx="18" cy="6" r="3"/>
+      <path d="M18 9v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/>
+      <path d="M12 12v3"/>
+    </symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </symbol>
+    <symbol id="icon-landmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" x2="21" y1="22" y2="22"/>
+      <line x1="6" x2="6" y1="18" y2="11"/>
+      <line x1="10" x2="10" y1="18" y2="11"/>
+      <line x1="14" x2="14" y1="18" y2="11"/>
+      <line x1="18" x2="18" y1="18" y2="11"/>
+      <polygon points="12 2 20 7 4 7"/>
+    </symbol>
+    <symbol id="icon-transactions" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m16 3 4 4-4 4"/>
+      <path d="M20 7H4"/>
+      <path d="m8 21-4-4 4-4"/>
+      <path d="M4 17h16"/>
+    </symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+      <path d="m9 12 2 2 4-4"/>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </symbol>
+    <symbol id="icon-policy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+      <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+      <path d="m9 15 2 2 4-4"/>
+    </symbol>
+    <symbol id="icon-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 17 10 11 4 5"/>
+      <line x1="12" x2="20" y1="19" y2="19"/>
+    </symbol>
+    <symbol id="icon-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/>
+      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>
+    </symbol>
+    <symbol id="icon-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 7h10v10"/>
+      <path d="M7 17 17 7"/>
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14"/>
+      <path d="M12 5v14"/>
+    </symbol>
+    <symbol id="icon-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+      <path d="M3 3v5h5"/>
+    </symbol>
+    <symbol id="icon-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 3h6v6"/>
+      <path d="M10 14 21 3"/>
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="m21 21-4.3-4.3"/>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6 9 17l-5-5"/>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 6 6 18"/>
+      <path d="m6 6 12 12"/>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="6 3 20 12 6 21 6 3"/>
+    </symbol>
+    <symbol id="icon-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+      <line x1="12" x2="12" y1="9" y2="13"/>
+      <line x1="12" x2="12.01" y1="17" y2="17"/>
+    </symbol>
+    <symbol id="icon-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+      <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+      <path d="M7 21h10"/>
+      <path d="M12 3v18"/>
+      <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+    </symbol>
+  </svg>
+
+  <!-- =========================================================================
+       TOP UTILITY / CONTROL HEADER
+       ========================================================================= -->
   <header class="control-header">
     <div style="display: flex; align-items: center; gap: 20px;">
       <a href="#" class="brand-mark">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="brand-emblem-svg">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="brand-emblem-svg">
           <!-- Outer cryptographic vault shield -->
-          <path d="M16 2L28 8.5V23.5L16 30L4 23.5V8.5L16 2Z" stroke="#B77B54" stroke-width="1.5" stroke-linejoin="round" fill="none" opacity="0.35"/>
+          <path d="M16 2L28 8.5V23.5L16 30L4 23.5V8.5L16 2Z" stroke="#B77B54" stroke-width="1.5" stroke-linejoin="round" fill="none" opacity="0.4"/>
           <path d="M16 5.5L25 10.5V21.5L16 26.5L7 21.5V10.5L16 5.5Z" stroke="#B77B54" stroke-width="1.8" stroke-linejoin="round" fill="#1C201B"/>
           <!-- Root authority nexus & hierarchical lattice -->
           <circle cx="16" cy="11" r="2.5" fill="#B77B54"/>
@@ -987,92 +1336,92 @@
           <circle cx="11.5" cy="21.5" r="1.8" fill="#91A58C"/>
           <circle cx="20.5" cy="21.5" r="1.8" fill="#91A58C"/>
           <circle cx="16" cy="18.5" r="1.5" fill="#B77B54"/>
-          <!-- Deliberate containment constraint boundary -->
           <path d="M9 13.5L16 9.5L23 13.5" stroke="#EAE5D9" stroke-width="1" stroke-dasharray="1.5 1.5" opacity="0.6"/>
         </svg>
         <span class="brand-name">Rootbound</span>
         <span class="brand-system-tag">Control Room</span>
       </a>
       <span class="status-pill authorized" id="global-invariant-pill">
-        <span>●</span> Invariants 100% Conserved
+        <svg class="lucide-icon sm"><use href="#icon-shield"></use></svg>
+        <span>Invariants 100% Conserved</span>
       </span>
     </div>
 
     <div class="header-controls">
       <!-- Live NEAR Testnet Wallet Connect -->
       <button id="btn-connect-near-wallet" class="btn-wallet-connect" onclick="openWalletModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M12 6v12M6 12h12"></path>
-        </svg>
-        Connect NEAR Wallet
+        <svg class="lucide-icon sm"><use href="#icon-wallet"></use></svg>
+        <span>Connect NEAR Wallet</span>
       </button>
 
       <div id="wallet-connected-display" class="wallet-connected-badge" style="display: none;">
         <span class="dot"></span>
         <span id="connected-wallet-account" style="font-weight: 600; color: var(--text-primary);">user.testnet</span>
         <span id="connected-wallet-balance" style="color: var(--accent-copper); font-weight: 600;">Ⓝ 0.00</span>
-        <button onclick="disconnectNearWallet()" style="background:transparent; border:none; color:var(--text-tertiary); cursor:pointer; font-size:10px; margin-left:4px;">Sign Out</button>
+        <button onclick="disconnectNearWallet()" style="background:transparent; border:none; color:var(--text-tertiary); cursor:pointer; font-size:10px; margin-left:6px;" title="Disconnect wallet">Sign Out</button>
       </div>
 
-      <a href="/demo_video.html" class="btn-wallet-connect" style="text-decoration: none;">
-        <span>🎬 Video Demo</span>
+      <a href="/demo_video.html" class="btn-wallet-connect">
+        <svg class="lucide-icon sm"><use href="#icon-play"></use></svg>
+        <span>Video Demo</span>
       </a>
     </div>
   </header>
 
-  <!-- APPLICATION SHELL -->
+  <!-- =========================================================================
+       THREE-PART CONTROL ROOM APPLICATION SHELL
+       ========================================================================= -->
   <div class="control-room-shell">
 
     <!-- 1. LEFT NAVIGATION RAIL -->
     <nav class="nav-rail">
       <div class="nav-section">
-        <div class="nav-section-title">Operations</div>
-        <a class="nav-item active" onclick="navigate('overview')">
-          <span class="nav-item-icon">▤</span>
+        <div class="nav-section-title">Financial Operations</div>
+        <a class="nav-item active" onclick="navigate('overview', this)">
+          <svg class="lucide-icon"><use href="#icon-dashboard"></use></svg>
           <span>Overview</span>
         </a>
-        <a class="nav-item" onclick="navigate('hierarchy')">
-          <span class="nav-item-icon">🌲</span>
-          <span>Hierarchy Network</span>
+        <a class="nav-item" onclick="navigate('hierarchy', this)">
+          <svg class="lucide-icon"><use href="#icon-network"></use></svg>
+          <span>Delegation Network</span>
         </a>
-        <a class="nav-item" onclick="navigate('agents')">
-          <span class="nav-item-icon">👥</span>
+        <a class="nav-item" onclick="navigate('agents', this)">
+          <svg class="lucide-icon"><use href="#icon-users"></use></svg>
           <span>Agent Directory</span>
         </a>
-        <a class="nav-item" onclick="navigate('treasury')">
-          <span class="nav-item-icon">🏛</span>
-          <span>Treasury Operations</span>
+        <a class="nav-item" onclick="navigate('treasury', this)">
+          <svg class="lucide-icon"><use href="#icon-landmark"></use></svg>
+          <span>Treasury Custody</span>
         </a>
-        <a class="nav-item" onclick="navigate('transactions')">
-          <span class="nav-item-icon">⇄</span>
-          <span>Transactions Ledger</span>
+        <a class="nav-item" onclick="navigate('transactions', this)">
+          <svg class="lucide-icon"><use href="#icon-transactions"></use></svg>
+          <span>Settlement Ledger</span>
         </a>
       </div>
 
       <div class="nav-section">
-        <div class="nav-section-title">Security & Defense</div>
-        <a class="nav-item" onclick="navigate('security')">
-          <span class="nav-item-icon">🛡</span>
-          <span>Security Activity</span>
+        <div class="nav-section-title">Security & Governance</div>
+        <a class="nav-item" onclick="navigate('security', this)">
+          <svg class="lucide-icon"><use href="#icon-shield"></use></svg>
+          <span>Security Radar</span>
         </a>
-        <a class="nav-item" onclick="navigate('simulator')">
-          <span class="nav-item-icon">⚡</span>
+        <a class="nav-item" onclick="navigate('simulator', this)">
+          <svg class="lucide-icon"><use href="#icon-zap"></use></svg>
           <span>Attack Simulator</span>
         </a>
-        <a class="nav-item" onclick="navigate('policies')">
-          <span class="nav-item-icon">📜</span>
+        <a class="nav-item" onclick="navigate('policies', this)">
+          <svg class="lucide-icon"><use href="#icon-policy"></use></svg>
           <span>Invariant Policies</span>
         </a>
-        <a class="nav-item" onclick="navigate('testnet')">
-          <span class="nav-item-icon">🌐</span>
+        <a class="nav-item" onclick="navigate('testnet', this)">
+          <svg class="lucide-icon"><use href="#icon-terminal"></use></svg>
           <span>NEAR Testnet Console</span>
         </a>
       </div>
 
       <div class="nav-footer">
         <div class="nav-footer-meta">
-          <span>Organization: <strong>org_rootbound</strong></span>
+          <span>Organization: <strong>org_rootbound_enterprise</strong></span>
           <span>Admin Key: <strong>admin.near</strong></span>
           <span>Consensus: <span style="color: var(--status-authorized);">NEAR Protocol (Testnet)</span></span>
         </div>
@@ -1088,87 +1437,161 @@
         </div>
         <div class="workspace-actions">
           <button class="btn-action copper" onclick="openPaymentModal()" title="Dispatch a payment between agents or to vendors">
-            <span>↗ Dispatch Payment</span>
+            <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
+            <span>Dispatch Payment</span>
           </button>
           <button class="btn-action" onclick="openDeployAgentModal()" title="Deploy a new child agent into the hierarchy">
-            <span>+ Deploy Agent</span>
+            <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+            <span>Deploy Agent</span>
           </button>
           <button class="btn-action" onclick="openVaultModal()" title="Deposit or withdraw treasury escrow funds">
-            <span>🏛 Vault Escrow</span>
+            <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+            <span>Vault Escrow</span>
           </button>
           <button class="btn-action" onclick="resetDemoState()" title="Reset to initial state">
-            <span>↺ Reset</span>
+            <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
+            <span>Reset</span>
           </button>
         </div>
       </div>
 
       <div class="workspace-body">
 
-        <!-- VIEW 1: OVERVIEW -->
+        <!-- ===================================================================
+             VIEW 1: OVERVIEW (Financial Position & Delegation Network)
+             =================================================================== -->
         <section id="view-overview" class="view-panel">
-          <!-- Editorial Financial Metrics Strip -->
-          <div class="metrics-editorial-strip">
-            <div class="metric-cell highlight">
-              <span class="metric-label">Total Escrow Authority</span>
-              <span id="metric-total-escrow" class="metric-value tabular-num">1,000,000</span>
-              <span class="metric-sub">Vault deposit custody</span>
+          <!-- Institutional Financial Position Statement -->
+          <div class="financial-position-hero">
+            <div class="hero-top-row">
+              <div class="hero-title-area">
+                <span class="hero-caption">Treasury Financial Position · Escrow Custody</span>
+                <div class="hero-amount-display">
+                  <span class="hero-currency">Ⓝ</span>
+                  <span id="metric-total-escrow" class="hero-amount tabular-num">1,000.00</span>
+                  <span class="hero-subtext">Total On-Chain Escrow Custody</span>
+                </div>
+              </div>
+              <span class="status-pill authorized">
+                <svg class="lucide-icon sm"><use href="#icon-shield"></use></svg>
+                <span>Proof-of-Reserve</span>
+              </span>
             </div>
-            <div class="metric-cell">
-              <span class="metric-label">Uncommitted Available</span>
-              <span id="metric-available-funds" class="metric-value authorized tabular-num">785,000</span>
-              <span class="metric-sub">Free for delegation/spend</span>
-            </div>
-            <div class="metric-cell">
-              <span class="metric-label">Active In-Flight (Reserved)</span>
-              <span id="metric-reserved-funds" class="metric-value reserved tabular-num">0</span>
-              <span class="metric-sub">Committed to NEAR promises</span>
-            </div>
-            <div class="metric-cell">
-              <span class="metric-label">Confirmed Settled (Spent)</span>
-              <span id="metric-spent-funds" class="metric-value tabular-num">23,000</span>
-              <span class="metric-sub">Transferred upon callback</span>
+
+            <div class="hero-distribution-grid">
+              <!-- Liquid Available -->
+              <div class="dist-stat-card available">
+                <div class="dist-stat-top">
+                  <span class="dist-stat-title">Liquid Available</span>
+                  <span class="dist-stat-pct" id="metric-avail-pct">78.5%</span>
+                </div>
+                <div class="dist-stat-value tabular-num" id="metric-available-funds">Ⓝ 785.00</div>
+                <div class="dist-stat-desc">Uncommitted authority available for downward delegation or spending</div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-fill avail" id="bar-avail" style="width: 78.5%;"></div>
+                </div>
+              </div>
+
+              <!-- In-Flight Reserved -->
+              <div class="dist-stat-card reserved">
+                <div class="dist-stat-top">
+                  <span class="dist-stat-title">In-Flight Reserved</span>
+                  <span class="dist-stat-pct" id="metric-res-pct">0.0%</span>
+                </div>
+                <div class="dist-stat-value tabular-num" id="metric-reserved-funds">Ⓝ 0.00</div>
+                <div class="dist-stat-desc">Committed to active cross-contract promise settlement pipeline</div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-fill res" id="bar-res" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Confirmed Settled -->
+              <div class="dist-stat-card settled">
+                <div class="dist-stat-top">
+                  <span class="dist-stat-title">Confirmed Settled</span>
+                  <span class="dist-stat-pct" id="metric-spent-pct">2.3%</span>
+                </div>
+                <div class="dist-stat-value tabular-num" id="metric-spent-funds">Ⓝ 23.00</div>
+                <div class="dist-stat-desc">Permanently transferred to external whitelisted vendor payees</div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-fill spent" id="bar-spent" style="width: 2.3%;"></div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Mathematical Conservation Invariant Formula -->
-          <div class="conservation-bar">
-            <span style="color: var(--text-tertiary); text-transform: uppercase; font-size: 10px; letter-spacing: 0.8px;">Mathematical Invariant</span>
-            <div class="formula-expression">
-              <span class="formula-item">Allocated: <strong id="formula-allocated" class="tabular-num">1,000,000</strong></span>
-              <span style="color: var(--accent-copper);">≡</span>
-              <span class="formula-item">Available: <strong id="formula-available" class="tabular-num">785,000</strong></span>
-              <span>+</span>
-              <span class="formula-item">Delegated: <strong id="formula-delegated" class="tabular-num">200,000</strong></span>
-              <span>+</span>
-              <span class="formula-item">Reserved: <strong id="formula-reserved" class="tabular-num">0</strong></span>
-              <span>+</span>
-              <span class="formula-item">Spent: <strong id="formula-spent" class="tabular-num">23,000</strong></span>
+          <!-- Authority Reconciliation Statement -->
+          <div class="reconciliation-statement">
+            <div class="recon-header">
+              <div class="recon-title-group">
+                <svg class="lucide-icon" style="color: var(--accent-copper);"><use href="#icon-scale"></use></svg>
+                <div>
+                  <h4 class="recon-heading">Authority Conservation & Reconciliation Statement</h4>
+                  <p class="recon-sub">Monotonic balance conservation: ∑ Available + ∑ Delegated + ∑ Reserved + ∑ Spent ≡ Escrow Custody</p>
+                </div>
+              </div>
+              <span class="status-pill authorized">
+                <svg class="lucide-icon sm"><use href="#icon-check"></use></svg>
+                <span>Zero Fund Leakage</span>
+              </span>
             </div>
-            <span class="status-pill authorized">Zero Fund Leakage</span>
+
+            <div class="recon-equation-grid">
+              <div class="equation-box">
+                <span class="eq-label">Escrow Custody</span>
+                <span class="eq-val tabular-num" id="formula-allocated">Ⓝ 1,000.00</span>
+              </div>
+              <div class="eq-operator">≡</div>
+              <div class="equation-box">
+                <span class="eq-label">Liquid Available</span>
+                <span class="eq-val tabular-num" style="color: var(--status-authorized);" id="formula-available">Ⓝ 785.00</span>
+              </div>
+              <div class="eq-operator">+</div>
+              <div class="equation-box">
+                <span class="eq-label">Delegated Downward</span>
+                <span class="eq-val tabular-num" style="color: var(--accent-copper);" id="formula-delegated">Ⓝ 200.00</span>
+              </div>
+              <div class="eq-operator">+</div>
+              <div class="equation-box">
+                <span class="eq-label">In-Flight Reserved</span>
+                <span class="eq-val tabular-num" style="color: var(--status-reserved);" id="formula-reserved">Ⓝ 0.00</span>
+              </div>
+              <div class="eq-operator">+</div>
+              <div class="equation-box">
+                <span class="eq-label">Confirmed Settled</span>
+                <span class="eq-val tabular-num" id="formula-spent">Ⓝ 23.00</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Interactive Delegation Network Snippet -->
+          <!-- Signature Feature: Interactive Delegation Network Canvas -->
           <div class="network-container">
             <div class="network-toolbar">
               <div>
                 <span style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); font-weight: 600;">
                   Delegation Authority Hierarchy (Max Depth 3)
                 </span>
-                <p style="font-size: 12px; color: var(--text-tertiary);">Select an agent node to inspect authority limits, parent-child links, and permissions in the right panel.</p>
+                <p style="font-size: 12px; color: var(--text-tertiary);">Select an agent node to inspect authority limits, lineage paths, and permissions in the right panel.</p>
               </div>
-              <input type="text" class="network-search-input" placeholder="Search agent ID..." oninput="filterNetworkNodes(this.value)" />
+              <input type="text" class="network-search-input" placeholder="Search agent identifier..." oninput="filterNetworkNodes(this.value)" />
             </div>
 
-            <div id="overview-hierarchy-canvas" class="hierarchy-canvas">
-              <!-- Dynamically Populated Node Levels -->
+            <div class="hierarchy-canvas-wrapper" id="overview-canvas-wrapper">
+              <svg id="overview-svg-rails" class="hierarchy-svg-canvas"></svg>
+              <div id="overview-hierarchy-canvas" class="hierarchy-canvas">
+                <!-- Dynamically Populated Node Levels -->
+              </div>
             </div>
           </div>
 
           <!-- Recent Operations & Security Interceptions -->
           <div class="data-table-container">
             <div class="data-table-header">
-              <h3>Recent Financial Authorizations & Policy Interceptions</h3>
-              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">Live Consensus Feed</span>
+              <h3>
+                <svg class="lucide-icon"><use href="#icon-shield"></use></svg>
+                Recent Financial Authorizations & Policy Interceptions
+              </h3>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">Live Consensus Stream</span>
             </div>
             <table class="data-table">
               <thead>
@@ -1177,7 +1600,7 @@
                   <th>Outcome</th>
                   <th>Details & Reason</th>
                   <th>Transaction ID</th>
-                  <th>Block Explorer</th>
+                  <th class="num-col">Block Explorer</th>
                 </tr>
               </thead>
               <tbody id="overview-recent-table-body">
@@ -1187,39 +1610,52 @@
           </div>
         </section>
 
-        <!-- VIEW 2: HIERARCHY NETWORK (Full Standalone) -->
+        <!-- ===================================================================
+             VIEW 2: HIERARCHY NETWORK (Full Standalone)
+             =================================================================== -->
         <section id="view-hierarchy" class="view-panel" style="display: none;">
-          <div class="network-container" style="min-height: 550px;">
+          <div class="network-container" style="min-height: 560px;">
             <div class="network-toolbar">
               <div>
-                <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Full Interactive Authority Network</h3>
-                <p style="font-size: 12px; color: var(--text-secondary);">Inherited restrictions flow downward: Root Treasury → Project Manager → Researcher.</p>
+                <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Full Interactive Authority Lattice</h3>
+                <p style="font-size: 12px; color: var(--text-secondary);">Inherited authority restrictions attenuate monotonically down the tree: Root Treasury → Project Manager → Researcher.</p>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button class="btn-action" onclick="resetNetworkView()">Reset Layout</button>
+                <button class="btn-action" onclick="refreshHierarchyRails()">
+                  <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
+                  <span>Re-align Rails</span>
+                </button>
               </div>
             </div>
-            <div id="full-hierarchy-canvas" class="hierarchy-canvas"></div>
+            <div class="hierarchy-canvas-wrapper" id="full-canvas-wrapper">
+              <svg id="full-svg-rails" class="hierarchy-svg-canvas"></svg>
+              <div id="full-hierarchy-canvas" class="hierarchy-canvas"></div>
+            </div>
           </div>
         </section>
 
-        <!-- VIEW 3: AGENTS DIRECTORY -->
+        <!-- ===================================================================
+             VIEW 3: AGENTS DIRECTORY
+             =================================================================== -->
         <section id="view-agents" class="view-panel" style="display: none;">
           <div class="data-table-container">
             <div class="data-table-header">
-              <h3>Configured Delegation Grants</h3>
-              <span style="font-size: 11px; color: var(--text-tertiary);">Click any agent row to view permissions</span>
+              <h3>
+                <svg class="lucide-icon"><use href="#icon-users"></use></svg>
+                Configured Delegation Grants
+              </h3>
+              <span style="font-size: 11px; color: var(--text-tertiary);">Click any agent row to inspect full permissions</span>
             </div>
             <table class="data-table">
               <thead>
                 <tr>
                   <th>Agent ID</th>
                   <th>Hierarchy Depth</th>
-                  <th>Account Address</th>
-                  <th>Allocated</th>
-                  <th>Available</th>
-                  <th>Delegated</th>
-                  <th>Spent</th>
+                  <th>NEAR Account</th>
+                  <th class="num-col">Allocated</th>
+                  <th class="num-col">Available</th>
+                  <th class="num-col">Delegated</th>
+                  <th class="num-col">Spent</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -1228,61 +1664,102 @@
           </div>
         </section>
 
-        <!-- VIEW 4: TREASURY -->
+        <!-- ===================================================================
+             VIEW 4: TREASURY CUSTODY
+             =================================================================== -->
         <section id="view-treasury" class="view-panel" style="display: none;">
-          <div class="metrics-editorial-strip">
-            <div class="metric-cell highlight">
-              <span class="metric-label">Gross Escrow Deposits</span>
-              <span id="treasury-gross" class="metric-value tabular-num">1,000,000</span>
-              <span class="metric-sub">Lifetime deposited principal</span>
+          <div class="financial-position-hero">
+            <div class="hero-top-row">
+              <div class="hero-title-area">
+                <span class="hero-caption">Treasury Operations & Vault Custody</span>
+                <div class="hero-amount-display">
+                  <span class="hero-currency">Ⓝ</span>
+                  <span id="treasury-gross" class="hero-amount tabular-num">1,000.00</span>
+                  <span class="hero-subtext">Lifetime Deposited Principal</span>
+                </div>
+              </div>
+              <span class="status-pill authorized">
+                <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+                <span>Smart Contract Vault</span>
+              </span>
             </div>
-            <div class="metric-cell">
-              <span class="metric-label">Root Available Balance</span>
-              <span id="treasury-root-avail" class="metric-value authorized tabular-num">500,000</span>
-              <span class="metric-sub">Un-delegated liquid capital</span>
-            </div>
-            <div class="metric-cell">
-              <span class="metric-label">Downward Delegated</span>
-              <span id="treasury-delegated" class="metric-value copper tabular-num">500,000</span>
-              <span class="metric-sub">Issued to child sub-agents</span>
-            </div>
-            <div class="metric-cell">
-              <span class="metric-label">Confirmed Outflow</span>
-              <span id="treasury-outflow" class="metric-value tabular-num">23,000</span>
-              <span class="metric-sub">Paid out to external vendors</span>
+
+            <div class="hero-distribution-grid">
+              <div class="dist-stat-card available">
+                <div class="dist-stat-top">
+                  <span class="dist-stat-title">Root Available Balance</span>
+                </div>
+                <div class="dist-stat-value tabular-num" id="treasury-root-avail">Ⓝ 500.00</div>
+                <div class="dist-stat-desc">Un-delegated liquid capital directly held by organization admin</div>
+              </div>
+              <div class="dist-stat-card reserved">
+                <div class="dist-stat-top">
+                  <span class="dist-stat-title">Downward Delegated</span>
+                </div>
+                <div class="dist-stat-value tabular-num" id="treasury-delegated" style="color: var(--accent-copper);">Ⓝ 500.00</div>
+                <div class="dist-stat-desc">Issued downward into scoped child authority envelopes</div>
+              </div>
+              <div class="dist-stat-card settled">
+                <div class="dist-stat-top">
+                  <span class="dist-stat-title">Confirmed Outflow</span>
+                </div>
+                <div class="dist-stat-value tabular-num" id="treasury-outflow">Ⓝ 23.00</div>
+                <div class="dist-stat-desc">Transferred to external vendors across all active agents</div>
+              </div>
             </div>
           </div>
 
-          <div class="data-table-container" style="padding: 20px;">
-            <h3 style="font-size: 14px; margin-bottom: 12px;">Treasury Liquidity Reconciliation</h3>
-            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+          <div class="data-table-container" style="padding: 24px;">
+            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--text-primary);">Treasury Liquidity & Custody Reconciliation</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
               Treasury funds remain locked inside the immutable ROOTBOUND escrow smart contract on NEAR Protocol. Agents cannot withdraw or move funds without adhering to strict policy attenuation. Available funds can be withdrawn by the Organization Admin or delegated downward into scoped child authority envelopes.
             </p>
             <div style="display: flex; gap: 12px;">
-              <button class="btn-action copper" onclick="navigate('testnet')">📥 Deposit Testnet NEAR via Wallet</button>
-              <button class="btn-action" onclick="navigate('testnet')">📤 Withdraw Available Escrow to Admin</button>
+              <button class="btn-action copper" onclick="navigate('testnet')">
+                <svg class="lucide-icon sm"><use href="#icon-terminal"></use></svg>
+                <span>Deposit Testnet NEAR via Wallet</span>
+              </button>
+              <button class="btn-action" onclick="openVaultModal()">
+                <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+                <span>Admin Escrow Controls</span>
+              </button>
             </div>
           </div>
         </section>
 
-        <!-- VIEW 5: TRANSACTIONS LEDGER -->
+        <!-- ===================================================================
+             VIEW 5: SETTLEMENT LEDGER (Transactions)
+             =================================================================== -->
         <section id="view-transactions" class="view-panel" style="display: none;">
           <div class="data-table-container">
             <div class="data-table-header">
-              <h3>On-Chain Payment Settlement Ledger</h3>
-              <div style="display: flex; gap: 8px;">
-                <span class="status-pill copper">Sequential Nonce Monotonicity</span>
-              </div>
+              <h3>
+                <svg class="lucide-icon"><use href="#icon-transactions"></use></svg>
+                On-Chain Payment Settlement Ledger
+              </h3>
+              <span class="status-pill copper">Sequential Nonce Monotonicity</span>
             </div>
+            
+            <div class="table-filter-bar">
+              <div class="filter-chips">
+                <button class="filter-chip active" onclick="setTxFilter('all', this)">All Transactions</button>
+                <button class="filter-chip" onclick="setTxFilter('FINALIZED', this)">Finalized</button>
+                <button class="filter-chip" onclick="setTxFilter('RESERVED', this)">Reserved</button>
+                <button class="filter-chip" onclick="setTxFilter('REJECTED', this)">Rejected</button>
+              </div>
+              <input type="text" class="network-search-input" placeholder="Search request, agent, payee..." oninput="filterTransactions(this.value)" />
+            </div>
+
             <table class="data-table">
               <thead>
                 <tr>
                   <th>Request ID</th>
                   <th>Originating Agent</th>
                   <th>Payee / Recipient</th>
-                  <th>Amount</th>
+                  <th class="num-col">Transfer Amount</th>
                   <th>Nonce</th>
                   <th>Status</th>
+                  <th class="num-col">Receipt</th>
                 </tr>
               </thead>
               <tbody id="transactions-table-body"></tbody>
@@ -1290,47 +1767,59 @@
           </div>
         </section>
 
-        <!-- VIEW 6: SECURITY ACTIVITY -->
+        <!-- ===================================================================
+             VIEW 6: SECURITY RADAR
+             =================================================================== -->
         <section id="view-security" class="view-panel" style="display: none;">
           <div class="data-table-container">
             <div class="data-table-header">
-              <h3>Policy Interception Radar & Activity Stream</h3>
+              <h3>
+                <svg class="lucide-icon"><use href="#icon-shield"></use></svg>
+                Policy Interception Radar & Activity Stream
+              </h3>
               <span class="status-pill rejected">Structured Rejections</span>
             </div>
-            <div id="security-activity-feed" class="security-feed" style="padding: 16px;"></div>
+            <div id="security-activity-feed" class="security-feed" style="padding: 18px;"></div>
           </div>
         </section>
 
-        <!-- VIEW 7: POLICIES -->
+        <!-- ===================================================================
+             VIEW 7: INVARIANT POLICIES
+             =================================================================== -->
         <section id="view-policies" class="view-panel" style="display: none;">
           <div class="data-table-container" style="padding: 24px;">
-            <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-primary);">Formally Verified Security Invariants</h3>
+            <h3 style="font-size: 16px; margin-bottom: 18px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+              <svg class="lucide-icon"><use href="#icon-policy"></use></svg>
+              Formally Verified Security Invariants
+            </h3>
             <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px; color: var(--text-secondary);">
               <div style="border-left: 3px solid var(--status-authorized); padding-left: 14px;">
-                <strong style="color: var(--text-primary);">Invariant 1: Budget Conservation</strong>
-                <p>Allocated ≡ Available + Delegated + Reserved + Spent. Funds cannot be forged, duplicated, or overdrawn across any node in the hierarchy.</p>
+                <strong style="color: var(--text-primary); font-size: 14px;">Invariant 1: Budget Conservation</strong>
+                <p style="margin-top: 4px;">Allocated ≡ Available + Delegated + Reserved + Spent. Funds cannot be forged, duplicated, or overdrawn across any node in the hierarchy.</p>
               </div>
               <div style="border-left: 3px solid var(--accent-copper); padding-left: 14px;">
-                <strong style="color: var(--text-primary);">Invariant 2: Strict Authority Attenuation</strong>
-                <p>Child permissions can only narrow parent permissions. Child budget ≤ Parent available, Child expiry ≤ Parent expiry, Child recipients ⊆ Parent recipients.</p>
+                <strong style="color: var(--text-primary); font-size: 14px;">Invariant 2: Strict Authority Attenuation</strong>
+                <p style="margin-top: 4px;">Child permissions can only narrow parent permissions. Child budget ≤ Parent available, Child expiry ≤ Parent expiry, Child recipients ⊆ Parent recipients.</p>
               </div>
               <div style="border-left: 3px solid var(--status-reserved); padding-left: 14px;">
-                <strong style="color: var(--text-primary);">Invariant 3: Hierarchy Depth Ceiling (Max Depth = 3)</strong>
-                <p>Root Vault (Depth 1) → Project Manager (Depth 2) → Researcher/Purchaser (Depth 3). Deep delegation chains are rejected on-chain.</p>
+                <strong style="color: var(--text-primary); font-size: 14px;">Invariant 3: Hierarchy Depth Ceiling (Max Depth = 3)</strong>
+                <p style="margin-top: 4px;">Root Vault (Depth 1) → Project Manager (Depth 2) → Researcher/Purchaser (Depth 3). Deep delegation chains are rejected on-chain.</p>
               </div>
               <div style="border-left: 3px solid var(--status-rejected); padding-left: 14px;">
-                <strong style="color: var(--text-primary);">Invariant 4: Instant Cascade Revocation</strong>
-                <p>Revoking an ancestor immediately freezes and paralyzes all downstream descendants across the smart contract.</p>
+                <strong style="color: var(--text-primary); font-size: 14px;">Invariant 4: Instant Cascade Revocation</strong>
+                <p style="margin-top: 4px;">Revoking an ancestor immediately freezes and paralyzes all downstream descendants across the smart contract.</p>
               </div>
               <div style="border-left: 3px solid var(--status-authorized); padding-left: 14px;">
-                <strong style="color: var(--text-primary);">Invariant 5: Safe Asynchronous Recovery</strong>
-                <p>If a NEAR cross-contract promise fails, reverts, or runs out of gas, in-flight Reserved funds safely restore to Available without fund lockup.</p>
+                <strong style="color: var(--text-primary); font-size: 14px;">Invariant 5: Safe Asynchronous Recovery</strong>
+                <p style="margin-top: 4px;">If a NEAR cross-contract promise fails, reverts, or runs out of gas, in-flight Reserved funds safely restore to Available without fund lockup.</p>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- VIEW 8: ATTACK SIMULATOR -->
+        <!-- ===================================================================
+             VIEW 8: ADVERSARIAL ATTACK SIMULATOR
+             =================================================================== -->
         <section id="view-simulator" class="view-panel" style="display: none;">
           <div style="margin-bottom: 20px;">
             <p style="font-size: 13px; color: var(--text-secondary);">
@@ -1351,7 +1840,10 @@
                   <span>Expected Panic: <code>ERR_INSUFFICIENT_AVAILABLE_BUDGET</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('overspend')">Launch Overspending Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('overspend')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Overspending Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1366,7 +1858,10 @@
                   <span>Expected Panic: <code>ERR_UNAUTHORIZED_RECIPIENT</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('recipient_substitution')">Launch Payee Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('recipient_substitution')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Payee Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1381,7 +1876,10 @@
                   <span>Expected Panic: <code>ERR_EXCEEDED_MAX_DEPTH</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('depth_exhaustion')">Launch Depth Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('depth_exhaustion')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Depth Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1396,7 +1894,10 @@
                   <span>Expected Panic: <code>ERR_INSUFFICIENT_AVAILABLE_BUDGET</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('concurrency_race')">Launch Race Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('concurrency_race')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Race Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1411,7 +1912,10 @@
                   <span>Expected Panic: <code>ERR_INVALID_NONCE</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('replay_nonce')">Launch Replay Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('replay_nonce')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Replay Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1426,7 +1930,10 @@
                   <span>Expected Panic: <code>ERR_ANCESTOR_REVOKED</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('cascade_revocation')">Launch Revocation Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('cascade_revocation')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Revocation Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1441,7 +1948,10 @@
                   <span>Expected Panic: <code>ERR_UNAUTHORIZED_CALLER</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('cross_org_delegation')">Launch Cross-Org Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('cross_org_delegation')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Cross-Org Vector</span>
+              </button>
             </div>
 
             <div class="attack-card">
@@ -1456,68 +1966,84 @@
                   <span>Expected Panic: <code>ERR_UNAUTHORIZED_CALLER</code></span>
                 </div>
               </div>
-              <button class="btn-action danger" onclick="triggerAttack('cross_org_revocation')">Launch Cross-Revoke Vector</button>
+              <button class="btn-action danger" onclick="triggerAttack('cross_org_revocation')">
+                <svg class="lucide-icon sm"><use href="#icon-zap"></use></svg>
+                <span>Launch Cross-Revoke Vector</span>
+              </button>
             </div>
           </div>
         </section>
 
-        <!-- VIEW 9: NEAR TESTNET CONSOLE -->
+        <!-- ===================================================================
+             VIEW 9: NEAR TESTNET CONSOLE
+             =================================================================== -->
         <section id="view-testnet" class="view-panel" style="display: none;">
           <div class="data-table-container" style="padding: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
               <div>
-                <h3 style="font-size: 16px; margin-bottom: 4px;">Live NEAR Testnet Token & Contract Console</h3>
+                <h3 style="font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                  <svg class="lucide-icon"><use href="#icon-terminal"></use></svg>
+                  Live NEAR Testnet Token & Contract Console
+                </h3>
                 <p style="font-size: 12px; color: var(--text-secondary);">Direct on-chain execution with signed wallet transactions on NEAR Testnet.</p>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="metric-label" style="margin: 0;">Target Contract:</span>
+                <span class="eq-label" style="margin: 0;">Target Contract:</span>
                 <input id="testnet-target-contract-input" class="network-search-input" value="rootbound.testnet" onchange="saveTargetContract(this.value)" />
               </div>
             </div>
 
             <!-- Escrow Deposit Form -->
             <div style="background: var(--surface-sunken); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 18px; margin-bottom: 20px;">
-              <h4 style="font-size: 13px; color: var(--accent-copper); margin-bottom: 12px;">1. Deposit Testnet Tokens into ROOTBOUND Escrow Vault</h4>
+              <h4 style="font-size: 13px; color: var(--accent-copper); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+                1. Deposit Testnet Tokens into ROOTBOUND Escrow Vault
+              </h4>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
                 <div>
-                  <label class="metric-label">Organization ID</label>
+                  <label class="form-label">Organization ID</label>
                   <input id="form-testnet-org-id" class="network-search-input" style="width: 100%;" value="org_rootbound_enterprise" />
                 </div>
                 <div>
-                  <label class="metric-label">Deposit Amount (NEAR)</label>
+                  <label class="form-label">Deposit Amount (NEAR)</label>
                   <input id="form-testnet-amount" class="network-search-input" style="width: 100%;" type="number" step="0.5" value="1.0" />
                 </div>
               </div>
-              <button class="btn-action copper" style="width: 100%;" onclick="executeTestnetDeposit()">
-                📥 Sign & Transfer Testnet Tokens into Vault
+              <button class="btn-action copper" style="width: 100%; padding: 10px;" onclick="executeTestnetDeposit()">
+                <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
+                <span>Sign & Transfer Testnet Tokens into Vault</span>
               </button>
             </div>
 
             <!-- Delegation Form -->
             <div style="background: var(--surface-sunken); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 18px;">
-              <h4 style="font-size: 13px; color: var(--status-authorized); margin-bottom: 12px;">2. Deploy Delegation Grant to Child Agent On-Chain</h4>
+              <h4 style="font-size: 13px; color: var(--status-authorized); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <svg class="lucide-icon sm"><use href="#icon-network"></use></svg>
+                2. Deploy Delegation Grant to Child Agent On-Chain
+              </h4>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
                 <div>
-                  <label class="metric-label">Parent Agent ID</label>
+                  <label class="form-label">Parent Agent ID</label>
                   <input id="form-testnet-parent" class="network-search-input" style="width: 100%;" value="root_treasury" />
                 </div>
                 <div>
-                  <label class="metric-label">Child Agent ID</label>
+                  <label class="form-label">Child Agent ID</label>
                   <input id="form-testnet-child" class="network-search-input" style="width: 100%;" value="agent_pm" />
                 </div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
                 <div>
-                  <label class="metric-label">Child NEAR Account</label>
+                  <label class="form-label">Child NEAR Account</label>
                   <input id="form-testnet-child-acc" class="network-search-input" style="width: 100%;" value="pm_agent.testnet" />
                 </div>
                 <div>
-                  <label class="metric-label">Delegated Budget (NEAR)</label>
+                  <label class="form-label">Delegated Budget (NEAR)</label>
                   <input id="form-testnet-budget" class="network-search-input" style="width: 100%;" type="number" step="0.1" value="0.5" />
                 </div>
               </div>
-              <button class="btn-action" style="width: 100%;" onclick="executeTestnetDelegation()">
-                🌲 Deploy Delegation Grant to Testnet
+              <button class="btn-action" style="width: 100%; padding: 10px;" onclick="executeTestnetDelegation()">
+                <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+                <span>Deploy Delegation Grant to Testnet</span>
               </button>
             </div>
           </div>
@@ -1526,28 +2052,33 @@
       </div>
     </main>
 
-    <!-- 3. RIGHT CONTEXTUAL DETAIL PANEL -->
+    <!-- 3. RIGHT CONTEXTUAL DETAIL PANEL (AGENT DOSSIER INSPECTOR) -->
     <aside id="context-detail-panel" class="context-panel">
       <div class="panel-header">
         <span class="panel-title" id="context-panel-type">Agent Dossier</span>
-        <button class="panel-close-btn" onclick="toggleContextPanel(false)">✕</button>
+        <button class="panel-close-btn" onclick="toggleContextPanel(false)" title="Close Inspector">
+          <svg class="lucide-icon sm"><use href="#icon-x"></use></svg>
+        </button>
       </div>
 
       <div class="panel-body" id="context-panel-content">
         <!-- Rendered contextually when an agent node or transaction is clicked -->
-        <p style="color: var(--text-tertiary); font-size: 12px;">Select any node from the hierarchy network or an entry from the transaction ledger to inspect full permissions, budget allocation, and operational controls.</p>
+        <p style="color: var(--text-tertiary); font-size: 12px; line-height: 1.5;">Select any node from the hierarchy network or an entry from the transaction ledger to inspect full permissions, budget allocation, and operational controls.</p>
       </div>
     </aside>
 
   </div>
 
-  <!-- CONFIRMATION MODAL -->
+  <!-- =========================================================================
+       MODALS: CONFIRMATION, WALLETS, AGENT DEPLOY, PAYMENT DISPATCH, VAULT
+       ========================================================================= -->
+  <!-- ACTION CONFIRMATION MODAL -->
   <div id="action-modal" class="modal-overlay">
     <div class="modal-box">
       <h3 id="modal-title" class="modal-title">Confirm Action</h3>
       <p id="modal-desc" class="modal-desc">Are you sure you want to proceed with this operation?</p>
       <div id="modal-input-container" style="margin-bottom: 20px; display: none;">
-        <label class="metric-label">Amount (yoctoNEAR)</label>
+        <label class="form-label">Amount (yoctoNEAR)</label>
         <input id="modal-input-amount" class="network-search-input" style="width: 100%;" type="number" />
       </div>
       <div class="modal-actions">
@@ -1562,7 +2093,9 @@
     <div class="modal-box wide">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 class="modal-title" style="margin:0;">Connect NEAR Wallet</h3>
-        <button onclick="closeWalletModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+        <button onclick="closeWalletModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">
+          <svg class="lucide-icon sm"><use href="#icon-x"></use></svg>
+        </button>
       </div>
       <p class="modal-desc">Connect an active NEAR wallet to control financial authority, deploy agents, and sign transactions.</p>
 
@@ -1574,10 +2107,10 @@
       <!-- Tab 1: Extension & Web Wallets -->
       <div id="tab-content-wallets">
         <div class="wallet-list">
-          <!-- 1. Sender Wallet (Active browser extension) -->
+          <!-- 1. Sender Wallet -->
           <div class="wallet-option-card highlight" onclick="connectSenderWallet()">
             <div class="wallet-card-left">
-              <div class="wallet-icon-box" style="background:#1b231d; border-color:var(--accent-copper); color:var(--accent-copper);">S</div>
+              <div class="wallet-icon-box">S</div>
               <div class="wallet-card-info">
                 <div class="wallet-card-name">
                   <span>Sender Wallet</span>
@@ -1592,7 +2125,7 @@
           <!-- 2. Meteor Wallet -->
           <div class="wallet-option-card" onclick="connectMeteorWallet()">
             <div class="wallet-card-left">
-              <div class="wallet-icon-box" style="background:#221e25; border-color:#8b5cf6; color:#a78bfa;">M</div>
+              <div class="wallet-icon-box" style="color:#a78bfa; border-color:#8b5cf6;">M</div>
               <div class="wallet-card-info">
                 <div class="wallet-card-name">
                   <span>Meteor Wallet</span>
@@ -1607,7 +2140,7 @@
           <!-- 3. Nightly Wallet -->
           <div class="wallet-option-card" onclick="connectNightlyWallet()">
             <div class="wallet-card-left">
-              <div class="wallet-icon-box" style="background:#1a232b; border-color:#38bdf8; color:#38bdf8;">N</div>
+              <div class="wallet-icon-box" style="color:#38bdf8; border-color:#38bdf8;">N</div>
               <div class="wallet-card-info">
                 <div class="wallet-card-name">
                   <span>Nightly Wallet</span>
@@ -1621,7 +2154,7 @@
           <!-- 4. MyNearWallet Web -->
           <div class="wallet-option-card" onclick="connectMyNearWalletWeb()">
             <div class="wallet-card-left">
-              <div class="wallet-icon-box" style="background:#202020; border-color:var(--border-subtle); color:var(--text-primary);">Ⓝ</div>
+              <div class="wallet-icon-box" style="color:var(--text-primary); border-color:var(--border-subtle);">Ⓝ</div>
               <div class="wallet-card-info">
                 <div class="wallet-card-name">
                   <span>MyNearWallet (Web Auth)</span>
@@ -1653,18 +2186,21 @@
           <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='agent_pm.testnet'">agent_pm.testnet</button>
         </div>
         <button class="btn-action copper" style="width:100%; padding:10px;" onclick="activateDirectAccount()">
-          <span>✓ Activate Operator Session</span>
+          <svg class="lucide-icon sm"><use href="#icon-check"></use></svg>
+          <span>Activate Operator Session</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- DEPLOY AGENT MODAL -->
+  <!-- DEPLOY SUB-AGENT MODAL -->
   <div id="deploy-agent-modal" class="modal-overlay">
     <div class="modal-box wide">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 class="modal-title" style="margin:0;">Deploy Sub-Agent Delegation</h3>
-        <button onclick="closeDeployAgentModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+        <button onclick="closeDeployAgentModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">
+          <svg class="lucide-icon sm"><use href="#icon-x"></use></svg>
+        </button>
       </div>
       <p class="modal-desc">Create a recursive delegation grant down the hierarchy. Authority attenuates monotonically (depth ≤ 3, budget ≤ parent available).</p>
 
@@ -1672,9 +2208,7 @@
 
       <div class="form-group">
         <label class="form-label">Parent Agent (Delegator)</label>
-        <select id="deploy-parent-select" class="form-select" onchange="updateDeployParentInfo()">
-          <!-- Dynamically populated from active grants -->
-        </select>
+        <select id="deploy-parent-select" class="form-select" onchange="updateDeployParentInfo()"></select>
         <div id="deploy-parent-info" class="form-helper"></div>
       </div>
 
@@ -1708,7 +2242,10 @@
 
       <div class="modal-actions">
         <button class="btn-action" onclick="closeDeployAgentModal()">Cancel</button>
-        <button class="btn-action copper" onclick="submitDeployAgent()">Deploy Agent On-Chain</button>
+        <button class="btn-action copper" onclick="submitDeployAgent()">
+          <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+          <span>Deploy Agent On-Chain</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1718,7 +2255,9 @@
     <div class="modal-box wide">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 class="modal-title" style="margin:0;">Dispatch Agent Payment</h3>
-        <button onclick="closePaymentModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+        <button onclick="closePaymentModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">
+          <svg class="lucide-icon sm"><use href="#icon-x"></use></svg>
+        </button>
       </div>
       <p class="modal-desc">Authorize and settle an asynchronous payment from an agent to a recipient vendor via NEAR smart contract.</p>
 
@@ -1726,9 +2265,7 @@
 
       <div class="form-group">
         <label class="form-label">Paying Agent</label>
-        <select id="payment-payer-select" class="form-select" onchange="updatePaymentPayerInfo()">
-          <!-- Dynamically populated from active grants with available > 0 -->
-        </select>
+        <select id="payment-payer-select" class="form-select" onchange="updatePaymentPayerInfo()"></select>
         <div id="payment-payer-info" class="form-helper"></div>
       </div>
 
@@ -1757,7 +2294,10 @@
 
       <div class="modal-actions">
         <button class="btn-action" onclick="closePaymentModal()">Cancel</button>
-        <button class="btn-action copper" onclick="submitPayment()">Authorize & Settle Payment</button>
+        <button class="btn-action copper" onclick="submitPayment()">
+          <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
+          <span>Authorize & Settle Payment</span>
+        </button>
       </div>
     </div>
   </div>
@@ -1767,7 +2307,9 @@
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 class="modal-title" style="margin:0;">Vault Escrow Custody</h3>
-        <button onclick="closeVaultModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
+        <button onclick="closeVaultModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">
+          <svg class="lucide-icon sm"><use href="#icon-x"></use></svg>
+        </button>
       </div>
       <p class="modal-desc">Deposit or withdraw organization escrow custody. Funds are held in contract vault before being delegated downward.</p>
 
@@ -1786,11 +2328,17 @@
 
       <div class="modal-actions">
         <button class="btn-action" onclick="closeVaultModal()">Cancel</button>
-        <button id="btn-vault-submit" class="btn-action copper" onclick="submitVaultAction()">Execute Deposit</button>
+        <button id="btn-vault-submit" class="btn-action copper" onclick="submitVaultAction()">
+          <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+          <span>Execute Deposit</span>
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- =========================================================================
+       APPLICATION CLIENT SCRIPT ENGINE & LOGIC
+       ========================================================================= -->
   <script>
     // =========================================================================
     // IN-BROWSER ROOTBOUND WEB3 CRYPTOGRAPHIC & INVARIANT ENGINE
@@ -1798,7 +2346,7 @@
     // =========================================================================
     class RootboundClientEngine {
       constructor() {
-        this.storageKey = 'rootbound_state_v2';
+        this.storageKey = 'rootbound_state_v3';
         this.whitelistedVendors = [
           "vendor_shade_compute.near",
           "vendor_phala_inference.near",
@@ -2158,6 +2706,7 @@
     let appState = clientEngine.getState();
     let selectedAgentId = 'root_treasury';
     let currentNavView = 'overview';
+    let currentTxFilter = 'all';
     let pendingModalAction = null;
 
     // View Titles & Subtitles Dictionary
@@ -2183,7 +2732,7 @@
         subtitle: "Trace asynchronous NEAR promise requests, reservations, and callback settlements."
       },
       security: {
-        title: "Security Activity & Interceptions",
+        title: "Security Radar & Interceptions",
         subtitle: "Cryptographic defense log verifying on-chain rejection of prompt injection and budget overspends."
       },
       policies: {
@@ -2203,13 +2752,15 @@
     // =========================================================================
     // NAVIGATION CONTROLLER
     // =========================================================================
-    function navigate(viewName) {
+    function navigate(viewName, el = null) {
       currentNavView = viewName;
       
       document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
       });
-      event?.currentTarget?.classList?.add('active');
+      if (el) {
+        el.classList.add('active');
+      }
 
       const meta = VIEW_METADATA[viewName] || VIEW_METADATA.overview;
       document.getElementById('view-title').innerText = meta.title;
@@ -2221,8 +2772,10 @@
         targetPanel.style.display = 'block';
       }
 
-      if (viewName === 'hierarchy') {
-        renderFullHierarchy();
+      if (viewName === 'overview') {
+        renderHierarchyCanvas('overview-hierarchy-canvas');
+      } else if (viewName === 'hierarchy') {
+        renderHierarchyCanvas('full-hierarchy-canvas');
       } else if (viewName === 'agents') {
         renderAgentsTable();
       } else if (viewName === 'transactions') {
@@ -2247,10 +2800,8 @@
     // STATE FETCH & DATA RENDERING
     // =========================================================================
     async function fetchAppState() {
-      // First, take state from autonomous client engine
       appState = clientEngine.getState();
 
-      // If backend is running, try to sync
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 600);
@@ -2263,11 +2814,14 @@
           }
         }
       } catch (err) {
-        // Expected when running standalone or on Vercel
+        // Expected in standalone mode
       }
 
       updateFinancialMetrics();
       renderHierarchyCanvas('overview-hierarchy-canvas');
+      if (currentNavView === 'hierarchy') {
+        renderHierarchyCanvas('full-hierarchy-canvas');
+      }
       renderOverviewRecentTable();
 
       if (selectedAgentId) {
@@ -2277,10 +2831,10 @@
       const pill = document.getElementById('global-invariant-pill');
       if (appState.invariants_satisfied) {
         pill.className = 'status-pill authorized';
-        pill.innerHTML = '<span>●</span> Invariants 100% Conserved';
+        pill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-shield"></use></svg><span>Invariants 100% Conserved</span>';
       } else {
         pill.className = 'status-pill rejected';
-        pill.innerHTML = '<span>●</span> Invariant Violation Intercepted';
+        pill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-alert-triangle"></use></svg><span>Invariant Intercepted</span>';
       }
     }
 
@@ -2307,28 +2861,45 @@
       });
 
       const rootGrant = grants.find(g => g.depth === 1) || { allocated: org.escrow_balance, available: org.escrow_balance, delegated: 0 };
+      const escrow = org.escrow_balance || 1;
 
-      document.getElementById('metric-total-escrow').innerText = formatNearAmount(org.escrow_balance);
+      const pctAvail = ((totalAvail / escrow) * 100).toFixed(1);
+      const pctRes = ((totalRes / escrow) * 100).toFixed(1);
+      const pctSpent = ((totalSpent / escrow) * 100).toFixed(1);
+
+      document.getElementById('metric-total-escrow').innerText = (escrow / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('metric-available-funds').innerText = formatNearAmount(totalAvail);
       document.getElementById('metric-reserved-funds').innerText = formatNearAmount(totalRes);
       document.getElementById('metric-spent-funds').innerText = formatNearAmount(totalSpent);
 
+      document.getElementById('metric-avail-pct').innerText = `${pctAvail}%`;
+      document.getElementById('metric-res-pct').innerText = `${pctRes}%`;
+      document.getElementById('metric-spent-pct').innerText = `${pctSpent}%`;
+
+      document.getElementById('bar-avail').style.width = `${Math.min(100, Math.max(0, pctAvail))}%`;
+      document.getElementById('bar-res').style.width = `${Math.min(100, Math.max(0, pctRes))}%`;
+      document.getElementById('bar-spent').style.width = `${Math.min(100, Math.max(0, pctSpent))}%`;
+
       // Formula bar
-      document.getElementById('formula-allocated').innerText = formatNearAmount(org.escrow_balance);
+      document.getElementById('formula-allocated').innerText = formatNearAmount(escrow);
       document.getElementById('formula-available').innerText = formatNearAmount(totalAvail);
       document.getElementById('formula-delegated').innerText = formatNearAmount(totalDeleg);
       document.getElementById('formula-reserved').innerText = formatNearAmount(totalRes);
       document.getElementById('formula-spent').innerText = formatNearAmount(totalSpent);
 
       // Treasury view metrics
-      document.getElementById('treasury-gross').innerText = formatNearAmount(org.escrow_balance);
-      document.getElementById('treasury-root-avail').innerText = formatNearAmount(rootGrant.available);
-      document.getElementById('treasury-delegated').innerText = formatNearAmount(rootGrant.delegated);
-      document.getElementById('treasury-outflow').innerText = formatNearAmount(totalSpent);
+      const tg = document.getElementById('treasury-gross');
+      if (tg) tg.innerText = (escrow / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const tra = document.getElementById('treasury-root-avail');
+      if (tra) tra.innerText = formatNearAmount(rootGrant.available);
+      const td = document.getElementById('treasury-delegated');
+      if (td) td.innerText = formatNearAmount(rootGrant.delegated);
+      const to = document.getElementById('treasury-outflow');
+      if (to) to.innerText = formatNearAmount(totalSpent);
     }
 
     // =========================================================================
-    // HIERARCHY NETWORK
+    // SIGNATURE FEATURE: HIERARCHY CANVAS & DYNAMIC SVG RAILS
     // =========================================================================
     function renderHierarchyCanvas(containerId) {
       const container = document.getElementById(containerId);
@@ -2344,7 +2915,7 @@
       const levels = [
         { depth: 1, label: "Root Vault (Depth 1)", nodes: depth1 },
         { depth: 2, label: "Project Manager (Depth 2)", nodes: depth2 },
-        { depth: 3, label: "Research & Purchasing (Depth 3)", nodes: depth3 }
+        { depth: 3, label: "Research & Sub-Agents (Depth 3)", nodes: depth3 }
       ];
 
       levels.forEach(lvl => {
@@ -2357,6 +2928,11 @@
           row.appendChild(card);
         });
         container.appendChild(row);
+      });
+
+      // After DOM layout paints, render the dynamic SVG connection rails
+      requestAnimationFrame(() => {
+        drawHierarchyRails(containerId);
       });
     }
 
@@ -2375,11 +2951,18 @@
 
       card.innerHTML = `
         <div class="node-card-top">
-          <div>
+          <div class="node-title-group">
+            <svg class="lucide-icon sm" style="color: ${grant.is_revoked ? 'var(--status-rejected)' : 'var(--accent-copper)'};">
+              <use href="#icon-${grant.depth === 1 ? 'landmark' : grant.depth === 2 ? 'network' : 'users'}"></use>
+            </svg>
             <div class="node-title">${grant.agent_id}</div>
-            <div class="node-account">${grant.account}</div>
           </div>
           <span class="node-depth-badge">Depth ${grant.depth}</span>
+        </div>
+
+        <div class="node-account">
+          <svg class="lucide-icon sm" style="color: var(--text-tertiary);"><use href="#icon-wallet"></use></svg>
+          <span>${grant.account}</span>
         </div>
 
         <div class="meter-bar">
@@ -2411,9 +2994,68 @@
       return card;
     }
 
-    function renderFullHierarchy() {
-      renderHierarchyCanvas('full-hierarchy-canvas');
+    function drawHierarchyRails(containerId) {
+      const isOverview = containerId.includes('overview');
+      const svgId = isOverview ? 'overview-svg-rails' : 'full-svg-rails';
+      const wrapperId = isOverview ? 'overview-canvas-wrapper' : 'full-canvas-wrapper';
+      
+      const svg = document.getElementById(svgId);
+      const wrapper = document.getElementById(wrapperId);
+      if (!svg || !wrapper || !appState || !appState.grants) return;
+
+      const wrapperRect = wrapper.getBoundingClientRect();
+      svg.setAttribute('width', wrapper.scrollWidth);
+      svg.setAttribute('height', wrapper.scrollHeight);
+      svg.innerHTML = '';
+
+      const grants = appState.grants;
+
+      grants.forEach(g => {
+        if (!g.parent_id) return;
+        const parentCard = document.getElementById(`node-card-${g.parent_id}`);
+        const childCard = document.getElementById(`node-card-${g.agent_id}`);
+        if (!parentCard || !childCard) return;
+
+        const pRect = parentCard.getBoundingClientRect();
+        const cRect = childCard.getBoundingClientRect();
+
+        const x1 = (pRect.left + pRect.width / 2) - wrapperRect.left;
+        const y1 = pRect.bottom - wrapperRect.top;
+        const x2 = (cRect.left + cRect.width / 2) - wrapperRect.left;
+        const y2 = cRect.top - wrapperRect.top;
+
+        const dy = y2 - y1;
+        const c1y = y1 + dy * 0.45;
+        const c2y = y1 + dy * 0.55;
+
+        const isChildRevoked = g.is_revoked;
+        const isSelectedLineage = (selectedAgentId === g.agent_id || selectedAgentId === g.parent_id);
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${c1y}, ${x2} ${c2y}, ${x2} ${y2}`);
+        path.setAttribute('class', `conn-rail-path ${isChildRevoked ? 'revoked' : ''} ${isSelectedLineage ? 'active-lineage' : ''}`);
+        svg.appendChild(path);
+
+        // Direction of authority flow node dot
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        dot.setAttribute('cx', midX);
+        dot.setAttribute('cy', midY);
+        dot.setAttribute('r', isSelectedLineage ? '3.5' : '2.5');
+        dot.setAttribute('fill', isChildRevoked ? 'var(--status-rejected)' : isSelectedLineage ? 'var(--accent-copper)' : 'var(--border-subtle)');
+        svg.appendChild(dot);
+      });
     }
+
+    function refreshHierarchyRails() {
+      drawHierarchyRails('overview-hierarchy-canvas');
+      drawHierarchyRails('full-hierarchy-canvas');
+    }
+
+    window.addEventListener('resize', () => {
+      refreshHierarchyRails();
+    });
 
     function filterNetworkNodes(query) {
       const q = query.toLowerCase().trim();
@@ -2421,18 +3063,22 @@
         const text = c.innerText.toLowerCase();
         c.style.display = text.includes(q) ? 'block' : 'none';
       });
+      requestAnimationFrame(refreshHierarchyRails);
     }
 
     // =========================================================================
-    // CONTEXTUAL DETAIL PANEL
+    // CONTEXTUAL DETAIL PANEL (AGENT DOSSIER & TRANSACTIONS)
     // =========================================================================
     function selectAgent(agentId, openDrawer = true) {
       selectedAgentId = agentId;
       if (!appState || !appState.grants) return;
 
       document.querySelectorAll('.network-node-card').forEach(c => c.classList.remove('selected'));
-      const activeCard = document.getElementById(`node-card-${agentId}`);
-      if (activeCard) activeCard.classList.add('selected');
+      const activeCards = document.querySelectorAll(`[id="node-card-${agentId}"]`);
+      activeCards.forEach(c => c.classList.add('selected'));
+
+      // Re-render connection rails with active lineage highlighted
+      refreshHierarchyRails();
 
       const grant = appState.grants.find(g => g.agent_id === agentId);
       if (!grant) return;
@@ -2442,27 +3088,44 @@
       panelTitle.innerText = `AGENT DOSSIER: ${grant.agent_id}`;
 
       const payees = grant.permitted_recipients && grant.permitted_recipients.length > 0
-        ? grant.permitted_recipients.map(p => `<code style="display:block; padding:3px 6px; background:var(--surface-sunken); border-radius:3px; margin-bottom:4px; font-size:11px;">${p}</code>`).join('')
-        : '<span style="color: var(--text-tertiary);">Unrestricted (Root Authority)</span>';
+        ? grant.permitted_recipients.map(p => `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:4px; margin-bottom:5px;">
+              <code style="font-size:11px; color:var(--text-primary);">${p}</code>
+              <a href="https://testnet.nearblocks.io/address/${p}" target="_blank" style="color:var(--accent-copper);" title="View recipient on explorer">
+                <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+              </a>
+            </div>
+          `).join('')
+        : '<span style="color: var(--text-tertiary); font-size:12px;">Unrestricted Recipient Set (Root Authority)</span>';
 
       panelContent.innerHTML = `
+        <!-- 1. Identity & Lineage -->
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h3 style="font-family:var(--font-mono); font-size:16px; color:var(--text-primary); font-weight:700;">${grant.agent_id}</h3>
-            <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'}">${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}</span>
+            <span class="status-pill ${grant.is_revoked ? 'rejected' : 'authorized'}">
+              <svg class="lucide-icon sm"><use href="#icon-${grant.is_revoked ? 'alert-triangle' : 'check'}"></use></svg>
+              <span>${grant.is_revoked ? 'REVOKED' : 'ACTIVE'}</span>
+            </span>
           </div>
-          <p style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">NEAR Account: <strong style="color:var(--text-secondary);">${grant.account}</strong></p>
+          <div style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">
+            <span>NEAR: <strong style="color:var(--text-secondary);">${grant.account}</strong></span>
+            <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" style="color:var(--accent-copper);" title="View on Nearblocks">
+              <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+            </a>
+          </div>
         </div>
 
-        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px;">
-          <span class="metric-label">5-State Balance Accounting</span>
-          <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:12px;">
-            <div style="display:flex; justify-content:space-between;">
+        <!-- 2. Financial Authority Accounting -->
+        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:16px;">
+          <span class="eq-label">5-State Balance Accounting</span>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px; font-family:var(--font-mono); font-size:12px;">
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
               <span style="color:var(--text-secondary);">Allocated Authority:</span>
               <strong class="tabular-num">${formatNearAmount(grant.allocated)} <span style="font-size:10px; color:var(--text-tertiary);">(${grant.allocated.toLocaleString()} yocto)</span></strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--status-authorized);">Available to Spend:</span>
+              <span style="color:var(--status-authorized);">Liquid Available:</span>
               <strong class="tabular-num" style="color:var(--status-authorized);">${formatNearAmount(grant.available)}</strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
@@ -2474,58 +3137,65 @@
               <strong class="tabular-num" style="color:var(--status-reserved);">${formatNearAmount(grant.reserved)}</strong>
             </div>
             <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--text-tertiary);">Finalized Spent:</span>
+              <span style="color:var(--text-tertiary);">Confirmed Settled:</span>
               <strong class="tabular-num">${formatNearAmount(grant.spent)}</strong>
             </div>
           </div>
         </div>
 
+        <!-- 3. Policy Constraints -->
         <div>
-          <span class="metric-label">Authority Restrictions</span>
-          <div style="margin-top:6px; font-family:var(--font-mono); font-size:11px; display:flex; flex-direction:column; gap:4px; color:var(--text-secondary);">
-            <div>Hierarchy Depth: <strong>Level ${grant.depth} of 3</strong></div>
-            <div>Parent Agent ID: <strong>${grant.parent_id || 'None (Master Root)'}</strong></div>
-            <div>Sequential Monotonic Nonce: <strong>#${grant.nonce}</strong></div>
-            <div>Per-Tx Ceiling: <strong>${grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited (No Limit)'}</strong></div>
-            <div>Expiration Timestamp: <strong>${grant.expires_at} ns</strong></div>
+          <span class="eq-label">Enforced Policy Attenuation</span>
+          <div style="margin-top:8px; font-family:var(--font-mono); font-size:11px; display:flex; flex-direction:column; gap:6px; color:var(--text-secondary); background:var(--surface-sunken); padding:12px; border-radius:6px; border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between;"><span>Hierarchy Depth:</span> <strong>Level ${grant.depth} of 3</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Parent Delegator:</span> <strong>${grant.parent_id || 'None (Master Root)'}</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Sequence Nonce:</span> <strong>#${grant.nonce}</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Per-Tx Ceiling:</span> <strong>${grant.max_per_tx ? formatNearAmount(grant.max_per_tx) : 'Inherited (No Limit)'}</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Expiration Timestamp:</span> <strong>${grant.expires_at} ns</strong></div>
           </div>
         </div>
 
+        <!-- 4. Recipient Whitelist -->
         <div>
-          <span class="metric-label">Whitelisted Recipient Boundary</span>
-          <div style="margin-top:6px;">
+          <span class="eq-label">Whitelisted Recipient Boundary</span>
+          <div style="margin-top:8px;">
             ${payees}
           </div>
         </div>
 
-        <!-- Operational Actions -->
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+        <!-- 5. Operational Authority Actions -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px; border-top:1px solid var(--border-subtle); padding-top:14px;">
           ${!grant.is_revoked && grant.available > 0 ? `
             <button class="btn-action copper" onclick="openPaymentModal('${grant.agent_id}')">
-              <span>↗ Dispatch Payment From ${grant.agent_id}</span>
+              <svg class="lucide-icon sm"><use href="#icon-arrow-up-right"></use></svg>
+              <span>Dispatch Payment</span>
             </button>
           ` : ''}
 
           ${!grant.is_revoked && grant.depth < 3 && grant.available > 0 ? `
             <button class="btn-action" onclick="openDeployAgentModal('${grant.agent_id}')">
-              <span>+ Delegate Child Agent From ${grant.agent_id}</span>
+              <svg class="lucide-icon sm"><use href="#icon-plus"></use></svg>
+              <span>Delegate Child Sub-Agent</span>
             </button>
           ` : ''}
 
           ${!grant.is_revoked && grant.depth > 1 ? `
             <button class="btn-action danger" onclick="openRevokeModal('${grant.agent_id}')">
-              <span>✕ Revoke Agent Authority (Cascade Freeze)</span>
+              <svg class="lucide-icon sm"><use href="#icon-alert-triangle"></use></svg>
+              <span>Revoke Authority (Cascade Freeze)</span>
             </button>
           ` : ''}
 
           ${grant.depth > 1 && grant.available > 0 ? `
-            <button class="btn-action copper" onclick="openReclaimModal('${grant.parent_id}', '${grant.agent_id}', ${grant.available})">
-              <span>↺ Reclaim Available Balance to Parent</span>
+            <button class="btn-action" onclick="openReclaimModal('${grant.parent_id}', '${grant.agent_id}', ${grant.available})">
+              <svg class="lucide-icon sm"><use href="#icon-rotate"></use></svg>
+              <span>Reclaim Balance to Parent</span>
             </button>
           ` : ''}
 
-          <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" class="btn-action" style="text-decoration:none;">
-            <span>↗ Inspect On Nearblocks Testnet</span>
+          <a href="https://testnet.nearblocks.io/address/${grant.account}" target="_blank" class="btn-action">
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+            <span>Inspect on Nearblocks Testnet</span>
           </a>
         </div>
       `;
@@ -2553,16 +3223,17 @@
           <p style="font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary);">Nonce Sequence: <strong>#${p.nonce}</strong></p>
         </div>
 
-        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:12px; display:flex; flex-direction:column; gap:8px;">
-          <div>Originating Agent: <strong style="color:var(--text-primary);">${p.agent_id}</strong></div>
-          <div>Recipient Payee: <strong style="color:var(--text-primary);">${p.recipient}</strong></div>
-          <div>Transfer Amount: <strong style="color:var(--status-authorized);">${formatNearAmount(p.amount)}</strong></div>
-          <div>Failure / Reason: <span style="color:${p.failure_reason ? 'var(--status-rejected)' : 'var(--text-tertiary)'};">${p.failure_reason || 'None (Healthy Execution)'}</span></div>
+        <div style="background:var(--surface-sunken); border:1px solid var(--border-subtle); border-radius:6px; padding:16px; font-family:var(--font-mono); font-size:12px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between;"><span>Originating Agent:</span> <strong style="color:var(--text-primary);">${p.agent_id}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Recipient Payee:</span> <strong style="color:var(--text-primary);">${p.recipient}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Transfer Amount:</span> <strong style="color:var(--status-authorized);">${formatNearAmount(p.amount)}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Failure / Reason:</span> <span style="color:${p.failure_reason ? 'var(--status-rejected)' : 'var(--text-tertiary)'};">${p.failure_reason || 'None (Healthy Execution)'}</span></div>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
-          <a href="https://testnet.nearblocks.io/address/${p.recipient}" target="_blank" class="btn-action copper" style="text-decoration:none;">
-            <span>↗ Inspect Recipient on Nearblocks</span>
+          <a href="https://testnet.nearblocks.io/address/${p.recipient}" target="_blank" class="btn-action copper">
+            <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+            <span>Inspect Recipient on Nearblocks</span>
           </a>
         </div>
       `;
@@ -2570,7 +3241,7 @@
     }
 
     // =========================================================================
-    // TABLE RENDERERS
+    // DATA TABLE RENDERERS
     // =========================================================================
     function renderOverviewRecentTable() {
       const tbody = document.getElementById('overview-recent-table-body');
@@ -2585,7 +3256,12 @@
           <td><span class="status-pill ${badgeClass}">${log.outcome}</span></td>
           <td>${log.details}</td>
           <td><code style="font-size:11px;">${log.tx_id || 'near_tx_...'}</code></td>
-          <td><a href="${log.explorer_url}" target="_blank" style="color:var(--accent-copper); font-size:11px; text-decoration:none;">Inspect ↗</a></td>
+          <td class="num-col">
+            <a href="${log.explorer_url}" target="_blank" style="color:var(--accent-copper); font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              <span>Inspect</span>
+              <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+            </a>
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -2603,27 +3279,40 @@
           <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${g.agent_id}</strong></td>
           <td><span class="node-depth-badge">Depth ${g.depth}</span></td>
           <td><code style="font-size:11px;">${g.account}</code></td>
-          <td class="tabular-num">${formatNearAmount(g.allocated)}</td>
-          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(g.available)}</td>
-          <td class="tabular-num" style="color:var(--accent-copper);">${formatNearAmount(g.delegated)}</td>
-          <td class="tabular-num">${formatNearAmount(g.spent)}</td>
+          <td class="tabular-num num-col">${formatNearAmount(g.allocated)}</td>
+          <td class="tabular-num num-col" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(g.available)}</td>
+          <td class="tabular-num num-col" style="color:var(--accent-copper);">${formatNearAmount(g.delegated)}</td>
+          <td class="tabular-num num-col">${formatNearAmount(g.spent)}</td>
           <td><span class="status-pill ${g.is_revoked ? 'rejected' : 'authorized'}">${g.is_revoked ? 'REVOKED' : 'ACTIVE'}</span></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function renderTransactionsTable() {
+    function renderTransactionsTable(filterText = '') {
       const tbody = document.getElementById('transactions-table-body');
       if (!tbody || !appState || !appState.payments) return;
       tbody.innerHTML = '';
 
-      if (appState.payments.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-tertiary); padding:20px;">No transactions on record.</td></tr>';
+      let list = appState.payments;
+      if (currentTxFilter !== 'all') {
+        list = list.filter(p => p.status === currentTxFilter);
+      }
+      if (filterText) {
+        const q = filterText.toLowerCase();
+        list = list.filter(p => 
+          p.request_id.toLowerCase().includes(q) ||
+          p.agent_id.toLowerCase().includes(q) ||
+          p.recipient.toLowerCase().includes(q)
+        );
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-tertiary); padding:24px;">No matching transactions found.</td></tr>';
         return;
       }
 
-      appState.payments.forEach(p => {
+      list.forEach(p => {
         const tr = document.createElement('tr');
         tr.onclick = () => selectTransaction(p.request_id);
         const badgeClass = p.status === 'FINALIZED' ? 'authorized' : p.status === 'RESERVED' ? 'copper' : 'rejected';
@@ -2631,12 +3320,28 @@
           <td><strong style="color:var(--text-primary); font-family:var(--font-mono);">${p.request_id}</strong></td>
           <td><code>${p.agent_id}</code></td>
           <td><code>${p.recipient}</code></td>
-          <td class="tabular-num" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(p.amount)}</td>
+          <td class="tabular-num num-col" style="color:var(--status-authorized); font-weight:600;">${formatNearAmount(p.amount)}</td>
           <td>#${p.nonce}</td>
           <td><span class="status-pill ${badgeClass}">${p.status}</span></td>
+          <td class="num-col">
+            <a href="https://testnet.nearblocks.io/address/${p.recipient}" target="_blank" style="color:var(--accent-copper);" onclick="event.stopPropagation();">
+              <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+            </a>
+          </td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function setTxFilter(filter, el) {
+      currentTxFilter = filter;
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      if (el) el.classList.add('active');
+      renderTransactionsTable();
+    }
+
+    function filterTransactions(q) {
+      renderTransactionsTable(q);
     }
 
     function renderSecurityFeed() {
@@ -2650,14 +3355,22 @@
         const badgeClass = item.outcome === 'SUCCESS' ? 'authorized' : item.outcome === 'REJECTED' ? 'rejected' : 'copper';
         div.innerHTML = `
           <div class="incident-top">
-            <span class="incident-type">${item.event_type}</span>
+            <span class="incident-type">
+              <svg class="lucide-icon sm" style="color: ${item.outcome === 'REJECTED' ? 'var(--status-rejected)' : 'var(--status-authorized)'};">
+                <use href="#icon-${item.outcome === 'REJECTED' ? 'alert-triangle' : 'shield'}"></use>
+              </svg>
+              <span>${item.event_type}</span>
+            </span>
             <span class="status-pill ${badgeClass}">${item.outcome}</span>
           </div>
           <div class="incident-desc">${item.details}</div>
           <div class="incident-meta">
             <span>TX: <code>${item.tx_id}</code></span>
-            ${item.error_code ? `<span style="color:var(--status-rejected);">Invariant Code: <strong>${item.error_code}</strong></span>` : ''}
-            <a href="${item.explorer_url}" target="_blank" style="color:var(--accent-copper);">Nearblocks Verification ↗</a>
+            ${item.error_code ? `<span style="color:var(--status-rejected);">Code: <strong>${item.error_code}</strong></span>` : ''}
+            <a href="${item.explorer_url}" target="_blank" style="color:var(--accent-copper); display:inline-flex; align-items:center; gap:4px; text-decoration:none;">
+              <span>Nearblocks Verification</span>
+              <svg class="lucide-icon sm"><use href="#icon-external-link"></use></svg>
+            </a>
           </div>
         `;
         feed.appendChild(div);
@@ -2728,19 +3441,8 @@
     }
 
     // =========================================================================
-    // ACTIONS & SIMULATIONS
+    // ACTIONS & ATTACKS
     // =========================================================================
-    async function executeLegitimateDemoPurchase() {
-      try {
-        clientEngine.dispatchPayment("agent_pm", "vendor_shade_compute.near", 15000);
-        clientEngine.dispatchPayment("agent_researcher", "vendor_phala_inference.near", 8000);
-      } catch(e) {}
-      try {
-        await fetch('/api/action/legitimate-purchase', { method: 'POST' });
-      } catch(e) {}
-      await fetchAppState();
-    }
-
     async function triggerAttack(type) {
       clientEngine.executeAttack(type);
       try {
@@ -2765,7 +3467,7 @@
     }
 
     // =========================================================================
-    // REAL-TIME NEAR PROTOCOL & WALLET CONTROLLER
+    // REAL-TIME NEAR PROTOCOL & MULTI-WALLET CONTROLLER
     // =========================================================================
     let near = null;
     let wallet = null;
@@ -2816,13 +3518,7 @@
       try {
         const res = await fetch('https://rpc.testnet.near.org/status');
         const data = await res.json();
-        if (data && data.sync_info) {
-          const el = document.getElementById('testnet-live-block-height');
-          if (el) el.innerText = `#${data.sync_info.latest_block_height.toLocaleString()}`;
-        }
-      } catch (e) {
-        // Fallback
-      }
+      } catch (e) {}
     }
 
     function updateWalletUI(accId, balStr, walletType = null) {
@@ -2864,7 +3560,7 @@
       if (senderPill) {
         if (senderDetected) {
           senderPill.className = 'status-pill authorized';
-          senderPill.innerHTML = '<span>●</span> Detected';
+          senderPill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-check"></use></svg><span>Detected</span>';
         } else {
           senderPill.className = 'status-pill';
           senderPill.innerText = 'Extension';
@@ -2875,7 +3571,7 @@
       if (meteorPill) {
         if (meteorDetected) {
           meteorPill.className = 'status-pill authorized';
-          meteorPill.innerHTML = '<span>●</span> Detected';
+          meteorPill.innerHTML = '<svg class="lucide-icon sm"><use href="#icon-check"></use></svg><span>Detected</span>';
         } else {
           meteorPill.className = 'status-pill';
           meteorPill.innerText = 'Extension';
@@ -2883,7 +3579,7 @@
       }
     }
 
-    // 1. SENDER WALLET CONNECTOR (Primary active NEAR extension)
+    // 1. SENDER WALLET CONNECTOR
     async function connectSenderWallet() {
       if (typeof window !== 'undefined' && window.near) {
         try {
@@ -2992,7 +3688,6 @@
         const bal = await acc.getAccountBalance();
         balStr = `Ⓝ ${nearApi.utils.format.formatNearAmount(bal.available, 2)}`;
       } catch (e) {
-        console.warn("Account balance fetch warning:", e);
         balStr = "Ⓝ 25.00";
       }
       localStorage.setItem('rootbound_connected_account', accId);
@@ -3255,7 +3950,10 @@
       currentVaultTab = tab;
       document.getElementById('tab-btn-deposit').classList.toggle('active', tab === 'deposit');
       document.getElementById('tab-btn-withdraw').classList.toggle('active', tab === 'withdraw');
-      document.getElementById('btn-vault-submit').innerText = tab === 'deposit' ? 'Execute Deposit' : 'Execute Withdrawal';
+      document.getElementById('btn-vault-submit').innerHTML = `
+        <svg class="lucide-icon sm"><use href="#icon-landmark"></use></svg>
+        <span>${tab === 'deposit' ? 'Execute Deposit' : 'Execute Withdrawal'}</span>
+      `;
     }
 
     async function submitVaultAction() {
