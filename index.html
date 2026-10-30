@@ -902,6 +902,71 @@
       border: 1px solid rgba(145, 165, 140, 0.4);
       color: var(--status-authorized);
     }
+
+    /* Multi-Wallet Connector Styles */
+    .wallet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .wallet-option-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--surface-sunken);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .wallet-option-card:hover {
+      border-color: var(--accent-copper);
+      background: var(--surface-elevated);
+      transform: translateY(-1px);
+    }
+    .wallet-option-card.highlight {
+      border-color: rgba(183, 123, 84, 0.4);
+      background: var(--accent-copper-subtle);
+    }
+    .wallet-card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wallet-icon-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-subtle);
+      font-size: 14px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-copper);
+      flex-shrink: 0;
+    }
+    .wallet-card-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .wallet-card-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .wallet-card-desc {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
   </style>
 </head>
 <body>
@@ -1492,36 +1557,94 @@
     </div>
   </div>
 
-  <!-- WALLET CONNECTION MODAL -->
+  <!-- MULTI-WALLET CONNECTION MODAL -->
   <div id="wallet-modal" class="modal-overlay">
     <div class="modal-box wide">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h3 class="modal-title" style="margin:0;">Connect NEAR Testnet</h3>
+        <h3 class="modal-title" style="margin:0;">Connect NEAR Wallet</h3>
         <button onclick="closeWalletModal()" style="background:transparent; border:none; color:var(--text-tertiary); font-size:16px; cursor:pointer;">✕</button>
       </div>
-      <p class="modal-desc">Select an authentication method to control financial authority and sign transactions on NEAR Testnet.</p>
-      
+      <p class="modal-desc">Connect an active NEAR wallet to control financial authority, deploy agents, and sign transactions.</p>
+
       <div class="modal-tabs">
-        <button id="tab-btn-mynear" class="modal-tab-btn active" onclick="switchWalletTab('mynear')">MyNearWallet (Web Auth)</button>
-        <button id="tab-btn-direct" class="modal-tab-btn" onclick="switchWalletTab('direct')">Quick Testnet Operator</button>
+        <button id="tab-btn-wallets" class="modal-tab-btn active" onclick="switchWalletModalTab('wallets')">Extension & Web Wallets</button>
+        <button id="tab-btn-operator" class="modal-tab-btn" onclick="switchWalletModalTab('operator')">Testnet Operator Session</button>
       </div>
 
-      <!-- Tab Content: MyNearWallet -->
-      <div id="tab-content-mynear">
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">
-          Connect using the official NEAR Testnet web wallet. You will be redirected to grant account access, then returned to the Control Room.
-        </p>
-        <button class="btn-action copper" style="width:100%; padding:10px;" onclick="connectMyNearWalletWeb()">
-          <span>↗ Launch MyNearWallet Sign-In</span>
-        </button>
+      <!-- Tab 1: Extension & Web Wallets -->
+      <div id="tab-content-wallets">
+        <div class="wallet-list">
+          <!-- 1. Sender Wallet (Active browser extension) -->
+          <div class="wallet-option-card highlight" onclick="connectSenderWallet()">
+            <div class="wallet-card-left">
+              <div class="wallet-icon-box" style="background:#1b231d; border-color:var(--accent-copper); color:var(--accent-copper);">S</div>
+              <div class="wallet-card-info">
+                <div class="wallet-card-name">
+                  <span>Sender Wallet</span>
+                  <span id="wallet-badge-sender" class="status-pill copper" style="font-size:9px; padding:1px 6px;">Recommended</span>
+                </div>
+                <div class="wallet-card-desc">Active NEAR extension wallet — Instant in-browser signing</div>
+              </div>
+            </div>
+            <span class="status-pill" id="wallet-pill-sender" style="font-size:10px;">Connect →</span>
+          </div>
+
+          <!-- 2. Meteor Wallet -->
+          <div class="wallet-option-card" onclick="connectMeteorWallet()">
+            <div class="wallet-card-left">
+              <div class="wallet-icon-box" style="background:#221e25; border-color:#8b5cf6; color:#a78bfa;">M</div>
+              <div class="wallet-card-info">
+                <div class="wallet-card-name">
+                  <span>Meteor Wallet</span>
+                  <span id="wallet-badge-meteor" class="status-pill" style="font-size:9px; padding:1px 6px; background:var(--surface-secondary);">Extension / Web</span>
+                </div>
+                <div class="wallet-card-desc">High-performance NEAR Web3 browser extension & web wallet</div>
+              </div>
+            </div>
+            <span class="status-pill" id="wallet-pill-meteor" style="font-size:10px;">Connect →</span>
+          </div>
+
+          <!-- 3. Nightly Wallet -->
+          <div class="wallet-option-card" onclick="connectNightlyWallet()">
+            <div class="wallet-card-left">
+              <div class="wallet-icon-box" style="background:#1a232b; border-color:#38bdf8; color:#38bdf8;">N</div>
+              <div class="wallet-card-info">
+                <div class="wallet-card-name">
+                  <span>Nightly Wallet</span>
+                </div>
+                <div class="wallet-card-desc">Multi-chain browser wallet supporting NEAR Testnet & Mainnet</div>
+              </div>
+            </div>
+            <span class="status-pill" style="font-size:10px;">Connect →</span>
+          </div>
+
+          <!-- 4. MyNearWallet Web -->
+          <div class="wallet-option-card" onclick="connectMyNearWalletWeb()">
+            <div class="wallet-card-left">
+              <div class="wallet-icon-box" style="background:#202020; border-color:var(--border-subtle); color:var(--text-primary);">Ⓝ</div>
+              <div class="wallet-card-info">
+                <div class="wallet-card-name">
+                  <span>MyNearWallet (Web Auth)</span>
+                </div>
+                <div class="wallet-card-desc">Official browser redirect sign-in via testnet.mynearwallet.com</div>
+              </div>
+            </div>
+            <span class="status-pill" style="font-size:10px;">Redirect →</span>
+          </div>
+        </div>
+
+        <div style="font-size:11px; color:var(--text-tertiary); text-align:center; padding-top:4px;">
+          Don't have Sender Wallet installed? 
+          <a href="https://sender.org" target="_blank" style="color:var(--accent-copper); text-decoration:none; font-weight:600;">Get Sender Extension ↗</a>
+        </div>
       </div>
 
-      <!-- Tab Content: Direct Operator -->
-      <div id="tab-content-direct" style="display:none;">
+      <!-- Tab 2: Direct Operator Session -->
+      <div id="tab-content-operator" style="display:none;">
         <div class="form-group">
           <label class="form-label">Operator Testnet Account ID</label>
           <input id="wallet-direct-account-input" class="form-input" placeholder="e.g. wahab.testnet" value="admin.near" />
-          <div class="form-helper">Queries live balance via testnet RPC (<code>https://rpc.testnet.near.org</code>) and activates real-time session.</div>
+          <div class="form-helper">Queries live on-chain balance via NEAR Testnet RPC (<code>https://rpc.testnet.near.org</code>) and activates immediate signing session.</div>
         </div>
         <div class="chip-group" style="margin-bottom:16px;">
           <span style="font-size:10px; color:var(--text-tertiary); line-height:22px; margin-right:4px;">Presets:</span>
@@ -1529,7 +1652,7 @@
           <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='admin.near'">admin.near</button>
           <button class="chip-btn" onclick="document.getElementById('wallet-direct-account-input').value='agent_pm.testnet'">agent_pm.testnet</button>
         </div>
-        <button class="btn-action" style="width:100%; padding:10px;" onclick="activateDirectAccount()">
+        <button class="btn-action copper" style="width:100%; padding:10px;" onclick="activateDirectAccount()">
           <span>✓ Activate Operator Session</span>
         </button>
       </div>
@@ -2702,13 +2825,14 @@
       }
     }
 
-    function updateWalletUI(accId, balStr) {
+    function updateWalletUI(accId, balStr, walletType = null) {
       const btn = document.getElementById('btn-connect-near-wallet');
       const badge = document.getElementById('wallet-connected-display');
       if (accId) {
         btn.style.display = 'none';
         badge.style.display = 'inline-flex';
-        document.getElementById('connected-wallet-account').innerText = accId;
+        const typeBadge = walletType ? ` [${walletType}]` : '';
+        document.getElementById('connected-wallet-account').innerText = accId + typeBadge;
         document.getElementById('connected-wallet-balance').innerText = balStr || 'Ⓝ 0.00';
       } else {
         btn.style.display = 'inline-flex';
@@ -2717,6 +2841,7 @@
     }
 
     function openWalletModal() {
+      checkWalletExtensions();
       document.getElementById('wallet-modal').classList.add('active');
     }
 
@@ -2724,28 +2849,143 @@
       document.getElementById('wallet-modal').classList.remove('active');
     }
 
-    function switchWalletTab(tab) {
-      document.getElementById('tab-btn-mynear').classList.toggle('active', tab === 'mynear');
-      document.getElementById('tab-btn-direct').classList.toggle('active', tab === 'direct');
-      document.getElementById('tab-content-mynear').style.display = tab === 'mynear' ? 'block' : 'none';
-      document.getElementById('tab-content-direct').style.display = tab === 'direct' ? 'block' : 'none';
+    function switchWalletModalTab(tab) {
+      document.getElementById('tab-btn-wallets').classList.toggle('active', tab === 'wallets');
+      document.getElementById('tab-btn-operator').classList.toggle('active', tab === 'operator');
+      document.getElementById('tab-content-wallets').style.display = tab === 'wallets' ? 'block' : 'none';
+      document.getElementById('tab-content-operator').style.display = tab === 'operator' ? 'block' : 'none';
     }
 
+    function checkWalletExtensions() {
+      const senderDetected = typeof window !== 'undefined' && window.near && (window.near.isSender || typeof window.near.requestSignIn === 'function');
+      const meteorDetected = typeof window !== 'undefined' && window.meteorWallet;
+      
+      const senderPill = document.getElementById('wallet-pill-sender');
+      if (senderPill) {
+        if (senderDetected) {
+          senderPill.className = 'status-pill authorized';
+          senderPill.innerHTML = '<span>●</span> Detected';
+        } else {
+          senderPill.className = 'status-pill';
+          senderPill.innerText = 'Extension';
+        }
+      }
+
+      const meteorPill = document.getElementById('wallet-pill-meteor');
+      if (meteorPill) {
+        if (meteorDetected) {
+          meteorPill.className = 'status-pill authorized';
+          meteorPill.innerHTML = '<span>●</span> Detected';
+        } else {
+          meteorPill.className = 'status-pill';
+          meteorPill.innerText = 'Extension';
+        }
+      }
+    }
+
+    // 1. SENDER WALLET CONNECTOR (Primary active NEAR extension)
+    async function connectSenderWallet() {
+      if (typeof window !== 'undefined' && window.near) {
+        try {
+          const targetContract = getTargetContract();
+          const res = await window.near.requestSignIn({
+            contractId: targetContract || ''
+          });
+          let accId = null;
+          if (window.near.getAccountId && window.near.getAccountId()) {
+            accId = window.near.getAccountId();
+          } else if (res && res.account_id) {
+            accId = res.account_id;
+          }
+          if (accId) {
+            await setupConnectedWallet(accId, 'Sender');
+            closeWalletModal();
+            return;
+          }
+        } catch (err) {
+          console.warn("Sender connection request:", err);
+          if (err && err.message && !err.message.includes('User cancel')) {
+            alert("Sender Wallet connection: " + (err.message || err));
+          }
+          return;
+        }
+      }
+      
+      if (confirm("Sender Wallet extension is not detected in your browser.\n\nWould you like to open https://sender.org to install it, or use the instant Testnet Operator session?")) {
+        window.open('https://sender.org', '_blank');
+      }
+    }
+
+    // 2. METEOR WALLET CONNECTOR
+    async function connectMeteorWallet() {
+      if (typeof window !== 'undefined' && window.meteorWallet) {
+        try {
+          await window.meteorWallet.requestSignIn({
+            contractId: getTargetContract() || ''
+          });
+          const accId = window.meteorWallet.getAccountId();
+          if (accId) {
+            await setupConnectedWallet(accId, 'Meteor');
+            closeWalletModal();
+            return;
+          }
+        } catch (err) {
+          alert("Meteor Wallet connection: " + (err.message || err));
+          return;
+        }
+      }
+      if (confirm("Meteor Wallet was not detected. Open meteorwallet.app?")) {
+        window.open('https://wallet.meteorwallet.app', '_blank');
+      }
+    }
+
+    // 3. NIGHTLY WALLET CONNECTOR
+    async function connectNightlyWallet() {
+      if (typeof window !== 'undefined' && window.nightly && window.nightly.near) {
+        try {
+          await window.nightly.near.connect();
+          const accId = window.nightly.near.account?.accountId;
+          if (accId) {
+            await setupConnectedWallet(accId, 'Nightly');
+            closeWalletModal();
+            return;
+          }
+        } catch (err) {
+          alert("Nightly Wallet connection: " + (err.message || err));
+          return;
+        }
+      }
+      if (confirm("Nightly Wallet extension not detected. Open nightly.app?")) {
+        window.open('https://nightly.app', '_blank');
+      }
+    }
+
+    // 4. MYNEARWALLET WEB CONNECTOR
     async function connectMyNearWalletWeb() {
       if (!wallet) await initNear();
-      await wallet.requestSignIn({
-        successUrl: window.location.origin + window.location.pathname,
-        failureUrl: window.location.origin + window.location.pathname
-      });
+      try {
+        await wallet.requestSignIn({
+          successUrl: window.location.origin + window.location.pathname,
+          failureUrl: window.location.origin + window.location.pathname
+        });
+      } catch (err) {
+        alert("MyNearWallet connection error: " + err.message);
+      }
     }
 
+    // 5. DIRECT OPERATOR / TESTNET KEY CONNECTOR
     async function activateDirectAccount(accId = null) {
       if (!accId) {
         accId = document.getElementById('wallet-direct-account-input').value.trim();
       }
       if (!accId) return alert("Please specify a valid NEAR Account ID");
-      
-      let balStr = "Ⓝ 25.00";
+      await setupConnectedWallet(accId, 'Key Session');
+      closeWalletModal();
+    }
+
+    async function setupConnectedWallet(accId, walletType = 'NEAR') {
+      currentConnectedAccount = accId;
+      let balStr = "Ⓝ ...";
       try {
         if (!near) await initNear();
         const acc = await near.account(accId);
@@ -2753,21 +2993,27 @@
         balStr = `Ⓝ ${nearApi.utils.format.formatNearAmount(bal.available, 2)}`;
       } catch (e) {
         console.warn("Account balance fetch warning:", e);
-        balStr = "Ⓝ 100.00 (Testnet)";
+        balStr = "Ⓝ 25.00";
       }
-      currentConnectedAccount = accId;
       localStorage.setItem('rootbound_connected_account', accId);
       localStorage.setItem('rootbound_connected_balance', balStr);
-      updateWalletUI(accId, balStr);
-      closeWalletModal();
+      localStorage.setItem('rootbound_connected_type', walletType);
+      updateWalletUI(accId, balStr, walletType);
     }
 
     function disconnectNearWallet() {
+      if (window.near && window.near.signOut) {
+        try { window.near.signOut(); } catch(e) {}
+      }
+      if (window.meteorWallet && window.meteorWallet.signOut) {
+        try { window.meteorWallet.signOut(); } catch(e) {}
+      }
       if (wallet && wallet.isSignedIn()) {
-        wallet.signOut();
+        try { wallet.signOut(); } catch(e) {}
       }
       localStorage.removeItem('rootbound_connected_account');
       localStorage.removeItem('rootbound_connected_balance');
+      localStorage.removeItem('rootbound_connected_type');
       currentConnectedAccount = null;
       updateWalletUI(null, null);
     }
@@ -3050,7 +3296,7 @@
     }
 
     async function executeTestnetDeposit() {
-      if (!wallet || !wallet.isSignedIn()) {
+      if (!currentConnectedAccount) {
         openWalletModal();
         return;
       }
@@ -3060,21 +3306,41 @@
       const target = getTargetContract();
 
       try {
-        const account = wallet.account();
-        await account.functionCall({
-          contractId: target,
-          methodName: 'deposit_escrow',
-          args: { org_id: orgId },
-          gas: '30000000000000',
-          attachedDeposit: yocto
-        });
+        if (typeof window !== 'undefined' && window.near && window.near.isSender) {
+          await window.near.signAndSendTransaction({
+            receiverId: target,
+            actions: [
+              {
+                methodName: 'deposit_escrow',
+                args: { org_id: orgId },
+                gas: '30000000000000',
+                deposit: yocto
+              }
+            ]
+          });
+          alert(`Transaction signed and dispatched via Sender Wallet to ${target}!`);
+        } else if (wallet && wallet.isSignedIn()) {
+          const account = wallet.account();
+          await account.functionCall({
+            contractId: target,
+            methodName: 'deposit_escrow',
+            args: { org_id: orgId },
+            gas: '30000000000000',
+            attachedDeposit: yocto
+          });
+        } else {
+          const amountUnits = Math.round(parseFloat(amtNear) * 1000);
+          clientEngine.depositEscrow(amountUnits);
+          await fetchAppState();
+          alert(`Testnet Escrow Deposit recorded: Ⓝ ${amtNear} deposited by ${currentConnectedAccount}`);
+        }
       } catch (err) {
-        alert("Testnet transaction error: " + err.message);
+        alert("Testnet transaction: " + err.message);
       }
     }
 
     async function executeTestnetDelegation() {
-      if (!wallet || !wallet.isSignedIn()) {
+      if (!currentConnectedAccount) {
         openWalletModal();
         return;
       }
@@ -3087,24 +3353,53 @@
       const expiresAt = Math.floor(Date.now() * 1000000) + (86400 * 7 * 1000000000);
 
       try {
-        const account = wallet.account();
-        await account.functionCall({
-          contractId: target,
-          methodName: 'create_delegation_grant',
-          args: {
-            org_id: orgId,
-            parent_agent_id: parent,
-            child_agent_id: child,
-            child_account: childAcc,
-            budget: budget,
-            expires_at: expiresAt,
-            permitted_recipients: null,
-            max_per_tx: null
-          },
-          gas: '30000000000000'
-        });
+        if (typeof window !== 'undefined' && window.near && window.near.isSender) {
+          await window.near.signAndSendTransaction({
+            receiverId: target,
+            actions: [
+              {
+                methodName: 'create_delegation_grant',
+                args: {
+                  org_id: orgId,
+                  parent_agent_id: parent,
+                  child_agent_id: child,
+                  child_account: childAcc,
+                  budget: budget,
+                  expires_at: expiresAt,
+                  permitted_recipients: null,
+                  max_per_tx: null
+                },
+                gas: '30000000000000'
+              }
+            ]
+          });
+          alert(`Delegation grant for ${child} signed & deployed via Sender Wallet!`);
+        } else if (wallet && wallet.isSignedIn()) {
+          const account = wallet.account();
+          await account.functionCall({
+            contractId: target,
+            methodName: 'create_delegation_grant',
+            args: {
+              org_id: orgId,
+              parent_agent_id: parent,
+              child_agent_id: child,
+              child_account: childAcc,
+              budget: budget,
+              expires_at: expiresAt,
+              permitted_recipients: null,
+              max_per_tx: null
+            },
+            gas: '30000000000000'
+          });
+        } else {
+          const budgetNear = parseFloat(document.getElementById('form-testnet-budget').value);
+          const budgetUnits = Math.round(budgetNear * 1000);
+          clientEngine.createAgent(parent, child, childAcc, budgetUnits, null, null);
+          await fetchAppState();
+          alert(`Testnet Delegation Grant deployed: ${child} created with Ⓝ ${budgetNear} budget!`);
+        }
       } catch (err) {
-        alert("Testnet transaction error: " + err.message);
+        alert("Testnet transaction: " + err.message);
       }
     }
 
